@@ -1,0 +1,32 @@
+{
+  "name": "emo-g",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server",
+    "client": "npm run dev --prefix ../client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/centurian1/emo-g.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/centurian1/emo-g/issues"
+  },
+  "homepage": "https://gitlab.com/centurian1/emo-g#readme",
+  "dependencies": {
+    "@types/node": "^16.9.1",
+    "@types/socket.io": "^3.0.2",
+    "colors": "^1.4.0",
+    "concurrently": "^6.2.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.12",
+    "socket.io": "^4.2.0"
+  }
+}
