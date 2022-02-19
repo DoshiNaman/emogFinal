@@ -7,6 +7,7 @@ import {SocketContext} from '../../context/socket/SocketContext'
 import TeamPlayers from "../../components/TeamPlayers";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
+import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 // import styles from "../css/hostScreen.module.css"
 
 const manual = () => {
@@ -19,13 +20,58 @@ const manual = () => {
     const [players, setPlayers] = useState([])
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState(1)
+    
+    
+    useEffect(() => {
+        const gameId = localStorage.getItem('game-code');
+        setGameCode(gameId);
+    }, []);
 
-    const clickHandler = () => {
-        socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
-        socket.on('scene-page', () => router.push('/scene'))
-    }
 
     useEffect(() => {
+        if (!gameCode || gameCode === 0) {
+            return
+        }
+        const db = getDatabase();
+        const totalNumber = ref(db, `${gameCode}/userDetails/noOfPlayer`);
+        onValue(totalNumber, (snapshot) => {
+            const data = snapshot.val();
+            setNumberOfPlayers(data)
+        });
+    }, [gameCode]);
+
+    useEffect(() => {
+        if (!gameCode || gameCode === 0) {
+            return
+        }
+        const db = getDatabase();
+        const usersRef = ref(db, `${gameCode}/userDetails`);
+        onValue(usersRef, (snapshot) => {
+            const usersObj = snapshot.val();
+            const usersInfo = Object.keys(snapshot.val());
+            let playerArr = [], obj = {}
+            for (let i = 0; i < (usersInfo.length); i++) {
+                if (usersInfo[i] !== "noOfPlayer")
+                {
+                    obj = {
+                        name: usersInfo[i],
+                        avatar: usersObj[usersInfo[i]].avatar
+                    }
+                    playerArr.push(obj)
+                }
+                // console.log(persons[usersInfo[i]].avatar)
+            }
+            setPlayers(playerArr)
+        });
+    }, [gameCode]);
+
+
+    const clickHandler = () => {
+        // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
+        // socket.on('scene-page', () => router.push('/scene'))
+    }
+
+    /* useEffect(() => {
         socket.emit('manual-division', sessionStorage.getItem('game-code'))
         socket.on('players', players => {
             setNumberOfPlayers(players.length)
@@ -41,7 +87,7 @@ const manual = () => {
         setGameCode(sessionStorage.getItem('game-code'))
         //get players and gamecode
         
-    }, [socket])
+    }, [socket]) */
 
     const activeButton = (active) => {
         setActiveTeam(active)

@@ -11,10 +11,15 @@ const TeamComponent = ({teams, activeIcon, player, playersWithoutTeams, activeTe
 
     const [menu, setMenu] = useState(undefined)
 
-    useEffect(() => {
+    /* useEffect(() => {
         socket.emit('get-players-no-teams', sessionStorage.getItem('game-code'))
         socket.on('players-without-teams' , players => setPlayers(players))
-    }, [socket])
+    }, [socket]) */
+    useEffect(()=>{
+        const GameId = localStorage.getItem('game-code');
+        setGameCode(gameId)
+    },[gameCode]);
+
 
     useEffect(() => {
         document.addEventListener("contextmenu", function(event){event.preventDefault()})
@@ -34,7 +39,7 @@ const TeamComponent = ({teams, activeIcon, player, playersWithoutTeams, activeTe
     }, [teams])
 
     const createNewTeam = () => {
-        socket.emit('create-team', sessionStorage.getItem('game-code'))
+        // socket.emit('create-team', sessionStorage.getItem('game-code'))
     }
 
     return (
