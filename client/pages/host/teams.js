@@ -135,13 +135,13 @@ const teams = () => {
             const db = getDatabase();
             const usersRef = ref(db, `${gameCode}/users/`);
             const updates = {};
-            router.push('/host/manual');
             for(let i=0;i<totalTeam;i++){
                 let teamArr = [];
                 updates[`/${gameCode}/teamDetails/team${i+1}/teamPlayers`] = teamArr;
             }
             console.log(updates);
             update(ref(db), updates)
+            router.push('/host/manual');
         }
         else if(mode === 'choice'){
             router.push('/host/choice')
