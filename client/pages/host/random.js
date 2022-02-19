@@ -31,6 +31,7 @@ const random = () => {
         const db=getDatabase();
         const users=ref(db, `${gameCode}/users`);
         onValue(users, (snapshot) => {
+            
             if(snapshot.exists()){
                 const avtars=snapshot.val()
                 console.log(avtars);
@@ -40,24 +41,31 @@ const random = () => {
                 onValue(teamsRef, (snapshot) => {
                     const teamsObj = snapshot.val();
                     const usersInfo = Object.keys(teamsObj);
+
+                    let team = []
+
                     for(let i=0;i<usersInfo.length;i++){    
                         let teamName = usersInfo[i]
                         console.log(teamName)
                         let teamMembers = []
                         for(let j=0;j<teamsObj[usersInfo[i]].teamPlayers.length;j++){
                             //console.log(teamsObj[usersInfo[i]].teamPlayers[j])
+                            if(teamsObj[usersInfo[i]].teamPlayers[j]==0){
+                                //alert("Zero")
+                                //return
+                            }
                             let obj = {
                                 name: teamsObj[usersInfo[i]].teamPlayers[j],
                                 avatar: avtars[teamsObj[usersInfo[i]].teamPlayers[j]]
                             }
-                            console.log(obj)
+                            //console.log(obj)
                             teamMembers.push(obj)
                         }
-                        let team = { teamName, teamMembers }
-                        teams.push(team)
+                        team.push({ teamName, teamMembers })
                     }
-                    
-                    setTeams(teams) 
+                    console.log(team)
+
+                    setTeams(team)
                 });
             }
             else{

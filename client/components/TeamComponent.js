@@ -1,31 +1,75 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { SocketContext } from '../context/socket/SocketContext';
 import PlayerComponent from './Host/PlayerComponent';
+import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const TeamComponent = ({teams, activeIcon, player, playersWithoutTeams, activeTeam, playerName}) => {
     console.log(playersWithoutTeams);
     const [display, setDisplay] = useState("teams")    
-    const [players, setPlayers] = useState(playersWithoutTeams)
+    const [players, setPlayers] = useState([])
     const [myTeam, setMyTeam] = useState()
     const socket = useContext(SocketContext)
+    const [gameCode, setGameCode] = useState("")
 
     const [menu, setMenu] = useState(undefined)
 
-    /* useEffect(() => {
+     /*useEffect(() => {
         socket.emit('get-players-no-teams', sessionStorage.getItem('game-code'))
         socket.on('players-without-teams' , players => setPlayers(players))
-    }, [socket]) */
-    useEffect(()=>{
-        const GameId = localStorage.getItem('game-code');
-        setGameCode(gameId)
+    }, [socket])*/
+    useEffect(() => {
+        const gameId = localStorage.getItem('game-code');
+        setGameCode(gameId);
+        //playerArr.push("NAMAN")
+        //setPlayers(["NAMNA","ENAN"])
+        
+    }, []); 
+
+    useEffect(() => {
+        if (!gameCode || gameCode === 0) {
+            return
+        }
+        const db = getDatabase();
+        const usersRef = ref(db, `${gameCode}/users`);
+        onValue(usersRef, (snapshot) => {
+            const usersInfo = Object.keys(snapshot.val());
+            setPlayers(usersInfo);
+        });
+        
     },[gameCode]);
 
+    
+
+    /*useEffect(() => {
+        if (!gameCode || gameCode === 0) {
+            return
+        }
+        const db = getDatabase();
+        const usersRef = ref(db, `${gameCode}/userDetails`);
+        onValue(usersRef, (snapshot) => {
+            const usersObj = snapshot.val();
+            const usersInfo = Object.keys(snapshot.val());
+            let playerArr = [], obj = {}
+            for (let i = 0; i < (usersInfo.length); i++) {
+                if (usersInfo[i] !== "noOfPlayer")
+                {
+                    obj = {
+                        name: "Naman",
+                        avatar: "https://i.imgur.com/hYZIEEV.png"
+                    }
+                    playerArr.push(obj)
+                }
+                // console.log(persons[usersInfo[i]].avatar)
+            }
+            setPlayers(playerArr)
+        });
+    }, [gameCode]); */
 
     useEffect(() => {
         document.addEventListener("contextmenu", function(event){event.preventDefault()})
     },[])
 
-    useEffect(() => {
+   /*  useEffect(() => {
         teams.forEach((team) => {
             if(team?.teamMembers?.length>0){
                 team.teamMembers.forEach((member) => {
@@ -36,7 +80,7 @@ const TeamComponent = ({teams, activeIcon, player, playersWithoutTeams, activeTe
                 })
             }
         })
-    }, [teams])
+    }, [teams]) */
 
     const createNewTeam = () => {
         // socket.emit('create-team', sessionStorage.getItem('game-code'))

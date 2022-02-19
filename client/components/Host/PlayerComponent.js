@@ -1,8 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react'
 import {SocketContext} from '../../context/socket/SocketContext'
+import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
+import useAuth from "../../hooks/useAuth"
 
 const PlayerComponent = ({players, width, largeWidth, teams, player}) => {
     const socket = useContext(SocketContext)
+    const {playersNO, setPlayersNO ,totalUsers, setTotalUsers} = useAuth();
+    const [gameCode, setGameCode] = useState("")
+    const [allUsers, setAllUsers] = useState([])
+//    const [allTeams, setAllTeams] = useState([])
     const [menu, setMenu] = useState()
     const [moveTeams, setMoveTeams] = useState(false)
 
@@ -13,18 +19,62 @@ const PlayerComponent = ({players, width, largeWidth, teams, player}) => {
         setSliderPlayers(window.innerWidth>=1400?10:window.innerWidth>=1200?8:6)
     }, [])
 
+    useEffect(() => {
+        const gameId = localStorage.getItem('game-code');
+        setGameCode(gameId);
+        //alert(`${playersNO} playersperTeam`)
+    }, []);
+
+    useEffect(() => {
+        if (!gameCode || gameCode === 0) {
+            return
+        }
+        const db=getDatabase();
+        const users=ref(db, `${gameCode}/users`);
+        onValue(users, (snapshot) => {
+            const allData = Object.keys(snapshot.val())
+            setAllUsers([...allData])
+        });
+    },[gameCode]);
+
+
     const clickHandler = (team) => {
+        const ttUser=[...totalUsers]
         const player = menu.player
         setMenu(false)
-        const gameCode = sessionStorage.getItem('game-code')
-        socket.emit('change-team', {team, player, gameCode})
-        socket.on('err', ({message}) => alert(message))
+        const db=getDatabase();
+        const teamsRef = ref(db, `${gameCode}/teamDetails`);
+        let updates = {};
+        onValue(teamsRef, (snapshot) => {
+            const teamsObj = snapshot.val();
+            //maxplayers cond
+            let newI=teamsObj[`${team}`].teamPlayers.length
+            if(parseInt(newI)===parseInt(playersNO)){
+                alert('This Team already has maximum number of players!');
+                //return
+            }
+            else if(teamsObj[`${team}`].teamPlayers[0]===0){
+                //alert("Zero POS")
+                updates[`/${gameCode}/teamDetails/${team}/teamPlayers/0`] = `${player["name"]}`;
+                ttUser.push(`${player["name"]}`)
+            }
+            else{
+                updates[`/${gameCode}/teamDetails/${team}/teamPlayers/${newI}`] = `${player["name"]}`;
+                ttUser.push(`${player["name"]}`)
+            }
+            setTotalUsers([...ttUser])
+        },{
+            onlyOnce:true
+        });
+        update(ref(db), updates)
+        //socket.emit('change-team', {team, player, gameCode})
+        //socket.on('err', ({message}) => alert(message))
     }
 
     const removePlayer = () => {
         const gameCode = sessionStorage.getItem('game-code')
         const playerName = menu.player.name
-        socket.emit('remove-player', {gameCode, playerName})
+        //socket.emit('remove-player', {gameCode, playerName})
     }
     
     let compWidth

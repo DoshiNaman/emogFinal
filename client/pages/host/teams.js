@@ -6,6 +6,7 @@ import PlayerComponent from "../../components/Host/PlayerComponent";
 import {SocketContext} from '../../context/socket/SocketContext'
 import Button from '../../components/Button'
 import EndGame from "../../components/endGame"
+import useAuth from "../../hooks/useAuth"
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 function getRandomInt(min, max) {
@@ -15,7 +16,7 @@ function getRandomInt(min, max) {
 }
 
 const teams = () => {
-
+    const {playersNO, setPlayersNO} = useAuth();
     const router = useRouter()
     const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
@@ -91,6 +92,7 @@ const teams = () => {
 
 
     const continueGame = () => {
+        setPlayersNO(playersPerTeam)
         /* socket.emit('max-players', {gameCode, playersPerTeam})
         socket.emit('mode', {gameCode, mode}) */
         if(mode === 'random')
@@ -131,12 +133,13 @@ const teams = () => {
             router.push('/host/random')
         }
         else if(mode === 'manual'){
+
             let totalTeam=Math.ceil(numberOfPlayers/playersPerTeam);
             const db = getDatabase();
             const usersRef = ref(db, `${gameCode}/users/`);
             const updates = {};
             for(let i=0;i<totalTeam;i++){
-                let teamArr = [];
+                let teamArr = [0];
                 updates[`/${gameCode}/teamDetails/team${i+1}/teamPlayers`] = teamArr;
             }
             console.log(updates);

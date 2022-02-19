@@ -1,11 +1,16 @@
-import React from 'react';
+import React,{useState} from 'react';
 import initializeAuthentication from '../firebase/firebase.init';
 
 const useFirebase = () => {
     initializeAuthentication()
-    const name = 'enan from emo-g';
+    const [playersNO, setPlayersNO] = useState(0)
+    const [totalUsers, setTotalUsers] = useState([])
+    const [lobbyUsers, setLobbyUsers] = useState([])
 
-    return {name};
+
+
+
+    return {playersNO, setPlayersNO,totalUsers, setTotalUsers};
 };
 
 export default useFirebase;
