@@ -44,29 +44,23 @@ const Join = () => {
                         if (snapshot.exists())
                             alert("username already taken");
                         else {
-                            // alert("joined successfully");
+                            const playerAvatar = colors[Math.floor(Math.random() * colors.length)]
                             const userData = {
                                 isConnected: true,
-                                avatar: colors[Math.floor(Math.random() * colors.length)]
+                                avatar: playerAvatar
                             }
                             console.log(userData.avatar);
                             const userCount = userDetails.noOfPlayer
                             const updates = {};
                             updates[`/${code}/userDetails/${playerName}`] = userData;
                             updates[`/${code}/userDetails/noOfPlayer`] = userCount + 1
-                            /* let usersArr=[]
-                            if(users!==undefined){
-                               usersArr=users
-                            }           
-                            usersArr.push(playerName) */
-                            updates[`/${code}/users/${playerName}`] = "https://i.imgur.com/hYZIEEV.png"
-                            update(ref(db), updates);                 
+                            updates[`/${code}/inLobbyPlayers/${playerName}`] = playerAvatar
+
+                            update(ref(db), updates);
                             window.localStorage.setItem("game-code", code)
                             window.localStorage.setItem("player-name", playerName)
                             router.push('/player/avatar')
-                            // const newUserRef = push(child(roomRef, 'userDetails')).key;
-                            // const updates = {};
-                            // updates[code + '/userDetails/' + newUserRef] = name;
+
                         }
                     })
                 }

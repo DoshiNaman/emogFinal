@@ -50,10 +50,10 @@ const avatar = () => {
                     if (usersInfo[i] == "noOfPlayer")
                         setNumberOfPlayers(usersObj[usersInfo[i]])
                     else {
-                        if (usersInfo[i] == playerName){
+                        if (usersInfo[i] == playerName) {
                             setAvatar(usersObj[usersInfo[i]].avatar)
                             const updates = {};
-                            updates[`/${gameCode}/users/${playerName}`] = usersObj[usersInfo[i]].avatar
+                            updates[`/${gameCode}/inLobbyPlayers/${playerName}`] = usersObj[usersInfo[i]].avatar
                             update(ref(db), updates)
                         }
                         obj = {
@@ -83,7 +83,7 @@ const avatar = () => {
     const saveAvatar = () => {
         const updates = {};
         updates[`/${gameCode}/userDetails/${playerName}/avatar`] = avatar
-        updates[`/${gameCode}/users/${playerName}`] = avatar
+        updates[`/${gameCode}/inLobbyPlayers/${playerName}`] = avatar
         update(ref(db), updates)
 
         // const playerName = sessionStorage.getItem('player-name')

@@ -21,6 +21,7 @@ const Host = () => {
         localStorage.setItem('game-code', roomId);
         set(ref(db, `/${roomId}`), {
             "isActive": 0,
+            "isChoice": 0,
             "userDetails": {
                 "noOfPlayer": 0
             },
@@ -38,8 +39,7 @@ const Host = () => {
                     "incorrectGuess": 0
                 },
             },
-            "teamDetails" : [],
-            "users" : [],
+            "teamDetails": [],
             "scenes": [
                 {
                     "id": 0
