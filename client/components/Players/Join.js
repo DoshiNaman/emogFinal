@@ -15,23 +15,10 @@ const Join = () => {
     const colors = ["https://i.imgur.com/Lh9JoJn.png", "https://i.imgur.com/9nKWnVE.png", "https://i.imgur.com/hYZIEEV.png", "https://i.imgur.com/02wPaiQ.png", "https://i.imgur.com/h1fCyBi.png", "https://i.imgur.com/SkvFWSY.png", "https://i.imgur.com/LptRaIW.png", "https://i.imgur.com/0EkGcud.png", "https://i.imgur.com/8pfgcFz.png"]
 
     const clickHandler = () => {
+        if (name === "" || code === "")
+            return
 
         const roomRef = ref(db, code);
-        // onValue(roomRef, (snapshot) => {
-        //     if (snapshot.exists()) {
-        //         alert("found room")
-        //         const { isActive, userDetails } = snapshot.val()
-        //         // const isActiveRef = roomRef.child("isActive")
-        //         if (isActive === 0) {
-        //             // console.log("joined successfully");
-
-        //         }
-        //         else
-        //             console.log("not joined successfully");
-        //     } else {
-        //         alert("room not found")
-        //     }
-        // })
         get(roomRef).then((snapshot) => {
             if (snapshot.exists()) {
                 console.log("found room")

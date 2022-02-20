@@ -3,7 +3,7 @@ import { SocketContext } from '../../context/socket/SocketContext'
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 import useAuth from "../../hooks/useAuth"
 
-const PlayerComponent = ({ players, width, largeWidth, teams, player }) => {
+const PlayerComponent = ({ players, width, largeWidth, allTeams, player }) => {
     const socket = useContext(SocketContext)
     const { playersNO, setPlayersNO, totalUsers, setTotalUsers } = useAuth();
     const [gameCode, setGameCode] = useState("")
@@ -32,8 +32,10 @@ const PlayerComponent = ({ players, width, largeWidth, teams, player }) => {
         const db = getDatabase();
         const users = ref(db, `${gameCode}/inLobbyPlayers`);
         onValue(users, (snapshot) => {
-            const allData = Object.keys(snapshot.val())
-            setAllUsers([...allData])
+            if (snapshot.exists()) {
+                const allData = Object.keys(snapshot.val())
+                setAllUsers([...allData])
+            }
         });
     }, [gameCode]);
 
@@ -106,7 +108,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, player }) => {
                                     <div className="ebaBg px-2 border-2 whiteText border-white " onClick={() => removePlayer()}>Remove</div>
                                 </div>
                                 {moveTeams ? <div className="scl cursor-pointer max-h-32 overflow-y-auto">
-                                    {teams ? teams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClickCapture={() => { setMoveTeams(false); clickHandler(team.teamName) }} key={index} >Team {team.teamName}</div>) : <></>}
+                                    {allTeams ? allTeams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClickCapture={() => { setMoveTeams(false); clickHandler(team.teamName) }} key={index} >Team {team.teamName}</div>) : <></>}
                                 </div> : <></>}
                             </div>
                         </div> : <></>}

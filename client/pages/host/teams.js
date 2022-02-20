@@ -118,9 +118,9 @@ const teams = () => {
                         k++
                     }
                 }
-                teamObj.totalScore = 0;
-                teamObj.currentRound = 0
-                updates[`/${gameCode}/teamDetails/team${i + 1}`] = teamObj;
+                // teamObj.totalScore = 0;
+                // teamObj.currentRound = 0
+                updates[`/${gameCode}/teamDetails/${i + 1}`] = teamObj;
             }
             updates[`/${gameCode}/teamJoinedPlayers`] = teamJoined;
             updates[`/${gameCode}/inLobbyPlayers`] = lobbyPlayers;
@@ -178,7 +178,7 @@ const teams = () => {
             const updates = {};
             for (let i = 0; i < totalTeam; i++) {
                 let teamArr = [0];
-                updates[`/${gameCode}/teamDetails/team${i + 1}/teamPlayers`] = teamArr;
+                updates[`/${gameCode}/teamDetails/${i + 1}/teamPlayers`] = teamArr;
             }
             console.log(updates);
             update(ref(db), updates)

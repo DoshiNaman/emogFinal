@@ -17,76 +17,31 @@ const random = () => {
     const [gameCode, setGameCode] = useState("")
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState(1)
-    const [players, setPlayers] = useState([])
+    const [playersInLobby, setPlayersInLobby] = useState([])
+    const [playerName, setPlayerName] = useState("")
+    const [isPlayer, setIsPlayer] = useState(false)
+    const db = getDatabase();
 
     useEffect(() => {
         const gameId = localStorage.getItem('game-code');
         setGameCode(gameId);
+        const name = localStorage.getItem('player-name');
+        if (name !== undefined) {
+            setPlayerName(name)
+            // setIsPlayer(true)
+        }
     }, []);
 
     useEffect(() => {
-        if (!gameCode || gameCode === 0) {
+        if (!gameCode) {
             return
         }
-        const db=getDatabase();
-        const users=ref(db, `${gameCode}/users`);
-        onValue(users, (snapshot) => {
-            
-            if(snapshot.exists()){
-                const avtars=snapshot.val()
-                console.log(avtars);
-                const teams=[] 
-                const teamsRef = ref(db, `${gameCode}/teamDetails`);
-                let teamsArr = []
-                onValue(teamsRef, (snapshot) => {
-                    const teamsObj = snapshot.val();
-                    const usersInfo = Object.keys(teamsObj);
-
-                    let team = []
-
-                    for(let i=0;i<usersInfo.length;i++){    
-                        let teamName = usersInfo[i]
-                        console.log(teamName)
-                        let teamMembers = []
-                        for(let j=0;j<teamsObj[usersInfo[i]].teamPlayers.length;j++){
-                            //console.log(teamsObj[usersInfo[i]].teamPlayers[j])
-                            if(teamsObj[usersInfo[i]].teamPlayers[j]==0){
-                                //alert("Zero")
-                                //return
-                            }
-                            let obj = {
-                                name: teamsObj[usersInfo[i]].teamPlayers[j],
-                                avatar: avtars[teamsObj[usersInfo[i]].teamPlayers[j]]
-                            }
-                            //console.log(obj)
-                            teamMembers.push(obj)
-                        }
-                        team.push({ teamName, teamMembers })
-                    }
-                    console.log(team)
-
-                    setTeams(team)
-                });
-            }
-            else{
-                alert("NOT WORK")
-            }
-            //const nameUsers = Object.keys(snapshot.val());
-        });
-        
-    }, [gameCode]);
-    
-
-
-    useEffect(() => {
-        if (!gameCode || gameCode === 0) {
-            return
-        }
-        const db = getDatabase();
         const totalNumber = ref(db, `${gameCode}/userDetails/noOfPlayer`);
         onValue(totalNumber, (snapshot) => {
-            const data = snapshot.val();
-            setNumberOfPlayers(data)
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                setNumberOfPlayers(data)
+            }
         });
     }, [gameCode]);
 
@@ -94,86 +49,111 @@ const random = () => {
         if (!gameCode || gameCode === 0) {
             return
         }
-        const db = getDatabase();
-        const usersRef = ref(db, `${gameCode}/userDetails`);
-        onValue(usersRef, (snapshot) => {
-            const usersObj = snapshot.val();
-            const usersInfo = Object.keys(snapshot.val());
-            let playerArr = [], obj = {}
-            for (let i = 0; i < (usersInfo.length); i++) {
-                if (usersInfo[i] !== "noOfPlayer")
-                {
-                    obj = {
-                        name: usersInfo[i],
-                        avatar: usersObj[usersInfo[i]].avatar
+        // const users = ref(db, `${gameCode}/users`);
+        // onValue(users, (snapshot) => {
+
+        //     if (snapshot.exists()) {
+        //         const avtars = snapshot.val()
+        //         console.log(avtars);
+        const teamsRef = ref(db, `${gameCode}/teamDetails`);
+        onValue(teamsRef, (snapshot) => {
+            if (!snapshot.exists())
+                return
+            const teamsObj = snapshot.val();
+            let teamsNames = Object.keys(teamsObj);
+            let teamsArr = []
+
+            for (let i = 0; i < teamsNames.length; i++) {
+                let teamMembers = []
+                let teamName = teamsNames[i]
+                // console.log(teamName)
+                let teamObj = teamsObj[teamName]
+                let teamMembersNames = Object.keys(teamObj);
+                console.log(teamObj, "ss");
+                // teamsObj[usersInfo[i]].teamPlayers.length
+                for (let j = 0; j < teamMembersNames.length; j++) {
+                    if (teamMembersNames[j] !== "score") {
+                        let obj = {
+                            name: teamMembersNames[j],
+                            avatar: teamObj[teamMembersNames[j]]
+                        }
+                        teamMembers.push(obj)
                     }
-                    playerArr.push(obj)
                 }
-                // console.log(persons[usersInfo[i]].avatar)
+                teamsArr.push({ teamName, teamMembers })
             }
-            setPlayers(playerArr)
+            setTeams(teamsArr)
         });
-    }, [gameCode]); 
+        //console.log(teamsObj[usersInfo[i]].teamPlayers[j])
+        // if (teamsObj[usersInfo[i]].teamPlayers[j] == 0) {
+        //     alert("Zero")
+        //     return
+        // }
+        // name: teamsObj[usersInfo[i]].teamPlayers[j],
+        // avatar: avtars[teamsObj[usersInfo[i]].teamPlayers[j]]
+        //     }
+        //     else {
+        //         alert("NOT WORK")
+        //     }
+        //     //const nameUsers = Object.keys(snapshot.val());
+        // });
 
-
-
-    /*
-    const clickHandler = () => {
-        socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
-        socket.on('scene-page', () => router.push('/scene'))
-    }
+    }, [gameCode]);
 
     useEffect(() => {
-        let isMounted = true
-        if(isMounted)
-            setGameCode(sessionStorage.getItem('game-code'))
-        //get players and gamecode
-        socket.emit('random-division', sessionStorage.getItem('game-code'))
-        socket.on('random-teams', teams => {
-            console.log(teams);
-            if(isMounted)
-                setTeams(teams)
-        })
-        socket.on('players', players => {
-            if(isMounted)
-                setNumberOfPlayers(players.length)
-        })
-        socket.on('players-without-teams', playersWithoutTeams => {
-            console.log('no teams :(');
-            if(isMounted)
-                setPlayers(playersWithoutTeams)
-        })
-        socket.on('teams', teams => {
-            console.log(teams);
-            setTeams(teams)})
-
-        return () => {
-            isMounted = false
+        if (!gameCode || gameCode === 0) {
+            return
         }
-    }, [socket])*/
+        const usersRef = ref(db, `${gameCode}/inLobbyPlayers`);
+        onValue(usersRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const lobbyPlayersObj = snapshot.val();
+                const userNamesArr = Object.keys(lobbyPlayersObj);
+                let playerArr = [], obj
+                for (let i = 0; i < (userNamesArr.length); i++) {
+                    obj = {}
+                    if (userNamesArr[i] !== "") {
+                        obj = {
+                            name: userNamesArr[i],
+                            avatar: lobbyPlayersObj[userNamesArr[i]]
+                        }
+                        playerArr.push(obj)
+                    }
+                }
+                setPlayersInLobby(playerArr)
+            }
+        });
+    }, [gameCode]);
 
     const activeButton = (active) => {
         setActiveTeam(active)
     }
 
-    return ( 
+    const createNewTeam = () => {
+        let length = teams.length
+        let updates = {}
+        updates[`${gameCode}/teamDetails/${length + 1}`] = { score: 0 }
+        update(db, updates)
+    }
+
+    return (
         <div className="flex flex-col justify-center items-center h-screen bgNormal">
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
-                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers}/></div>
+                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers} /></div>
                 </div>
             </div>
             <div className='flex flex-row w-full justify-evenly'>
                 <div className='lg:w-6/12 md:w-6/12'>
-                    {teams? (<TeamComponent teams = {teams} activeTeam={activeTeam} activeIcon = {activeButton} playersWithoutTeams = {players} />) : (null)}
+                    {teams ? (<TeamComponent teams={teams} createNewTeam={createNewTeam} playerName={playerName} activeTeam={activeTeam} player={isPlayer} activeIcon={activeButton} playersWithoutTeams={playersInLobby} />) : (null)}
                 </div>
                 <div className='w-3/12'>
-                    {teams? <TeamPlayers teams = {teams.find(t => t.teamName == activeTeam)} activeTeam = {activeTeam} allTeams = {teams} status = {true} /> : null}
+                    {teams ? <TeamPlayers team={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
                 </div>
             </div>
-            <div className="text-center"><Button text = {'Start'} clickHandler = {() => clickHandler()} /></div>
+            <div className="text-center"><Button text={'Start'} clickHandler={() => clickHandler()} /></div>
         </div>
-     );
+    );
 }
- 
+
 export default random;
