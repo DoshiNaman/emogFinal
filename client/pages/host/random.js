@@ -16,7 +16,7 @@ const random = () => {
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
     const [teams, setTeams] = useState([])
-    const [activeTeam, setActiveTeam] = useState(1)
+    const [activeTeam, setActiveTeam] = useState('team1')
     const [playersInLobby, setPlayersInLobby] = useState([])
     const [playerName, setPlayerName] = useState("")
     const [isPlayer, setIsPlayer] = useState(false)

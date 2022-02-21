@@ -35,7 +35,7 @@ const TeamPlayers = ({teams, allTeams, player, mode, status, playerMax}) => {
         <div className={'flex flex-col heading rounded-xl mt-5 w-full pb-2'} style={{minHeight:"50vh", zoom:0.95}}>
             <div className="ebaBg whiteText rounded-t-xl">
                 <div className='font-bold text-xl flex justify-between items-center'>
-                    <div className="pl-8 py-4">{teams? `Team 0${teams.teamName}` : null}</div>
+                    <div className="pl-8 py-4" style={{textTransform:'capitalize'}}>{teams? `${teams.teamName}` : null}</div>
                     {player && mode==='choice'?
                     <div><button className={teams.teamMembers?.length===playerMax && !teams.teamMembers.find( p=> p.name === playerName)?"rounded font-normal text-base mr-8 px-2 py-1 cursor-pointer endGame":"buttonNew rounded font-normal text-base mr-8 px-2 py-1 cursor-pointer"} onClick={ !teams.teamMembers.find( p=> p.name === playerName)? () => joinTeam(teams.teamName) : () => leaveTeam(teams.teamName)}>
                         {player? teams.teamMembers.find( p=> p.name === playerName)? 'LEAVE' : teams.teamMembers?.length===playerMax?"FULL":'JOIN':""}</button></div>

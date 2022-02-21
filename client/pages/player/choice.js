@@ -20,7 +20,7 @@ const choice = () => {
     const socket = useContext(SocketContext)
     const [playerMax, setPlayerMax] = useState()
     const [teams, setTeams] = useState([])
-    const [activeTeam, setActiveTeam] = useState(1)
+    const [activeTeam, setActiveTeam] = useState('team1')
     const [mode, setMode] = useState('')
     const [playerName, setPlayerName] = useState("")
 

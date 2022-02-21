@@ -62,6 +62,25 @@ const TeamComponent = ({teams, activeIcon, player, playersWithoutTeams, activeTe
 
     const createNewTeam = () => {
         //socket.emit('create-team', sessionStorage.getItem('game-code'))
+        const updates = {};
+        const upData = {
+            currentRound: 0,
+            score: 0
+        }
+        const db = getDatabase();
+        const teamDetailsRef = ref(db,`${gameCode}/teamDetails`);
+        alert(teams.length)
+        updates[`${gameCode}/teamDetails/team${teams.length+1}`] = upData;
+        update(ref(db),updates);
+        /* 
+        onValue(teamDetailsRef,(snapshot)=>{
+            if(snapshot.exists()){
+                // alert('updating')
+                const snapData = Object.keys(snapshot.val());
+            }
+        },{
+            onlyOnce: true
+        }) */
     }
 
     return (
@@ -107,7 +126,7 @@ const TeamComponent = ({teams, activeIcon, player, playersWithoutTeams, activeTe
                                     {index < 9? `Team 0${index+1}` : `Team ${index+1}`}
                                 </div>
                                 <div className={team.teamName===myTeam?"whiteText":"ebaText"}>
-                                    {team.teamMembers.length} players
+                                    {team.teamMembers.length}
                                 </div>
                             </div>
                             {

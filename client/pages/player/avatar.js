@@ -22,6 +22,9 @@ const avatar = () => {
     const [avatar, setAvatar] = useState("") // rn color is stored, once the avatar images are ready, we can use them
     const [gameCode, setGameCode] = useState("")
     const [gameMode,setGameMode] = useState("")
+    // const [lobbyPlayers,setLobbyPlayers] = useState([]);
+    // const [teamJoinedPl,setTeamJoinedPl] = useState([]);
+    // const [teams,setTeams] = useState(true)
 
     useEffect(() => {
         const gameCode = window.localStorage.getItem('game-code')
@@ -36,6 +39,23 @@ const avatar = () => {
         // socket.on('late-comers', () => router.push('/player/choice'))
         // socket.on('come-to-teams', () => router.push('/player/choice'))
     }, [])
+
+
+    /* useEffect(()=>{
+        if(gameCode && playerName){
+            const db = getDatabase();
+            const teamJoinedRef = ref(db,`${gameCode}/teamPlayerJoined`);
+            onValue(teamJoinedRef, (snapshot)=>{
+                if(snapshot.exists()){
+                    const teamKeys = Object.keys(snapshot.val());
+                    setTeamJoinedPl(teamKeys);
+                }
+                else{
+                    alert("doesn't exists")
+                }
+            })
+        }
+    },[gameCode]); */
 
 
     useEffect(()=>{
@@ -62,7 +82,7 @@ const avatar = () => {
             if(gameMode === 'random'){
                 console.log('this is random')
                 const db = getDatabase();
-                const dbRef = ref(db,`${gameCode}/teamJoinedPlayers`)
+                const dbRef = ref(db,`${gameCode}/teamPlayerJoined`)
                 onValue(dbRef, (snapshot)=>{
                     if(snapshot.exists()){
                         const snapData = snapshot.val();
@@ -78,7 +98,7 @@ const avatar = () => {
             else if(gameMode === 'manual'){
                 console.log('this is manual')
                 const db = getDatabase();
-                const dbRef = ref(db,`${gameCode}/teamJoinedPlayers`)
+                const dbRef = ref(db,`${gameCode}/teamPlayerJoined`)
                 onValue(dbRef, (snapshot)=>{
                     if(snapshot.exists()){
                         const snapData = snapshot.val();
@@ -185,6 +205,7 @@ const avatar = () => {
             <div className="w-screen flex justify-center">
                 <div className="w-2/6"><SendCodeToInvitePlayers gameCode={gameCode} text={"Waiting for the host to start the game"} numberOfPlayers={numberOfPlayers} /></div>
             </div>
+            <h1>{playerName}</h1>
             <div className="flex justify-evenly container px-10">
                 <div style={{ flex: 4 }} className="px-2">
                     <div className="flex flex-column justify-evenly items-center heading rounded-xl px-4 h-80 w-80">

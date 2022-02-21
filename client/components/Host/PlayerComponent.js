@@ -5,13 +5,14 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 
 
 const PlayerComponent = ({players, width, largeWidth, teams, player}) => {
+    const { playersNO, setPlayersNO } = useAuth();
     //const socket = useContext(SocketContext)
     const [menu, setMenu] = useState()
     const [moveTeams, setMoveTeams] = useState(false)
-    const { playersNO, setPlayersNO } = useAuth();
     const [gameCode, setGameCode] = useState("")
     const [sliderPlayers, setSliderPlayers] = useState(4);
     const [slideIndex, setSlideIndex] = useState(0)
+    console.log(playersNO)
 
     useEffect(() => {
         setSliderPlayers(window.innerWidth>=1400?10:window.innerWidth>=1200?8:6)
@@ -24,72 +25,43 @@ const PlayerComponent = ({players, width, largeWidth, teams, player}) => {
     }, []);
 
     const clickHandler = (team) => {
+        // alert('hello returning 27')
         const player = menu.player
+        console.log(player)
+        console.log(team)
         setMenu(false)
-        const db = getDatabase()
-        const teamsRef = ref(db, `${gameCode}/teamDetails/${team}`);
+        const db = getDatabase();
+        const teamsRef = ref(db,`${gameCode}/teamDetails/${team}`);
         let updates = {};
-        onValue(teamsRef, (snapshot) => {
-            const teamsObj = snapshot.val();
-            //maxplayers cond
-            //let newI = teamsObj['team1']
-            //alert(`${newI}`);
-            console.log(teamsObj);
-            
-            let newL=parseInt(Object.keys(teamsObj).length)-2;
-            if (parseInt(newL) === parseInt(playersNO)) {
-                alert('This Team already has maximum number of players!');
-                //return
+        onValue(teamsRef,(snapshot)=>{
+            if(snapshot.exists()){
+                const snapData = Object.keys(snapshot.val());
+                console.log(snapData.length)
+                console.log(parseInt(5))
+                if(snapData.length>=parseInt(5)){
+                    console.log('ok')
+                    alert(`Sorry! ${team} is full, please join another team.`)
+                    return
+                }
+                else if(snapData.length<parseInt(5)){
+                    alert('updating')
+                    updates[`${gameCode}/teamPlayerJoined/${player["name"]}`] = player;
+                    updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
+                    updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
+                }
             }
-            else{
-                const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
-                onValue(usersRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        const lobbyPlayersObj = snapshot.val();
-                        const userNamesArr = Object.keys(lobbyPlayersObj);
-        
-                        for (let i = 0; i < (userNamesArr.length); i++) {
-                            if (userNamesArr[i] == `${player["name"]}`) {
-                                updates[`/${gameCode}/teamDetails/${team}/${player["name"]}`] = lobbyPlayersObj[userNamesArr[i]];
-                                updates[`/${gameCode}/inLobbyPlayers2/${userNamesArr[i]}`] = null;
-                                break
-                            }
-                        }
-                    }
-                },{
-                    onlyOnce:true
-                });
-            }
-
-
-
-            /* if(newI==2){
-
-            }
-            if (parseInt(newI) === parseInt(playersNO)) {
-                alert('This Team already has maximum number of players!');
-                //return
-            }
-            else if (teamsObj[`${team}`].teamPlayers[0] === 0) {
-                //alert("Zero POS")
-                updates[`/${gameCode}/teamDetails/${team}/teamPlayers/0`] = `${player["name"]}`;
-                ttUser.push(`${player["name"]}`)
-            }
-            else {
-                updates[`/${gameCode}/teamDetails/${team}/teamPlayers/${newI}`] = `${player["name"]}`;
-                ttUser.push(`${player["name"]}`)
-            }
-            setTotalUsers([...ttUser]) */
-        }, {
+        },{
             onlyOnce: true
-        });
-        update(ref(db), updates)
+        })
+        update(ref(db),updates);
+        return
         // const gameCode = sessionStorage.getItem('game-code')
         // socket.emit('change-team', {team, player, gameCode})
         // socket.on('err', ({message}) => alert(message))
     }
 
-    const removePlayer = () => {
+    const removePlayer = (menu) => {
+        console.log(menu.player)
         // const gameCode = sessionStorage.getItem('game-code')
         // const playerName = menu.player.name
         // socket.emit('remove-player', {gameCode, playerName})
@@ -121,7 +93,7 @@ const PlayerComponent = ({players, width, largeWidth, teams, player}) => {
                     <div className="flex flex-row absolute z-10" style={{top:menu.y, left:menu.x}}>
                         <div className="cursor-pointer h-full">
                             <div className={moveTeams?"burlywoodBg px-2 border-2 whiteText border-white":"ebaBg px-2 border-2 whiteText border-white"} onClick={(event) => {setMoveTeams(!moveTeams); event.stopPropagation()}}>Move</div>
-                            <div className="ebaBg px-2 border-2 whiteText border-white " onClick={() => removePlayer()}>Remove</div>
+                            <div className="ebaBg px-2 border-2 whiteText border-white " onClick={() => removePlayer(menu)}>Remove</div>
                         </div>
                         {moveTeams?<div className="scl cursor-pointer max-h-32 overflow-y-auto">
                             {teams?teams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClickCapture = {() => {setMoveTeams(false);clickHandler(team.teamName)}} key={index} >Team {team.teamName}</div>):<></>}
