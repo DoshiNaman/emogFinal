@@ -152,6 +152,17 @@ const teams = () => {
             router.push('/host/manual');
         }
         else if (mode === 'choice') {
+            let totalTeam = Math.ceil(numberOfPlayers / playersPerTeam);
+            const db = getDatabase();
+            let teamObj = {}
+            const updates = {};
+            for (let i = 0; i < totalTeam; i++) {
+                teamObj.score = 0;
+                teamObj.currentRound = 0
+                updates[`/${gameCode}/teamDetails/team${i + 1}`] = teamObj;
+            }
+            updates[`/${gameCode}/gameMode`] = "choice";
+            update(ref(db), updates)
             setMode("choice")
             router.push('/host/choice')
         }

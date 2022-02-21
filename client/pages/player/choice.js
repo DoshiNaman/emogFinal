@@ -6,20 +6,110 @@ import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
 import TeamPlayers from "../../components/TeamPlayers";
 import { SocketContext } from "../../context/socket/SocketContext";
+import useAuth from "../../hooks/useAuth";
+import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 // import styles from "../css/hostScreen.module.css"
 
 const choice = () => {
+    const { playersNO} = useAuth();
 
     const router = useRouter()
 
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
-    const [gameCodeZ, setGameCode] = useState("")
+    const [gameCode, setGameCode] = useState("")
     const socket = useContext(SocketContext)
     const [playerMax, setPlayerMax] = useState()
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState(1)
     const [mode, setMode] = useState('')
     const [playerName, setPlayerName] = useState("")
+
+    // numberOfPlayers -> done
+    // gameCode --> done
+    // playerMax --> done
+    // teams --> done
+    // activeTeam
+    // mode -> done
+    // playerName -> done
+
+
+    // setting gamecode and player name 
+    useEffect(() => {
+        const gameCode = window.localStorage.getItem('game-code')
+        setGameCode(gameCode)
+        const playerName = window.localStorage.getItem('player-name')
+        setPlayerName(playerName)
+        setPlayerMax(playersNO)
+    }, [])
+
+    useEffect(()=>{
+        if(gameCode){
+            const db = getDatabase();
+            const gModeRef = ref(db,`${gameCode}/gameMode`);
+            onValue(gModeRef, (snapshot)=>{
+                if(snapshot.exists()){
+                    setMode(snapshot.val())
+                }
+                else{
+                    alert("doesn't exists")
+                }
+            })
+        }
+    },[gameCode]);
+
+    useEffect(() => {
+        if (!gameCode) {
+            return
+        }
+        const db=getDatabase();
+        const totalNumber = ref(db, `${gameCode}/userDetails/noOfPlayer`);
+        onValue(totalNumber, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                setNumberOfPlayers(data)
+            }
+        });
+    }, [gameCode]);
+
+    //teamComponent
+    useEffect(() => {
+        if (!gameCode || gameCode === 0) {
+            return
+        }
+        const db=getDatabase()
+        const teamsRef = ref(db, `${gameCode}/teamDetails`);
+        onValue(teamsRef, (snapshot) => {
+            if (!snapshot.exists())
+                return
+            const teamsObj = snapshot.val();
+            let teamsNames = Object.keys(teamsObj);
+            let teamsArr = []
+            for (let i = 0; i < teamsNames.length; i++) {
+                let teamMembers = []
+                let teamName = teamsNames[i]
+                let teamObj = teamsObj[teamName]
+                let teamMembersNames = Object.keys(teamObj);
+                console.log(teamObj, "ss");
+                for (let j = 0; j < teamMembersNames.length; j++) {
+                    console.log(typeof(teamMembersNames[j]));
+                    if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
+                        
+                    }
+                    else{
+                        let obj = {
+                            name: teamMembersNames[j],
+                            avatar: teamObj[teamMembersNames[j]]
+                        }
+                        teamMembers.push(obj)
+                    }
+                }
+                teamsArr.push({ teamName, teamMembers })
+            }
+            setTeams(teamsArr)
+            alert(teams)
+        });
+
+    }, [gameCode]);
 
 
     /* useEffect(() => {
@@ -57,7 +147,7 @@ const choice = () => {
         <div className="flex flex-col justify-center items-center bgNormal h-screen">
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
-                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCodeZ} numberOfPlayers={numberOfPlayers}/></div>
+                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers}/></div>
                 </div>
             </div>
             <div className='flex flex-row w-full justify-evenly'>

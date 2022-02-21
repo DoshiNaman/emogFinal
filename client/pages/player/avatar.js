@@ -4,7 +4,9 @@ import { SocketContext } from "../../context/socket/SocketContext";
 import SendCodeToInvitePlayers from "../../components/sendCodeToInvitePlayers";
 import PlayerComponent from "../../components/Host/PlayerComponent";
 import RuleBook from "../../components/RuleBook";
-import { getDatabase, ref, onValue, update } from "firebase/database"
+import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
+import random from "../host/random";
+import { route } from "next/dist/server/router";
 
 const avatar = () => {
 
@@ -19,6 +21,7 @@ const avatar = () => {
     const colors = ["https://i.imgur.com/Lh9JoJn.png", "https://i.imgur.com/9nKWnVE.png", "https://i.imgur.com/hYZIEEV.png", "https://i.imgur.com/02wPaiQ.png", "https://i.imgur.com/h1fCyBi.png", "https://i.imgur.com/SkvFWSY.png", "https://i.imgur.com/LptRaIW.png", "https://i.imgur.com/0EkGcud.png", "https://i.imgur.com/8pfgcFz.png"]
     const [avatar, setAvatar] = useState("") // rn color is stored, once the avatar images are ready, we can use them
     const [gameCode, setGameCode] = useState("")
+    const [gameMode,setGameMode] = useState("")
 
     useEffect(() => {
         const gameCode = window.localStorage.getItem('game-code')
@@ -34,7 +37,67 @@ const avatar = () => {
         // socket.on('come-to-teams', () => router.push('/player/choice'))
     }, [])
 
+
     useEffect(()=>{
+        if(gameCode && playerName){
+            const db = getDatabase();
+            const gModeRef = ref(db,`${gameCode}/gameMode`);
+            onValue(gModeRef, (snapshot)=>{
+                if(snapshot.exists()){
+                    setGameMode(snapshot.val())
+                }
+                else{
+                    alert("doesn't exists")
+                }
+            })
+        }
+    },[gameCode]);
+    
+
+    useEffect(()=>{
+        if(!gameCode || !gameMode || !playerName){
+            return
+        }
+        else{
+            if(gameMode === 'random'){
+                console.log('this is random')
+                const db = getDatabase();
+                const dbRef = ref(db,`${gameCode}/teamJoinedPlayers`)
+                onValue(dbRef, (snapshot)=>{
+                    if(snapshot.exists()){
+                        const snapData = snapshot.val();
+                        const snapObj = Object.keys(snapData)
+                        console.log(snapObj)
+                        if(snapObj.includes(playerName)){
+                            alert('route changing')
+                            router.push('/player/choice')
+                        }
+                    }
+                })
+            }
+            else if(gameMode === 'manual'){
+                console.log('this is manual')
+                const db = getDatabase();
+                const dbRef = ref(db,`${gameCode}/teamJoinedPlayers`)
+                onValue(dbRef, (snapshot)=>{
+                    if(snapshot.exists()){
+                        const snapData = snapshot.val();
+                        const snapObj = Object.keys(snapData)
+                        console.log(snapObj)
+                        if(snapObj.includes(playerName)){
+                            alert('route changing')
+                            router.push('/player/choice')
+                        }
+                    }
+                })
+            }
+            else if(gameMode === 'choice'){
+                console.log('this is choice')
+                router.push('/player/choice')
+            }
+        }
+    },[gameMode])
+    /* useEffect(()=>{
         if (gameCode && playerName) {
             const db = getDatabase();
             const updateRoute = ref(db, `${gameCode}/isChoice`);
@@ -59,7 +122,7 @@ const avatar = () => {
             });
         }
     }, [gameCode])
-
+ */
     useEffect(() => {
         if (gameCode && playerName) {
             const db = getDatabase();
