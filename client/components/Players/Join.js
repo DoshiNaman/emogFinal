@@ -41,7 +41,8 @@ const Join = () => {
                             const updates = {};
                             updates[`/${code}/userDetails/${playerName}`] = userData;
                             updates[`/${code}/userDetails/noOfPlayer`] = userCount + 1
-                            updates[`/${code}/inLobbyPlayers/${playerName}`] = playerAvatar
+                            updates[`/${code}/inLobbyPlayers2/${playerName}`] = playerAvatar
+                            console.log(playerName)
 
                             update(ref(db), updates);
                             window.localStorage.setItem("game-code", code)

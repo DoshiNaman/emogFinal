@@ -22,7 +22,7 @@ const choice = () => {
     const [playerName, setPlayerName] = useState("")
 
 
-    useEffect(() => {
+    /* useEffect(() => {
         setGameCode(sessionStorage.getItem('game-code'))
         socket.on('players', players => setNumberOfPlayers(players.length))
         socket.on('removed', () => window.location.href = '/play')
@@ -47,7 +47,7 @@ const choice = () => {
         //Max players per team
         socket.on('max-players', maxPlayers => setPlayerMax(maxPlayers))
         socket.on('scene-page', () => router.push('/scene'))
-    }, [socket])
+    }, [socket]) */
 
     const activeButton = (active) => {
         setActiveTeam(active)

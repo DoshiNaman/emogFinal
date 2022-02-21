@@ -72,7 +72,11 @@ const random = () => {
                 console.log(teamObj, "ss");
                 // teamsObj[usersInfo[i]].teamPlayers.length
                 for (let j = 0; j < teamMembersNames.length; j++) {
-                    if (teamMembersNames[j] !== "score") {
+                    console.log(typeof(teamMembersNames[j]));
+                    if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
+                        
+                    }
+                    else{
                         let obj = {
                             name: teamMembersNames[j],
                             avatar: teamObj[teamMembersNames[j]]
@@ -104,7 +108,7 @@ const random = () => {
         if (!gameCode || gameCode === 0) {
             return
         }
-        const usersRef = ref(db, `${gameCode}/inLobbyPlayers`);
+        const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
         onValue(usersRef, (snapshot) => {
             if (snapshot.exists()) {
                 const lobbyPlayersObj = snapshot.val();
@@ -125,14 +129,24 @@ const random = () => {
         });
     }, [gameCode]);
 
+    const clickHandler = () => {
+        // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
+        // socket.on('scene-page', () => router.push('/scene'))
+    }
+
+
     const activeButton = (active) => {
         setActiveTeam(active)
     }
 
     const createNewTeam = () => {
+        if(teams.length===0){
+            alert("Zero Len")
+            return
+        }
         let length = teams.length
         let updates = {}
-        updates[`${gameCode}/teamDetails/${length + 1}`] = { score: 0 }
+        updates[`${gameCode}/teamDetails/team${length + 1}`] = { score: 0,currentRound: 0 }
         update(db, updates)
     }
 

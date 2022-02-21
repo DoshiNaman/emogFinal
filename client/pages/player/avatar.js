@@ -34,6 +34,32 @@ const avatar = () => {
         // socket.on('come-to-teams', () => router.push('/player/choice'))
     }, [])
 
+    useEffect(()=>{
+        if (gameCode && playerName) {
+            const db = getDatabase();
+            const updateRoute = ref(db, `${gameCode}/isChoice`);
+            onValue(updateRoute, (snapshot) => {
+                let uR = snapshot.val();
+                uR=parseInt(uR);
+                if(uR===0){
+
+                }
+                else if(uR===1){
+                    const getLobbyPlayers = ref(db, `${gameCode}/inLobbyPlayers2`);
+                    onValue(getLobbyPlayers, (snapshot) => {
+                        let lP = Object.keys(snapshot.val());
+                        for(let i=0;i<lP.length;i++){
+                            if(playerName==lP[i]){
+                                return
+                            }
+                        }
+                        router.push("/player/choice")
+                    });
+                }
+            });
+        }
+    }, [gameCode])
+
     useEffect(() => {
         if (gameCode && playerName) {
             const db = getDatabase();
@@ -52,9 +78,9 @@ const avatar = () => {
                     else {
                         if (usersInfo[i] == playerName) {
                             setAvatar(usersObj[usersInfo[i]].avatar)
-                            const updates = {};
-                            updates[`/${gameCode}/inLobbyPlayers/${playerName}`] = usersObj[usersInfo[i]].avatar
-                            update(ref(db), updates)
+                            /* const updates = {};
+                            updates[`/${gameCode}/inLobbyPlayers2/${playerName}`] = usersObj[usersInfo[i]].avatar
+                            update(ref(db), updates) */
                         }
                         obj = {
                             name: usersInfo[i],
@@ -83,7 +109,7 @@ const avatar = () => {
     const saveAvatar = () => {
         const updates = {};
         updates[`/${gameCode}/userDetails/${playerName}/avatar`] = avatar
-        updates[`/${gameCode}/inLobbyPlayers/${playerName}`] = avatar
+        updates[`/${gameCode}/inLobbyPlayers2/${playerName}`] = avatar
         update(ref(db), updates)
 
         // const playerName = sessionStorage.getItem('player-name')

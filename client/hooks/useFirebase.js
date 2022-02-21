@@ -5,7 +5,6 @@ const useFirebase = () => {
     initializeAuthentication()
     const [playersNO, setPlayersNO] = useState(0)
     const [totalUsers, setTotalUsers] = useState([])
-    const [lobbyUsers, setLobbyUsers] = useState([])
 
 
 

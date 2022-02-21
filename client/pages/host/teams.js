@@ -21,7 +21,7 @@ const teams = () => {
     const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState('')
-    const [mode, setMode] = useState('random')
+    const [mode, setMode] = useState('')
     const [numberTeams, setNumberTeams] = useState(0)
     const [players, setPlayers] = useState([])
     const [playersPerTeam, setPlayersPerTeam] = useState(0)
@@ -118,51 +118,16 @@ const teams = () => {
                         k++
                     }
                 }
-                // teamObj.totalScore = 0;
-                // teamObj.currentRound = 0
-                updates[`/${gameCode}/teamDetails/${i + 1}`] = teamObj;
+                teamObj.score = 0;
+                teamObj.currentRound = 0
+                updates[`/${gameCode}/teamDetails/team${i + 1}`] = teamObj;
             }
             updates[`/${gameCode}/teamJoinedPlayers`] = teamJoined;
-            updates[`/${gameCode}/inLobbyPlayers`] = lobbyPlayers;
+            updates[`/${gameCode}/inLobbyPlayers2`] = lobbyPlayers;
+            updates[`/${gameCode}/isChoice`] = 1;
+            updates[`/${gameCode}/gameMode`] = "random";
+            setMode("random")
             update(ref(db), updates)
-
-            // onValue(usersRef, (snapshot) => {
-            //     let usersObj = snapshot.val()
-            //     arrUsers = Object.keys(usersObj);
-            //     let updates = {};
-            //     if (arrUsers.length === 0) {
-            //         return
-            //     }
-            //     for (var i = arrUsers.length - 1; i > 0; i--) {
-            //         var j = Math.floor(Math.random() * (i + 1));
-            //         var temp = arrUsers[i];
-            //         arrUsers[i] = arrUsers[j];
-            //         arrUsers[j] = temp;
-            //     }
-            //     // let teamD = {}
-            //     let k = 0
-            //     let teamJoined = {}
-            //     let lobbyPlayers = playersInLobby
-            //     for (let i = 0; i < totalTeam; i++) {
-            //         let teamArr = []
-            //         for (let j = 0; j < playersPerTeam; j++) {
-            //             if (k !== arrUsers.length) {
-            //                 teamArr.push(arrUsers[k])
-            //                 teamJoined[arrUsers[k]] = usersObj[arrUsers[k]]
-            //                 delete lobbyPlayers[arrUsers[k]]
-            //             }
-            //         }
-            //         updates[`/${gameCode}/teamDetails/team${i + 1}/teamPlayers`] = teamArr;
-            //         updates[`/${gameCode}/teamJoinedPlayers`] = teamJoined;
-            //         updates[`/${gameCode}/inLobbyPlayers`] = lobbyPlayers;
-
-            //     }
-            //     update(ref(db), updates)
-            // },
-            //     {
-            //         onlyOnce: true
-            //     }
-            // );
 
             const sceneRef = ref(db, `${gameCode}/hostDetails/sceneId`);
             onValue(sceneRef, (snapshot) => {
@@ -174,17 +139,20 @@ const teams = () => {
 
             let totalTeam = Math.ceil(numberOfPlayers / playersPerTeam);
             const db = getDatabase();
-            const usersRef = ref(db, `${gameCode}/users/`);
+            let teamObj = {}
             const updates = {};
             for (let i = 0; i < totalTeam; i++) {
-                let teamArr = [0];
-                updates[`/${gameCode}/teamDetails/${i + 1}/teamPlayers`] = teamArr;
+                teamObj.score = 0;
+                teamObj.currentRound = 0
+                updates[`/${gameCode}/teamDetails/team${i + 1}`] = teamObj;
             }
-            console.log(updates);
+            updates[`/${gameCode}/gameMode`] = "manual";
             update(ref(db), updates)
+            setMode("manual")
             router.push('/host/manual');
         }
         else if (mode === 'choice') {
+            setMode("choice")
             router.push('/host/choice')
         }
     }
