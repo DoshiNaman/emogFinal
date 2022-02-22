@@ -3,7 +3,7 @@ import SettingsAndBack from "../../components/settingsAndBack";
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import PlayerComponent from "../../components/Host/PlayerComponent";
-import { SocketContext } from '../../context/socket/SocketContext'
+// import { SocketContext } from '../../context/socket/SocketContext'
 import Button from '../../components/Button'
 import EndGame from "../../components/endGame"
 import useAuth from "../../hooks/useAuth"
@@ -18,10 +18,10 @@ function getRandomInt(min, max) {
 const teams = () => {
     const { playersNO, setPlayersNO } = useAuth();
     const router = useRouter()
-    const socket = useContext(SocketContext)
+    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState('')
-    const [mode, setMode] = useState('')
+    const [mode, setMode] = useState('random')
     const [numberTeams, setNumberTeams] = useState(0)
     const [players, setPlayers] = useState([])
     const [playersPerTeam, setPlayersPerTeam] = useState(0)
@@ -77,6 +77,7 @@ const teams = () => {
 
 
     const continueGame = () => {
+        console.log("continue");
         setPlayersNO(playersPerTeam)
         if (mode === 'random') {
             let totalTeam = Math.ceil(numberOfPlayers / playersPerTeam);
@@ -126,15 +127,18 @@ const teams = () => {
             updates[`/${gameCode}/inLobbyPlayers2`] = lobbyPlayers;
             updates[`/${gameCode}/isChoice`] = 1;
             updates[`/${gameCode}/gameMode`] = "random";
-            setMode("random")
+            console.log(updates)
+            // setMode("random")
             update(ref(db), updates)
 
-            const sceneRef = ref(db, `${gameCode}/hostDetails/sceneId`);
-            onValue(sceneRef, (snapshot) => {
-                const sceneID = snapshot.val();
-            });
+            // const sceneRef = ref(db, `${gameCode}/hostDetails/sceneId`);
+            // onValue(sceneRef, (snapshot) => {
+            //     const sceneID = snapshot.val();
+            // });
             router.push('/host/random')
         }
+
+
         else if (mode === 'manual') {
 
             let totalTeam = Math.ceil(numberOfPlayers / playersPerTeam);

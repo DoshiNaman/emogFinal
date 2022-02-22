@@ -19,6 +19,7 @@ const Host = () => {
         // const roomId = Math.floor(Math.random()*1000000);
         const roomId = genRanHex(6)
         localStorage.setItem('game-code', roomId);
+        localStorage.setItem('role', "host");
         set(ref(db, `/${roomId}`), {
             "isActive": 0,
             "isChoice": 0,

@@ -15,10 +15,13 @@ const choice = () => {
     const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
-    const [players, setPlayers] = useState([])
+    // const [players, setPlayers] = useState([])
+    const [playersInLobby, setPlayersInLobby] = useState([])
     const [teams, setTeams] = useState([])
-    const [activeTeam, setActiveTeam] = useState(1)
-
+    const [activeTeam, setActiveTeam] = useState("team1")
+    const [mode, setMode] = useState("")
+    const [role, setRole] = useState("")
+    const db = getDatabase()
     // numberOfPlayers -> done
     // gameCode -> done
     // players -> done
@@ -29,6 +32,8 @@ const choice = () => {
     useEffect(() => {
         const gameCode = window.localStorage.getItem('game-code')
         setGameCode(gameCode)
+        const clientRole = window.localStorage.getItem('role')
+        setRole(clientRole)
     }, [])
 
     // setting number of players
@@ -48,19 +53,34 @@ const choice = () => {
 
 
     // setting the players
+    // useEffect(() => {
+    //     if (!gameCode) {
+    //         return
+    //     }
+    //     const playersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
+    //     onValue(playersRef, (snapshot) => {
+    //         if (snapshot.exists()) {
+    //             const data = snapshot.val();
+    //             setPlayers(data)
+    //         }
+    //     });
+    // }, [gameCode]);
+
     useEffect(() => {
         if (!gameCode) {
             return
         }
-        const playersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
-        onValue(playersRef, (snapshot) => {
+        const modeRef = ref(db, `${gameCode}/gameMode`);
+        onValue(modeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                setPlayers(data)
+                alert(data)
+                setMode(data)
             }
+        }, {
+            onlyOnce: true
         });
     }, [gameCode]);
-
 
     // setting the teams 
     //teamComponent
@@ -68,7 +88,7 @@ const choice = () => {
         if (!gameCode || gameCode === 0) {
             return
         }
-        const db=getDatabase()
+        // const db = getDatabase()
         const teamsRef = ref(db, `${gameCode}/teamDetails`);
         onValue(teamsRef, (snapshot) => {
             if (!snapshot.exists())
@@ -81,13 +101,13 @@ const choice = () => {
                 let teamName = teamsNames[i]
                 let teamObj = teamsObj[teamName]
                 let teamMembersNames = Object.keys(teamObj);
-                console.log(teamObj, "ss");
+                // console.log(teamObj, "ss");
                 for (let j = 0; j < teamMembersNames.length; j++) {
-                    console.log(typeof(teamMembersNames[j]));
+                    // console.log(typeof (teamMembersNames[j]));
                     if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-                        
+                        continue;
                     }
-                    else{
+                    else {
                         let obj = {
                             name: teamMembersNames[j],
                             avatar: teamObj[teamMembersNames[j]]
@@ -97,6 +117,7 @@ const choice = () => {
                 }
                 teamsArr.push({ teamName, teamMembers })
             }
+            console.log(teamsArr);
             setTeams(teamsArr)
         });
 
@@ -107,41 +128,30 @@ const choice = () => {
         // socket.on('scene-page', () => router.push('/scene'))
     }
 
-    useEffect(() => {
-        setGameCode(sessionStorage.getItem('game-code'))
-        // socket.emit('players-choice', sessionStorage.getItem('game-code'))
-        // socket.on('choice-teams', teams => setTeams(teams))
-        // socket.on('players-without-teams', playersWithoutTeams => {
-        //     setPlayers(playersWithoutTeams)
-        // })
-        // socket.on('players', players => setNumberOfPlayers(players.length))
-        // socket.on('teams', teams => setTeams(teams))
-        //get players and gamecode
-    }, [socket])
-
     const activeButton = (active) => {
         setActiveTeam(active)
     }
 
-    return ( 
+    return (
         <div className="flex flex-col bgNormal justify-center items-center h-screen">
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
-                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers}/></div>
+                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers} /></div>
                 </div>
             </div>
             <div className='flex flex-row w-full justify-evenly'>
                 <div className='lg:w-6/12 md:w-6/12'>
-                    {teams? (<TeamComponent teams = {teams} activeTeam={activeTeam} activeIcon = {activeButton} playersWithoutTeams = {players} />) : (null)}
+                    {teams ? (<TeamComponent role={role} teams={teams} activeTeam={activeTeam} activeIcon={activeButton} />) : (null)}
+                    {/* playersWithoutTeams={players} */}
                 </div>
                 <div className='w-3/12'>
-                {console.log(teams.map(t => console.log(t.teamName === activeTeam)))}
-                {teams? <TeamPlayers teams = {teams.find(t => t.teamName == activeTeam)} activeTeam = {activeTeam} allTeams = {teams} status = {true} /> : null}
+                    {/* {console.log(teams.map(t => console.log(t.teamName === activeTeam)))} */}
+                    {teams ? <TeamPlayers role={role} mode={mode} team={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
                 </div>
             </div>
-            <div className="text-center"><Button text = {'Start'} clickHandler = {() => clickHandler()} /></div>
+            <div className="text-center"><Button text={'Start'} clickHandler={() => clickHandler()} /></div>
         </div>
-     );
+    );
 }
- 
+
 export default choice;

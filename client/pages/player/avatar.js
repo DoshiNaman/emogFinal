@@ -21,7 +21,7 @@ const avatar = () => {
     const colors = ["https://i.imgur.com/Lh9JoJn.png", "https://i.imgur.com/9nKWnVE.png", "https://i.imgur.com/hYZIEEV.png", "https://i.imgur.com/02wPaiQ.png", "https://i.imgur.com/h1fCyBi.png", "https://i.imgur.com/SkvFWSY.png", "https://i.imgur.com/LptRaIW.png", "https://i.imgur.com/0EkGcud.png", "https://i.imgur.com/8pfgcFz.png"]
     const [avatar, setAvatar] = useState("") // rn color is stored, once the avatar images are ready, we can use them
     const [gameCode, setGameCode] = useState("")
-    const [gameMode,setGameMode] = useState("")
+    const [gameMode, setGameMode] = useState("")
     // const [lobbyPlayers,setLobbyPlayers] = useState([]);
     // const [teamJoinedPl,setTeamJoinedPl] = useState([]);
     // const [teams,setTeams] = useState(true)
@@ -58,65 +58,65 @@ const avatar = () => {
     },[gameCode]); */
 
 
-    useEffect(()=>{
-        if(gameCode && playerName){
+    useEffect(() => {
+        if (gameCode && playerName) {
             const db = getDatabase();
-            const gModeRef = ref(db,`${gameCode}/gameMode`);
-            onValue(gModeRef, (snapshot)=>{
-                if(snapshot.exists()){
+            const gModeRef = ref(db, `${gameCode}/gameMode`);
+            onValue(gModeRef, (snapshot) => {
+                if (snapshot.exists()) {
                     setGameMode(snapshot.val())
                 }
-                else{
+                else {
                     alert("doesn't exists")
                 }
             })
         }
-    },[gameCode]);
-    
+    }, [gameCode]);
 
-    useEffect(()=>{
-        if(!gameCode || !gameMode || !playerName){
+
+    useEffect(() => {
+        if (!gameCode || !gameMode || !playerName) {
             return
         }
-        else{
-            if(gameMode === 'random'){
+        else {
+            if (gameMode === 'random') {
                 console.log('this is random')
                 const db = getDatabase();
-                const dbRef = ref(db,`${gameCode}/teamPlayerJoined`)
-                onValue(dbRef, (snapshot)=>{
-                    if(snapshot.exists()){
+                const dbRef = ref(db, `${gameCode}/teamJoinedPlayers`)
+                onValue(dbRef, (snapshot) => {
+                    if (snapshot.exists()) {
                         const snapData = snapshot.val();
-                        const snapObj = Object.keys(snapData)
-                        console.log(snapObj)
-                        if(snapObj.includes(playerName)){
+                        const teamJoinedArr = Object.keys(snapData)
+                        console.log(teamJoinedArr)
+                        if (teamJoinedArr.includes(playerName)) {
                             alert('route changing')
                             router.push('/player/choice')
                         }
                     }
                 })
             }
-            else if(gameMode === 'manual'){
+            else if (gameMode === 'manual') {
                 console.log('this is manual')
                 const db = getDatabase();
-                const dbRef = ref(db,`${gameCode}/teamPlayerJoined`)
-                onValue(dbRef, (snapshot)=>{
-                    if(snapshot.exists()){
+                const dbRef = ref(db, `${gameCode}/teamJoinedPlayers`)
+                onValue(dbRef, (snapshot) => {
+                    if (snapshot.exists()) {
                         const snapData = snapshot.val();
                         const snapObj = Object.keys(snapData)
                         console.log(snapObj)
-                        if(snapObj.includes(playerName)){
+                        if (snapObj.includes(playerName)) {
                             alert('route changing')
                             router.push('/player/choice')
                         }
                     }
                 })
             }
-            else if(gameMode === 'choice'){
+            else if (gameMode === 'choice') {
                 console.log('this is choice')
                 router.push('/player/choice')
             }
         }
-    },[gameMode])
+    }, [gameMode])
     /* useEffect(()=>{
         if (gameCode && playerName) {
             const db = getDatabase();
@@ -205,7 +205,7 @@ const avatar = () => {
             <div className="w-screen flex justify-center">
                 <div className="w-2/6"><SendCodeToInvitePlayers gameCode={gameCode} text={"Waiting for the host to start the game"} numberOfPlayers={numberOfPlayers} /></div>
             </div>
-            <h1>{playerName}</h1>
+            <h1 style={{ textAlign: "center" }}>{playerName}</h1>
             <div className="flex justify-evenly container px-10">
                 <div style={{ flex: 4 }} className="px-2">
                     <div className="flex flex-column justify-evenly items-center heading rounded-xl px-4 h-80 w-80">
@@ -221,7 +221,7 @@ const avatar = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                             </svg>
                         </div>
-                        <div className="font-bold text-xl">
+                        <div className="font-bold text-xl" style={{ textAlign: "center" }}>
                             {playerName}
                         </div>
                     </div>
