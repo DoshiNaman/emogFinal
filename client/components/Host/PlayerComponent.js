@@ -11,7 +11,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
     const [gameCode, setGameCode] = useState("")
     const [sliderPlayers, setSliderPlayers] = useState(4);
     const [slideIndex, setSlideIndex] = useState(0)
-    console.log(playersNO)
+    console.log(players)
 
     useEffect(() => {
         setSliderPlayers(window.innerWidth >= 1400 ? 10 : window.innerWidth >= 1200 ? 8 : 6)
@@ -54,9 +54,6 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
         })
         update(ref(db), updates);
         return
-        // const gameCode = sessionStorage.getItem('game-code')
-        // socket.emit('change-team', {team, player, gameCode})
-        // socket.on('err', ({message}) => alert(message))
     }
 
     const removePlayer = (menu) => {
@@ -95,7 +92,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
                                     <div className="ebaBg px-2 border-2 whiteText border-white " onClick={() => removePlayer(menu)}>Remove</div>
                                 </div>
                                 {moveTeams ? <div className="scl cursor-pointer max-h-32 overflow-y-auto">
-                                    {teams ? teams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClickCapture={() => { setMoveTeams(false); clickHandler(team.teamName) }} key={index} >Team {team.teamName}</div>) : <></>}
+                                    {teams ? teams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClickCapture={() => { setMoveTeams(false); clickHandler(team.teamName) }} key={index} > {team.teamName}</div>) : <></>}
                                 </div> : <></>}
                             </div>
                         </div> : <></>}

@@ -51,21 +51,6 @@ const choice = () => {
         });
     }, [gameCode]);
 
-
-    // setting the players
-    // useEffect(() => {
-    //     if (!gameCode) {
-    //         return
-    //     }
-    //     const playersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
-    //     onValue(playersRef, (snapshot) => {
-    //         if (snapshot.exists()) {
-    //             const data = snapshot.val();
-    //             setPlayers(data)
-    //         }
-    //     });
-    // }, [gameCode]);
-
     useEffect(() => {
         if (!gameCode) {
             return
@@ -89,6 +74,7 @@ const choice = () => {
             return
         }
         // const db = getDatabase()
+
         const teamsRef = ref(db, `${gameCode}/teamDetails`);
         onValue(teamsRef, (snapshot) => {
             if (!snapshot.exists())

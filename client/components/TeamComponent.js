@@ -31,12 +31,18 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role }) => {
                 const lobbyPlayersObj = snapshot.val();
                 const userNamesArr = Object.keys(lobbyPlayersObj);
                 let playerArr = [];
+                let obj
                 for (let i = 0; i < (userNamesArr.length); i++) {
+                    obj = {}
                     if (userNamesArr[i] !== "") {
-                        playerArr.push(userNamesArr[i])
+                        obj = {
+                            name: userNamesArr[i],
+                            avatar: lobbyPlayersObj[userNamesArr[i]]
+                        }
+                        playerArr.push(obj)
                     }
                 }
-                console.log(playerArr, "just now");
+                console.log(playerArr, "lobby players");
                 setPlayers(playerArr)
             }
         });
