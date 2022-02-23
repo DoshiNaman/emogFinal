@@ -3,7 +3,7 @@ import SettingsAndBack from "../../components/settingsAndBack";
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import PlayerComponent from "../../components/Host/PlayerComponent";
-import {SocketContext} from '../../context/socket/SocketContext'
+import { SocketContext } from '../../context/socket/SocketContext'
 import TeamPlayers from "../../components/TeamPlayers";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
@@ -19,11 +19,14 @@ const manual = () => {
 
     const [players, setPlayers] = useState([])
     const [teams, setTeams] = useState([])
-    const [activeTeam, setActiveTeam] = useState(1)
+    const [activeTeam, setActiveTeam] = useState("team1")
+    const [role, setRole] = useState("")
 
     useEffect(() => {
         const gameId = localStorage.getItem('game-code');
         setGameCode(gameId);
+        const clientRole = window.localStorage.getItem('role')
+        setRole(clientRole)
     }, []);
 
 
@@ -31,7 +34,7 @@ const manual = () => {
         if (!gameCode) {
             return
         }
-        const db=getDatabase();
+        const db = getDatabase();
         const totalNumber = ref(db, `${gameCode}/userDetails/noOfPlayer`);
         onValue(totalNumber, (snapshot) => {
             if (snapshot.exists()) {
@@ -46,7 +49,7 @@ const manual = () => {
         if (!gameCode || gameCode === 0) {
             return
         }
-        const db= getDatabase();
+        const db = getDatabase();
         const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
         onValue(usersRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -65,7 +68,7 @@ const manual = () => {
                 }
                 setPlayers(playerArr)
             }
-            else{
+            else {
                 setPlayers([])
             }
         });
@@ -76,7 +79,7 @@ const manual = () => {
         if (!gameCode || gameCode === 0) {
             return
         }
-        const db=getDatabase()
+        const db = getDatabase()
         const teamsRef = ref(db, `${gameCode}/teamDetails`);
         onValue(teamsRef, (snapshot) => {
             if (!snapshot.exists())
@@ -91,11 +94,11 @@ const manual = () => {
                 let teamMembersNames = Object.keys(teamObj);
                 console.log(teamObj, "ss");
                 for (let j = 0; j < teamMembersNames.length; j++) {
-                    console.log(typeof(teamMembersNames[j]));
+                    console.log(typeof (teamMembersNames[j]));
                     if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-                        
+
                     }
-                    else{
+                    else {
                         let obj = {
                             name: teamMembersNames[j],
                             avatar: teamObj[teamMembersNames[j]]
@@ -115,46 +118,29 @@ const manual = () => {
         // socket.on('scene-page', () => router.push('/scene')) */
     }
 
-    // useEffect(() => {
-    //     socket.emit('manual-division', sessionStorage.getItem('game-code'))
-    //     socket.on('players', players => {
-    //         setNumberOfPlayers(players.length)
-    //     })
-    //     socket.on('teams', teams => setTeams(teams))
-    //     socket.on('players-without-teams', playersWithoutTeams => {
-    //         console.log('no teams :(');
-    //         setPlayers(playersWithoutTeams)
-    //     })
-    //     socket.on('manual-teams', teams => {
-    //         setTeams(teams)
-    //     })
-    //     setGameCode(sessionStorage.getItem('game-code'))
-    //     //get players and gamecode
-        
-    // }, [socket])
-
     const activeButton = (active) => {
         setActiveTeam(active)
     }
 
-    return ( 
+    return (
         <div className="flex flex-col bgNormal justify-center items-center h-screen">
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
-                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers}/></div>
+                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers} /></div>
                 </div>
             </div>
             <div className='flex flex-row w-full justify-evenly'>
                 <div className='lg:w-6/12 md:w-6/12'>
-                    {teams? (<TeamComponent teams = {teams} activeTeam={activeTeam} activeIcon = {activeButton} playersWithoutTeams = {players} />) : (null)}
+                    {teams ? (<TeamComponent role={role} teams={teams} activeTeam={activeTeam} activeIcon={activeButton} />) : (null)}
+                    {/*  playersWithoutTeams={players} */}
                 </div>
                 <div className='w-3/12'>
-                {teams? <TeamPlayers teams = {teams.find(t => t.teamName == activeTeam)} activeTeam = {activeTeam} allTeams = {teams} status = {true} /> : null}
+                    {teams ? <TeamPlayers teams={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
                 </div>
             </div>
-            <div className="text-center"><Button text = {'Start'} clickHandler = {() => clickHandler()} /></div>
+            <div className="text-center"><Button text={'Start'} clickHandler={() => clickHandler()} /></div>
         </div>
-     );
+    );
 }
- 
+
 export default manual;
