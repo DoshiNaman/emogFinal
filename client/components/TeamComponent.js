@@ -4,13 +4,14 @@ import PlayerComponent from './Host/PlayerComponent';
 
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
-const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role }) => {
+const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam }) => {
     // console.log(playersWithoutTeams);
     const [display, setDisplay] = useState("teams")
     const [players, setPlayers] = useState([])
-    const [myTeam, setMyTeam] = useState()
+    // const [myTeam, setMyTeam] = useState("")
     const [gameCode, setGameCode] = useState("")
     //const socket = useContext(SocketContext)
+    console.log(playerName);
 
     const [menu, setMenu] = useState(undefined)
 
@@ -42,25 +43,11 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role }) => {
                         playerArr.push(obj)
                     }
                 }
-                console.log(playerArr, "lobby players");
+                // console.log(playerArr, "lobby players");
                 setPlayers(playerArr)
             }
         });
     }, [gameCode]);
-
-
-    useEffect(() => {
-        teams.forEach((team) => {
-            if (team?.teamMembers?.length > 0) {
-                team.teamMembers.forEach((member) => {
-                    if (member.name === playerName) {
-                        setMyTeam(team.teamName)
-                        console.log(team.teamName, "Teamname")
-                    }
-                })
-            }
-        })
-    }, [teams])
 
     const createNewTeam = () => {
         //socket.emit('create-team', sessionStorage.getItem('game-code'))
@@ -70,19 +57,10 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role }) => {
             score: 0
         }
         const db = getDatabase();
-        const teamDetailsRef = ref(db, `${gameCode}/teamDetails`);
+        // const teamDetailsRef = ref(db, `${gameCode}/teamDetails`);
         alert(teams.length)
         updates[`${gameCode}/teamDetails/team${teams.length + 1}`] = upData;
         update(ref(db), updates);
-        /*
-        onValue(teamDetailsRef,(snapshot)=>{
-            if(snapshot.exists()){
-                // alert('updating')
-                const snapData = Object.keys(snapshot.val());
-            }
-        },{
-            onlyOnce: true
-        }) */
     }
 
     return (
@@ -123,6 +101,7 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role }) => {
                     console.log(team, "team")
                     return (
                         <div className='text-lg' key={index} onClick={(event) => console.log(event, "click")}>
+                            {team?.teamName === myTeam ? console.log(myTeam, "ln126") : null}
                             <div className={team.teamName === myTeam ? 'flex w-40 h-24 inputs flex-col items-start justify-around whiteText rounded-lg ebaBg mb-3 px-3 cursor-pointer py-2 m-2 flex-wrap' : team.teamName === activeTeam ? 'flex w-40 h-24 inputs flex-col items-start justify-around burlywoodText rounded-lg burlywoodBorder border-3 mb-3 px-3 cursor-pointer py-2 m-2 flex-wrap' : "flex w-40 h-24 inputs flex-col items-start justify-around burlywoodText rounded-lg ebaBorder mb-3 px-3 cursor-pointer py-2 m-2 flex-wrap border-1"} onClick={() => activeIcon(team.teamName)}>
                                 <div className='self-start font-bold flex-wrap'>
                                     {index < 9 ? `Team 0${index + 1}` : `Team ${index + 1}`}
@@ -142,7 +121,10 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role }) => {
                                     </div> : <></>}
                         </div>
                     )
-                }) : <div className="w-full" style={{ zoom: 0.85 }}><PlayerComponent players={players} role={role} teams={teams} /></div>}
+                }) : <div className="w-full" style={{ zoom: 0.85 }}>
+                    <PlayerComponent players={players} role={role} teams={teams} />
+                    {/* lobby players */}
+                </div>}
             </div>
         </div>
     )

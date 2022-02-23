@@ -28,7 +28,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
         const player = menu.player
         console.log(player)
         console.log(team)
-        setMenu(false)
+        setMenu({})
         const db = getDatabase();
         const teamsRef = ref(db, `${gameCode}/teamDetails/${team}`);
         let updates = {};

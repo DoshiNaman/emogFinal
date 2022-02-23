@@ -11,7 +11,7 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 // import styles from "../css/hostScreen.module.css"
 
 const choice = () => {
-    const { playersNO} = useAuth();
+    const { playersNO } = useAuth();
 
     const router = useRouter()
 
@@ -22,8 +22,11 @@ const choice = () => {
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState('team1')
     const [mode, setMode] = useState('')
+    const [role, setRole] = useState("")
     const [playerName, setPlayerName] = useState("")
-
+    const [avatar, setAvatar] = useState("")
+    const [myTeam, setMyTeam] = useState("")
+    const db = getDatabase()
     // numberOfPlayers -> done
     // gameCode --> done
     // playerMax --> done
@@ -40,28 +43,46 @@ const choice = () => {
         const playerName = window.localStorage.getItem('player-name')
         setPlayerName(playerName)
         setPlayerMax(playersNO)
+        const clientRole = window.localStorage.getItem('role')
+        setRole(clientRole)
     }, [])
 
-    useEffect(()=>{
-        if(gameCode){
+    useEffect(() => {
+        if (playerName) {
+            const userRef = ref(db, `${gameCode}/userDetails/${playerName}`);
+            get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const userObj = snapshot.val()
+                    setAvatar(userObj.avatar)
+                } else {
+                    console.log("no user");
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        }
+    }, [playerName])
+
+    useEffect(() => {
+        if (gameCode) {
             const db = getDatabase();
-            const gModeRef = ref(db,`${gameCode}/gameMode`);
-            onValue(gModeRef, (snapshot)=>{
-                if(snapshot.exists()){
+            const gModeRef = ref(db, `${gameCode}/gameMode`);
+            onValue(gModeRef, (snapshot) => {
+                if (snapshot.exists()) {
                     setMode(snapshot.val())
                 }
-                else{
+                else {
                     alert("doesn't exists")
                 }
             })
         }
-    },[gameCode]);
+    }, [gameCode]);
 
     useEffect(() => {
         if (!gameCode) {
             return
         }
-        const db=getDatabase();
+        const db = getDatabase();
         const totalNumber = ref(db, `${gameCode}/userDetails/noOfPlayer`);
         onValue(totalNumber, (snapshot) => {
             if (snapshot.exists()) {
@@ -76,7 +97,8 @@ const choice = () => {
         if (!gameCode || gameCode === 0) {
             return
         }
-        const db=getDatabase()
+        // const db = getDatabase()
+
         const teamsRef = ref(db, `${gameCode}/teamDetails`);
         onValue(teamsRef, (snapshot) => {
             if (!snapshot.exists())
@@ -84,18 +106,23 @@ const choice = () => {
             const teamsObj = snapshot.val();
             let teamsNames = Object.keys(teamsObj);
             let teamsArr = []
+            var inTeam = false
             for (let i = 0; i < teamsNames.length; i++) {
                 let teamMembers = []
                 let teamName = teamsNames[i]
                 let teamObj = teamsObj[teamName]
                 let teamMembersNames = Object.keys(teamObj);
-                console.log(teamObj, "ss");
+
                 for (let j = 0; j < teamMembersNames.length; j++) {
-                    console.log(typeof(teamMembersNames[j]));
-                    if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-                        
+                    if (teamMembersNames[j] === playerName) {
+                        setMyTeam(teamName)
+                        inTeam = true
+                        console.log(teamName, "mine");
                     }
-                    else{
+                    if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
+                        continue;
+                    }
+                    else {
                         let obj = {
                             name: teamMembersNames[j],
                             avatar: teamObj[teamMembersNames[j]]
@@ -105,61 +132,36 @@ const choice = () => {
                 }
                 teamsArr.push({ teamName, teamMembers })
             }
+            if (inTeam === false)
+                setMyTeam("")
+            // console.log(teamsArr);
             setTeams(teamsArr)
-            alert(teams)
         });
 
     }, [gameCode]);
-
-
-    /* useEffect(() => {
-        setGameCode(sessionStorage.getItem('game-code'))
-        socket.on('players', players => setNumberOfPlayers(players.length))
-        socket.on('removed', () => window.location.href = '/play')
-        const playerName = sessionStorage.getItem('player-name')
-        setPlayerName(playerName)
-        const gameCode = sessionStorage.getItem('game-code')
-        socket.emit('player-in-teams', {gameCode, playerName})
-        socket.on('player-teams', ({teams,mode}) => {
-            console.log('pop ',teams);
-            const myTeam  = teams.find(t => t.teamMembers.find(p => p.name === sessionStorage.getItem('player-name')));
-            if(myTeam)
-                sessionStorage.setItem('team-name', myTeam.teamName)
-            setMode(mode)
-            setTeams(teams)})
-        socket.on('teams', teams => {
-            console.log(teams);
-            const myTeam  = teams.find(t => t.teamMembers.find(p => p.name === sessionStorage.getItem('player-name')));
-            if(myTeam)
-                sessionStorage.setItem('team-name', myTeam.teamName)
-            setTeams(teams)})
-        socket.on('err', ({message}) => alert(message))
-        //Max players per team
-        socket.on('max-players', maxPlayers => setPlayerMax(maxPlayers))
-        socket.on('scene-page', () => router.push('/scene'))
-    }, [socket]) */
 
     const activeButton = (active) => {
         setActiveTeam(active)
     }
 
-    return ( 
+    return (
         <div className="flex flex-col justify-center items-center bgNormal h-screen">
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
-                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers}/></div>
+                    <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers} /></div>
+                    <h1 style={{ textAlign: "center" }}>{playerName}</h1>
                 </div>
             </div>
             <div className='flex flex-row w-full justify-evenly'>
                 <div className='lg:w-6/12 md:w-6/12'>
-                    {teams? (<TeamComponent teams = {teams} activeIcon = {activeButton} activeTeam={activeTeam} player={true} playerName={playerName}/>) : (null)}
+                    {teams ? (<TeamComponent role={role} teams={teams} activeTeam={activeTeam} activeIcon={activeButton} playerName={playerName} myTeam={myTeam} />) : (null)}
                 </div>
                 <div className='w-3/12'>
-                {teams? <TeamPlayers teams = {teams.find(t => t.teamName == activeTeam)} activeTeam = {activeTeam} allTeams = {teams} player={true} mode = {mode} playerMax={playerMax}/> : null}
+                    {teams ? <TeamPlayers role={role} mode={mode} teams={teams} team={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} gameCode={gameCode} playerName={playerName} avatar={avatar} /> : null}
                 </div>
             </div>
-            </div>
-     );
+        </div>
+    );
 }
- 
+
 export default choice;

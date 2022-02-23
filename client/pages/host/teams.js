@@ -193,7 +193,7 @@ const teams = () => {
                             onChange={(e) => onChangeHandler(e)}
                         /></div>
                         <div className="text-xl mt-1 flex justify-between">No of Teams:  <input type="number" className="w-12 ebaBorder rounded pl-2"
-                            value={Math.ceil(numberOfPlayers / playersPerTeam)} onChange={(e) => setNumberTeams(e.target.value)}
+                            value={numberOfPlayers ? Math.ceil(numberOfPlayers / playersPerTeam) : 0} onChange={(e) => setNumberTeams(e.target.value)}
                         /></div>
                         <div className="text-xl mt-4"> <input type="radio" defaultChecked name='option' onClick={() => setMode('random')} /> Random  </div>
                         <div className="text-xl"> <input type="radio" name='option' onClick={() => setMode('manual')} /> Manual  </div>

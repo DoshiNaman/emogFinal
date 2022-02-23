@@ -12,7 +12,7 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 
 const choice = () => {
     const router = useRouter()
-    const socket = useContext(SocketContext)
+    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
     // const [players, setPlayers] = useState([])
@@ -103,7 +103,7 @@ const choice = () => {
                 }
                 teamsArr.push({ teamName, teamMembers })
             }
-            console.log(teamsArr);
+            // console.log(teamsArr);
             setTeams(teamsArr)
         });
 
@@ -123,6 +123,7 @@ const choice = () => {
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
                     <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers} /></div>
+                    <h1 style={{ textAlign: "center" }}>host</h1>
                 </div>
             </div>
             <div className='flex flex-row w-full justify-evenly'>
