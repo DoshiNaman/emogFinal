@@ -18,7 +18,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
     }, [])
 
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
         //alert(`${playersNO} playersperTeam`)
     }, []);
@@ -44,7 +44,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
                 }
                 else if (snapData.length < parseInt(5)) {
                     alert('updating')
-                    updates[`${gameCode}/teamPlayerJoined/${player["name"]}`] = player;
+                    updates[`${gameCode}/teamJoinedPlayers/${player["name"]}`] = player;
                     updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
                     updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
                 }

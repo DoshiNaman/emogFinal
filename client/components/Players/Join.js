@@ -45,9 +45,9 @@ const Join = () => {
                             console.log(playerName)
 
                             update(ref(db), updates);
-                            window.localStorage.setItem("game-code", code)
-                            window.localStorage.setItem("player-name", playerName)
-                            window.localStorage.setItem("role", "player")
+                            window.sessionStorage.setItem("game-code", code)
+                            window.sessionStorage.setItem("player-name", playerName)
+                            window.sessionStorage.setItem("role", "player")
                             router.push('/player/avatar')
 
                         }

@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
 import TeamPlayers from "../../components/TeamPlayers";
-import { SocketContext } from "../../context/socket/SocketContext";
+// import { SocketContext } from "../../context/socket/SocketContext";
 import useAuth from "../../hooks/useAuth";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 // import styles from "../css/hostScreen.module.css"
@@ -17,7 +17,7 @@ const choice = () => {
 
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
-    const socket = useContext(SocketContext)
+    // const socket = useContext(SocketContext)
     const [playerMax, setPlayerMax] = useState()
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState('team1')
@@ -38,12 +38,12 @@ const choice = () => {
 
     // setting gamecode and player name 
     useEffect(() => {
-        const gameCode = window.localStorage.getItem('game-code')
+        const gameCode = window.sessionStorage.getItem('game-code')
         setGameCode(gameCode)
-        const playerName = window.localStorage.getItem('player-name')
+        const playerName = window.sessionStorage.getItem('player-name')
         setPlayerName(playerName)
         setPlayerMax(playersNO)
-        const clientRole = window.localStorage.getItem('role')
+        const clientRole = window.sessionStorage.getItem('role')
         setRole(clientRole)
     }, [])
 

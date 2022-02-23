@@ -5,7 +5,7 @@ import { getDatabase, set, ref } from 'firebase/database';
 
 const Host = () => {
     const router = useRouter()
-    const [gameData, setGameData] = useState([]);
+    // const [gameData, setGameData] = useState([]);
     const db = getDatabase();
 
     const genRanHex = (size) => {
@@ -18,8 +18,8 @@ const Host = () => {
     const hostLoginHandle = () => {
         // const roomId = Math.floor(Math.random()*1000000);
         const roomId = genRanHex(6)
-        localStorage.setItem('game-code', roomId);
-        localStorage.setItem('role', "host");
+        sessionStorage.setItem('game-code', roomId);
+        sessionStorage.setItem('role', "host");
         set(ref(db, `/${roomId}`), {
             "isActive": 0,
             "isChoice": 0,

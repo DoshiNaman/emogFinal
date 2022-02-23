@@ -11,12 +11,13 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
     // const [myTeam, setMyTeam] = useState("")
     const [gameCode, setGameCode] = useState("")
     //const socket = useContext(SocketContext)
-    console.log(playerName);
+    // console.log(playerName);
+    const db = getDatabase();
 
     const [menu, setMenu] = useState(undefined)
 
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
     }, []);
 
@@ -25,28 +26,32 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
     }, [])
 
     useEffect(() => {
-        const db = getDatabase();
-        const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
-        onValue(usersRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const lobbyPlayersObj = snapshot.val();
-                const userNamesArr = Object.keys(lobbyPlayersObj);
-                let playerArr = [];
-                let obj
-                for (let i = 0; i < (userNamesArr.length); i++) {
-                    obj = {}
-                    if (userNamesArr[i] !== "") {
-                        obj = {
-                            name: userNamesArr[i],
-                            avatar: lobbyPlayersObj[userNamesArr[i]]
+        if (gameCode) {
+            const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
+            onValue(usersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const lobbyPlayersObj = snapshot.val();
+                    const userNamesArr = Object.keys(lobbyPlayersObj);
+                    let playerArr = [];
+                    let obj
+                    for (let i = 0; i < (userNamesArr.length); i++) {
+                        obj = {}
+                        if (userNamesArr[i] !== "") {
+                            obj = {
+                                name: userNamesArr[i],
+                                avatar: lobbyPlayersObj[userNamesArr[i]]
+                            }
+                            playerArr.push(obj)
                         }
-                        playerArr.push(obj)
                     }
+                    // console.log(playerArr, "lobby players");
+                    console.log("player adeedd to taemasa");
+                    setPlayers(playerArr)
+                } else {
+                    setPlayers([])
                 }
-                // console.log(playerArr, "lobby players");
-                setPlayers(playerArr)
-            }
-        });
+            });
+        }
     }, [gameCode]);
 
     const createNewTeam = () => {
@@ -98,10 +103,10 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
             </div>
             <div className='flex max-h-64 justify-between scl flex-row flex-wrap overflow-y-auto'>
                 {display === "teams" ? teams.map((team, index) => {
-                    console.log(team, "team")
+                    {/* console.log(team, "team") */ }
                     return (
                         <div className='text-lg' key={index} onClick={(event) => console.log(event, "click")}>
-                            {team?.teamName === myTeam ? console.log(myTeam, "ln126") : null}
+                            {/* {team?.teamName === myTeam ? console.log(myTeam, "ln126") : null} */}
                             <div className={team.teamName === myTeam ? 'flex w-40 h-24 inputs flex-col items-start justify-around whiteText rounded-lg ebaBg mb-3 px-3 cursor-pointer py-2 m-2 flex-wrap' : team.teamName === activeTeam ? 'flex w-40 h-24 inputs flex-col items-start justify-around burlywoodText rounded-lg burlywoodBorder border-3 mb-3 px-3 cursor-pointer py-2 m-2 flex-wrap' : "flex w-40 h-24 inputs flex-col items-start justify-around burlywoodText rounded-lg ebaBorder mb-3 px-3 cursor-pointer py-2 m-2 flex-wrap border-1"} onClick={() => activeIcon(team.teamName)}>
                                 <div className='self-start font-bold flex-wrap'>
                                     {index < 9 ? `Team 0${index + 1}` : `Team ${index + 1}`}
@@ -122,7 +127,7 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
                         </div>
                     )
                 }) : <div className="w-full" style={{ zoom: 0.85 }}>
-                    <PlayerComponent players={players} role={role} teams={teams} />
+                    <PlayerComponent players={players} role={role} teams={teams} setPlayers={setPlayers} />
                     {/* lobby players */}
                 </div>}
             </div>

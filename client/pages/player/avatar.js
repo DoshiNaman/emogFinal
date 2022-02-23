@@ -27,9 +27,9 @@ const avatar = () => {
     // const [teams,setTeams] = useState(true)
 
     useEffect(() => {
-        const gameCode = window.localStorage.getItem('game-code')
+        const gameCode = window.sessionStorage.getItem('game-code')
         setGameCode(gameCode)
-        const playerName = window.localStorage.getItem('player-name')
+        const playerName = window.sessionStorage.getItem('player-name')
         setPlayerName(playerName)
         // socket.emit('join-avatar', { gameCode, playerName })
         // socket.on('players', players => {

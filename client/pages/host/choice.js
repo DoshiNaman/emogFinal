@@ -30,9 +30,9 @@ const choice = () => {
 
     // setting gamecode and player name 
     useEffect(() => {
-        const gameCode = window.localStorage.getItem('game-code')
+        const gameCode = window.sessionStorage.getItem('game-code')
         setGameCode(gameCode)
-        const clientRole = window.localStorage.getItem('role')
+        const clientRole = window.sessionStorage.getItem('role')
         setRole(clientRole)
     }, [])
 

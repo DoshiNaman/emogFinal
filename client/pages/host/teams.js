@@ -29,7 +29,7 @@ const teams = () => {
     // const [playersInLobby, setPlayersInLobby] = useState({})
 
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
     }, []);
 

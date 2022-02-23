@@ -31,7 +31,7 @@ const SelectScene = () => {
 
 
     useEffect(() => {
-        setGameCode(localStorage.getItem('game-code'))
+        setGameCode(sessionStorage.getItem('game-code'))
         console.log(gameCode);
     }, [])
 
@@ -48,7 +48,7 @@ const SelectScene = () => {
         }
         /* let newOne = ["Enan Mainur","Abhinav","Naman"]
         let newTwo = [...newOne,"ABC"] */
-        
+
         let arr = addScenesToGame.slice(0)
         arr.length = 0
         arr.push(newScene)
@@ -197,7 +197,7 @@ const SelectScene = () => {
             </div>
             <div className="text-center"><Button text='Save' clickHandler={clickHandler} /></div>
             {createScenes ? <CreateNewScene closeButton={() => setCreateScenes(false)}
-                
+
                 text={editSceneText}
                 nudge={nudge}
                 roleOne={roleOne}

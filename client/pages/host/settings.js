@@ -14,7 +14,7 @@ const settings = () => {
     const socket = useContext(SocketContext)
     const [numberOfRounds, setNumberOfRounds] = useState(10)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
-    // gameCode from localStorage
+    // gameCode from sessionStorage
     const [gameCode, setGameCode] = useState("");
     const [disabled, setDisabled] = useState(true)
     const [guessingTime, setGuessingTime] = useState('')
@@ -24,7 +24,7 @@ const settings = () => {
     const [disableRounds, setDisableRounds] = useState(true)
 
     useEffect(() => {
-        setGameCode(localStorage.getItem('game-code'))
+        setGameCode(sessionStorage.getItem('game-code'))
         console.log(gameCode);
     }, [])
     /* useEffect(() => {

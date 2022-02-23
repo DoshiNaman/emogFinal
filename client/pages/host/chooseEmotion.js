@@ -20,12 +20,12 @@ const ChooseEmotions = () => {
 
 
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
     }, []);
 
     useEffect(() => {
-        if(!gameCode || gameCode===0){
+        if (!gameCode || gameCode === 0) {
             return
         }
         const db = getDatabase();
@@ -53,7 +53,7 @@ const ChooseEmotions = () => {
     const rArray = []
 
     const clickHandler = () => {
-        if(!gameCode || gameCode===0){
+        if (!gameCode || gameCode === 0) {
             return
         }
         if (emotionArray.length < maxRound) {

@@ -3,7 +3,7 @@ import SettingsAndBack from "../../components/settingsAndBack";
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import PlayerComponent from "../../components/Host/PlayerComponent";
-import { SocketContext } from '../../context/socket/SocketContext'
+// import { SocketContext } from '../../context/socket/SocketContext'
 import TeamPlayers from "../../components/TeamPlayers";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
@@ -13,7 +13,7 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 const manual = () => {
 
     const router = useRouter()
-    const socket = useContext(SocketContext)
+    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState('')
 
@@ -21,11 +21,15 @@ const manual = () => {
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState("team1")
     const [role, setRole] = useState("")
+    const [mode, setMode] = useState("")
+    const db = getDatabase()
 
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
-        const clientRole = window.localStorage.getItem('role')
+        const gameCode = window.sessionStorage.getItem('game-code')
+        setGameCode(gameCode)
+        const clientRole = window.sessionStorage.getItem('role')
         setRole(clientRole)
     }, []);
 
@@ -41,6 +45,22 @@ const manual = () => {
                 const data = snapshot.val();
                 setNumberOfPlayers(data)
             }
+        });
+    }, [gameCode]);
+
+    useEffect(() => {
+        if (!gameCode) {
+            return
+        }
+        const modeRef = ref(db, `${gameCode}/gameMode`);
+        onValue(modeRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                alert(data)
+                setMode(data)
+            }
+        }, {
+            onlyOnce: true
         });
     }, [gameCode]);
 
@@ -135,7 +155,7 @@ const manual = () => {
                     {/*  playersWithoutTeams={players} */}
                 </div>
                 <div className='w-3/12'>
-                    {teams ? <TeamPlayers teams={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
+                    {teams ? <TeamPlayers role={role} mode={mode} team={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
                 </div>
             </div>
             <div className="text-center"><Button text={'Start'} clickHandler={() => clickHandler()} /></div>

@@ -19,17 +19,21 @@ const random = () => {
     const [activeTeam, setActiveTeam] = useState('team1')
     const [playersInLobby, setPlayersInLobby] = useState([])
     const [playerName, setPlayerName] = useState("")
-    const [isPlayer, setIsPlayer] = useState(false)
+    // const [isPlayer, setIsPlayer] = useState(false)
+    const [role, setRole] = useState("")
+
     const db = getDatabase();
 
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
-        const name = localStorage.getItem('player-name');
+        const name = sessionStorage.getItem('player-name');
         if (name !== undefined) {
             setPlayerName(name)
             // setIsPlayer(true)
         }
+        const clientRole = window.sessionStorage.getItem('role')
+        setRole(clientRole)
     }, []);
 
     useEffect(() => {
@@ -72,11 +76,11 @@ const random = () => {
                 console.log(teamObj, "ss");
                 // teamsObj[usersInfo[i]].teamPlayers.length
                 for (let j = 0; j < teamMembersNames.length; j++) {
-                    console.log(typeof(teamMembersNames[j]));
+                    console.log(typeof (teamMembersNames[j]));
                     if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-                        
+
                     }
-                    else{
+                    else {
                         let obj = {
                             name: teamMembersNames[j],
                             avatar: teamObj[teamMembersNames[j]]
@@ -104,30 +108,30 @@ const random = () => {
 
     }, [gameCode]);
 
-    useEffect(() => {
-        if (!gameCode || gameCode === 0) {
-            return
-        }
-        const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
-        onValue(usersRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const lobbyPlayersObj = snapshot.val();
-                const userNamesArr = Object.keys(lobbyPlayersObj);
-                let playerArr = [], obj
-                for (let i = 0; i < (userNamesArr.length); i++) {
-                    obj = {}
-                    if (userNamesArr[i] !== "") {
-                        obj = {
-                            name: userNamesArr[i],
-                            avatar: lobbyPlayersObj[userNamesArr[i]]
-                        }
-                        playerArr.push(obj)
-                    }
-                }
-                setPlayersInLobby(playerArr)
-            }
-        });
-    }, [gameCode]);
+    // useEffect(() => {
+    //     if (!gameCode || gameCode === 0) {
+    //         return
+    //     }
+    //     const usersRef = ref(db, `${gameCode}/inLobbyPlayers2`);
+    //     onValue(usersRef, (snapshot) => {
+    //         if (snapshot.exists()) {
+    //             const lobbyPlayersObj = snapshot.val();
+    //             const userNamesArr = Object.keys(lobbyPlayersObj);
+    //             let playerArr = [], obj
+    //             for (let i = 0; i < (userNamesArr.length); i++) {
+    //                 obj = {}
+    //                 if (userNamesArr[i] !== "") {
+    //                     obj = {
+    //                         name: userNamesArr[i],
+    //                         avatar: lobbyPlayersObj[userNamesArr[i]]
+    //                     }
+    //                     playerArr.push(obj)
+    //                 }
+    //             }
+    //             setPlayersInLobby(playerArr)
+    //         }
+    //     });
+    // }, [gameCode]);
 
     const clickHandler = () => {
         // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
@@ -139,16 +143,19 @@ const random = () => {
         setActiveTeam(active)
     }
 
-    const createNewTeam = () => {
-        if(teams.length===0){
-            alert("Zero Len")
-            return
-        }
-        let length = teams.length
-        let updates = {}
-        updates[`${gameCode}/teamDetails/team${length + 1}`] = { score: 0,currentRound: 0 }
-        update(db, updates)
-    }
+    // const createNewTeam = () => {
+    //     if (teams.length === 0) {
+    //         alert("Zero Len")
+    //         return
+    //     }
+    //     let length = teams.length
+    //     let updates = {}
+    //     updates[`${gameCode}/teamDetails/team${length + 1}`] = { score: 0, currentRound: 0 }
+    //     update(db, updates)
+    // }
+    // createNewTeam = { createNewTeam }
+    // playersWithoutTeams = { playersInLobby }
+    // player = { isPlayer }
 
     return (
         <div className="flex flex-col justify-center items-center h-screen bgNormal">
@@ -159,10 +166,10 @@ const random = () => {
             </div>
             <div className='flex flex-row w-full justify-evenly'>
                 <div className='lg:w-6/12 md:w-6/12'>
-                    {teams ? (<TeamComponent teams={teams} createNewTeam={createNewTeam} playerName={playerName} activeTeam={activeTeam} player={isPlayer} activeIcon={activeButton} playersWithoutTeams={playersInLobby} />) : (null)}
+                    {teams ? (<TeamComponent role={role} teams={teams} playerName={playerName} activeTeam={activeTeam} activeIcon={activeButton} />) : (null)}
                 </div>
                 <div className='w-3/12'>
-                    {teams ? <TeamPlayers team={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
+                    {teams ? <TeamPlayers role={role} team={teams.find(t => t.teamName == activeTeam)} activeTeam={activeTeam} allTeams={teams} status={true} /> : null}
                 </div>
             </div>
             <div className="text-center"><Button text={'Start'} clickHandler={() => clickHandler()} /></div>

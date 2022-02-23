@@ -17,7 +17,7 @@ const scenes = () => {
     const [sceneClassName, setSceneClassName] = useState(false)
     const [emotionClassName, setEmotionClassName] = useState(false)
     useEffect(() => {
-        const gameId = localStorage.getItem('game-code');
+        const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
     }, []);
 
