@@ -59,7 +59,7 @@ const game = () => {
     const [currScore, setCurrScore] = useState(0)
     const [nextPlayer,setNextPlayer] = useState("")
 
-    useEffect(() => {
+    /* useEffect(() => {
         setStatus(sessionStorage.getItem('status'))
         setPlayerName(sessionStorage.getItem('player-name'))
         const code = sessionStorage.getItem('game-code')
@@ -166,7 +166,7 @@ const game = () => {
             setIsDisabled(bool)
         })
 
-    }, [socket])
+    }, [socket]) */
 
     useEffect(() => {
         var objDiv = document.getElementById("chatBox");
@@ -175,7 +175,7 @@ const game = () => {
         objDiv2.scrollTop = objDiv2.scrollHeight;
     })
 
-    useEffect(() => {
+    /* useEffect(() => {
 
         const teamName = sessionStorage.getItem('team-name')
         socket.on('your-three-choices', ({correctEmotion, otherEmotion, thirdEmotion}) => {
@@ -244,14 +244,14 @@ const game = () => {
             active = true
         }
 
-    }, [counter, guessCounter, socket])
+    }, [counter, guessCounter, socket]) */
 
-    const callHostF = () => {
+   /*  const callHostF = () => {
         let teamName = sessionStorage.getItem('team-name')
         socket.emit('call-the-host', {gameCode, teamName})
         setCallHost(false)
     }
-
+ */
     const guessEmotion = (e) => {
         // if(guessedEmotions.length >= 2){
         //     alert('You guessed two emotions already!')
@@ -270,7 +270,7 @@ const game = () => {
         setConfirmLifeline(text)
     }
 
-    const clickHandler = () => {
+    /* const clickHandler = () => {
         setDeletedRow([])
         setOtherEmotion("")
         setCorrectEmotion("")
@@ -295,13 +295,13 @@ const game = () => {
         socket.emit('guessed-array', {gameCode, teamName, guessedEmotions, playerName})
         :
         socket.emit('guessed', {gameCode, teamName, emotion, playerName})
-    }
+    } */
 
     const onChangeHandler = (e) => {
         setStatement(e.target.value)
     }
 
-    const onSubmit = () => {
+    /* const onSubmit = () => {
         let teamName = sessionStorage.getItem('team-name')
         setStatement('')
         let message = messages.slice(0)
@@ -311,7 +311,7 @@ const game = () => {
         setCounter(0)
         sessionStorage.setItem('type-counter', 0)
         socket.emit('submit-statement', {gameCode, teamName, message})
-    }
+    } */
 
     // const [screenZoom, setScreenZoom] = useState(1)
 

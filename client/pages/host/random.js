@@ -12,7 +12,7 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 const random = () => {
 
     const router = useRouter()
-    const socket = useContext(SocketContext)
+    //const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
     const [teams, setTeams] = useState([])
@@ -134,6 +134,11 @@ const random = () => {
     // }, [gameCode]);
 
     const clickHandler = () => {
+        let updates = {}
+        updates[`${gameCode}/isActive`] = 1
+        update(ref(db), updates)
+        sessionStorage.setItem('status', 1);
+        router.push('/scene')
         // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
         // socket.on('scene-page', () => router.push('/scene'))
     }

@@ -13,7 +13,7 @@ import router from "next/router"
 
 const hostDashboard = () => {
 
-    const socket = useContext(SocketContext)
+    //const socket = useContext(SocketContext)
     const [guessingTime, setGuessingTime] = useState('')
     const [typingTime, setTypingTime] = useState('')
     const [scene, setScene] = useState('')
@@ -29,7 +29,7 @@ const hostDashboard = () => {
     const [compoundCorrect, setCompoundCorrect] = useState(3)
     const [compoundIncorrect, setCompoundIncorrect] = useState(0)
 
-    useEffect(() => {
+    /* useEffect(() => {
            socket.emit('host-dashboard', sessionStorage.getItem('game-code'))
            socket.on('team-details', teams => {setTeams(teams)})
            socket.on('game-scenes', scene => setScene(scene))
@@ -44,7 +44,7 @@ const hostDashboard = () => {
            socket.on('other-correct', otherCorrect => setOtherCorrect(otherCorrect))
            socket.on('other-incorrect', otherIncorrect => setOtherIncorrect(otherIncorrect))
            socket.on('leaderboard-js', () => router.push('/leaderboard'))
-    },  [socket])
+    },  [socket]) */
 
 
     return ( <div className="flex flex-row bgNormal">

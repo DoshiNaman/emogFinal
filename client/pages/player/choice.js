@@ -47,6 +47,8 @@ const choice = () => {
         setRole(clientRole)
     }, [])
 
+    
+
     useEffect(() => {
         if (playerName) {
             const userRef = ref(db, `${gameCode}/userDetails/${playerName}`);
@@ -116,6 +118,7 @@ const choice = () => {
                 for (let j = 0; j < teamMembersNames.length; j++) {
                     if (teamMembersNames[j] === playerName) {
                         setMyTeam(teamName)
+                        alert("ENANG")
                         inTeam = true
                         console.log(teamName, "mine");
                     }
@@ -139,6 +142,28 @@ const choice = () => {
         });
 
     }, [gameCode]);
+
+    //cometoscene
+    useEffect(() => {
+        if (gameCode) {
+            const db = getDatabase();
+            const gModeRef = ref(db, `${gameCode}/isActive`);
+            onValue(gModeRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const a=snapshot.val();
+                    if(a==1){
+                        if(myTeam!=""){
+                            sessionStorage.setItem('team-name', myTeam);
+                            router.push('/scene')    
+                        }
+                        else{
+                            alert("Not Fetch myTeam Value")
+                        }
+                    }   
+                }
+            })
+        }
+    }, [gameCode,myTeam]);
 
     const activeButton = (active) => {
         setActiveTeam(active)
