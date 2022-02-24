@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react'
 //import { SocketContext } from '../context/socket/SocketContext';
 import PlayerComponent from './Host/PlayerComponent';
 
-const TeamPlayers = ({ team, teams, allTeams, role, mode, status, playerMax, gameCode, playerName, avatar }) => {
+const TeamPlayers = ({ team, teams, allTeams, role, mode, status, playerMax, gameCode, playerName, avatar, activeTeam }) => {
 
     // const [gameCode, setGameCode] = useState('')
     const db = getDatabase()
@@ -73,7 +73,7 @@ const TeamPlayers = ({ team, teams, allTeams, role, mode, status, playerMax, gam
                 </div>
             </div>
             <div className='w-full'>
-                <PlayerComponent players={team && team.teamMembers} role={role} teams={allTeams} status={status} width='medium' largeWidth='xs' />
+                <PlayerComponent activeTeam={activeTeam} team='hello' players={team && team.teamMembers} role={role} teams={allTeams} status={status} width='medium' largeWidth='xs' />
             </div>
         </div>
     )

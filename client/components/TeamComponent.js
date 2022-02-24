@@ -127,7 +127,7 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
                         </div>
                     )
                 }) : <div className="w-full" style={{ zoom: 0.85 }}>
-                    <PlayerComponent players={players} role={role} teams={teams} setPlayers={setPlayers} />
+                    <PlayerComponent activeTeam={activeTeam} players={players} role={role} teams={teams} setPlayers={setPlayers} />
                     {/* lobby players */}
                 </div>}
             </div>

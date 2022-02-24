@@ -127,6 +127,7 @@ const teams = () => {
             updates[`/${gameCode}/inLobbyPlayers2`] = lobbyPlayers;
             updates[`/${gameCode}/isChoice`] = 1;
             updates[`/${gameCode}/gameMode`] = "random";
+            updates[`/${gameCode}/hostDetails/playerPerTeam`] = parseInt(playersPerTeam);
             console.log(updates)
             // setMode("random")
             update(ref(db), updates)
@@ -140,7 +141,7 @@ const teams = () => {
 
 
         else if (mode === 'manual') {
-
+            
             let totalTeam = Math.ceil(numberOfPlayers / playersPerTeam);
             const db = getDatabase();
             let teamObj = {}
@@ -151,6 +152,7 @@ const teams = () => {
                 updates[`/${gameCode}/teamDetails/team${i + 1}`] = teamObj;
             }
             updates[`/${gameCode}/gameMode`] = "manual";
+            updates[`/${gameCode}/hostDetails/playerPerTeam`] = parseInt(playersPerTeam);
             update(ref(db), updates)
             setMode("manual")
             router.push('/host/manual');
@@ -166,6 +168,7 @@ const teams = () => {
                 updates[`/${gameCode}/teamDetails/team${i + 1}`] = teamObj;
             }
             updates[`/${gameCode}/gameMode`] = "choice";
+            updates[`/${gameCode}/hostDetails/playerPerTeam`] = parseInt(playersPerTeam);
             update(ref(db), updates)
             setMode("choice")
             router.push('/host/choice')

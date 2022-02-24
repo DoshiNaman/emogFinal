@@ -2,15 +2,17 @@ import React, { useContext, useEffect, useState } from 'react'
 //import {SocketContext} from '../../context/socket/SocketContext'
 import useAuth from "../../hooks/useAuth"
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
+import useFirebase from '../../hooks/useFirebase';
 
 
-const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
+const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  role }) => {
     const { playersNO, setPlayersNO } = useAuth();
     const [menu, setMenu] = useState()
     const [moveTeams, setMoveTeams] = useState(false)
     const [gameCode, setGameCode] = useState("")
     const [sliderPlayers, setSliderPlayers] = useState(4);
     const [slideIndex, setSlideIndex] = useState(0)
+    const [maxNoOfPlayer,setMaxNoOfPlayer] = useState(0);
     console.log(players)
 
     useEffect(() => {
@@ -23,41 +25,128 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
         //alert(`${playersNO} playersperTeam`)
     }, []);
 
+    useEffect(()=>{
+        if(gameCode){
+            const db = getDatabase();
+            const pNoRef = ref(db,`${gameCode}/hostDetails/playerPerTeam`);
+            onValue(pNoRef,(snapshot)=>{
+                if(snapshot.exists()){
+                    const snapData = snapshot.val();
+                    setMaxNoOfPlayer(snapData+2)
+                    console.log(snapData)
+                }
+            })
+        }
+    },[gameCode]);
+    
+
     const clickHandler = (team) => {
         // alert('hello returning 27')
         const player = menu.player
-        console.log(player)
-        console.log(team)
         setMenu({})
+        let updates = {};
         const db = getDatabase();
         const teamsRef = ref(db, `${gameCode}/teamDetails/${team}`);
-        let updates = {};
         onValue(teamsRef, (snapshot) => {
             if (snapshot.exists()) {
                 const snapData = Object.keys(snapshot.val());
-                console.log(snapData.length)
-                console.log(parseInt(5))
-                if (snapData.length >= parseInt(5)) {
-                    console.log('ok')
+                // checking if the player is in same team 
+                if(snapData.includes(player.name)){
+                    alert(`The player are already in ${team}`)
+                    return
+                }
+                // checking if the team is full 
+                else if (snapData.length >= maxNoOfPlayer) {
                     alert(`Sorry! ${team} is full, please join another team.`)
                     return
                 }
-                else if (snapData.length < parseInt(5)) {
-                    alert('updating')
-                    updates[`${gameCode}/teamJoinedPlayers/${player["name"]}`] = player;
-                    updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
-                    updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
+                // checking if the team is not full and player can proceed 
+                else if (snapData.length < maxNoOfPlayer) {
+                    const teamJoinedREf = ref(db,`${gameCode}/teamJoinedPlayers`)
+                    let teamOwned = false;
+                    onValue(teamJoinedREf, (snapshot)=>{
+                        if(snapshot.exists()){
+                            const teamSnapData = Object.keys(snapshot.val());
+                            // checking if the player is in any team 
+                            if(teamSnapData.includes(player.name)){
+                                teamOwned = true
+                                return
+                            }
+                            // checking if the player is not in any team 
+                            else{
+                                teamOwned = false;
+                            }
+                        }
+                    })
+                    // readding the player to new team from previous one 
+                    if(teamOwned){
+                        alert('moving to another team');
+                        updates[`${gameCode}/teamDetails/${activeTeam}/${player["name"]}`] = null;
+                        updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
+                        updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
+                    }
+                    // adding to new team 
+                    else if(!teamOwned){
+                        alert('adding to new team')
+                        updates[`${gameCode}/teamJoinedPlayers/${player["name"]}`] = player;
+                        updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
+                        updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
+                    }
+                    
                 }
             }
         }, {
             onlyOnce: true
         })
         update(ref(db), updates);
-        return
     }
 
     const removePlayer = (menu) => {
-        console.log(menu.player)
+        // alert('removing')
+        const updates = {};
+        const pName = menu.player.name;
+        const pAvatar = menu.player.avatar;
+        console.log(pName);
+        console.log(pAvatar);
+        console.log(activeTeam);
+        const db = getDatabase();
+        let lobbyData = false;
+        const lobbyPlayerRef = ref(db,`${gameCode}/inLobbyPlayers2`);
+        onValue(lobbyPlayerRef,(snapshot)=>{
+            if(snapshot.exists()){
+                const lobbyDataKey = Object.keys(snapshot.val());
+                console.log(lobbyDataKey);
+                if(lobbyDataKey.includes(pName)){
+                    lobbyData=true
+                }
+            }
+        },{
+            onlyOnce: true
+        })
+        if(lobbyData===true){
+            // updates[`${gameCode}/inLobbyPlayers2/${pName}`]=null;
+            console.log('it is true')
+            alert(`This player is already in lobby`)
+            return;
+            // update(ref(db), updates);
+        }else{
+            const teamPlayerRef= ref(db,`${gameCode}/teamJoinedPlayers`);
+            onValue(teamPlayerRef,(snapshot)=>{
+                if(snapshot.exists()){
+                    const teamDataKey = Object.keys(snapshot.val());
+                    console.log('it is false')
+                    console.log(teamDataKey)
+                    if(teamDataKey.includes(pName)){
+                        updates[`${gameCode}/inLobbyPlayers2/${pName}`]=pAvatar;
+                        updates[`${gameCode}/teamJoinedPlayers/${pName}`]=null;
+                        updates[`${gameCode}/teamDetails/${activeTeam}/${pName}`]=null;
+                        update(ref(db), updates);
+                    }
+                }
+            },{
+                onlyOnce: true
+            })
+        }
         // const gameCode = sessionStorage.getItem('game-code')
         // const playerName = menu.player.name
         // socket.emit('remove-player', {gameCode, playerName})
@@ -92,7 +181,7 @@ const PlayerComponent = ({ players, width, largeWidth, teams, role }) => {
                                     <div className="ebaBg px-2 border-2 whiteText border-white " onClick={() => removePlayer(menu)}>Remove</div>
                                 </div>
                                 {moveTeams ? <div className="scl cursor-pointer max-h-32 overflow-y-auto">
-                                    {teams ? teams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClickCapture={() => { setMoveTeams(false); clickHandler(team.teamName) }} key={index} > {team.teamName}</div>) : <></>}
+                                    {teams ? teams.map((team, index) => <div className='w-auto px-2 ebaBg border-2 whiteText border-white ' onClick={() => { setMoveTeams(false); clickHandler(team.teamName) }} key={index} > {team.teamName}</div>) : <></>}
                                 </div> : <></>}
                             </div>
                         </div> : <></>}
