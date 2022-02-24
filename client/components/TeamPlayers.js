@@ -30,7 +30,7 @@ const TeamPlayers = ({ team, teams, allTeams, role, mode, status, playerMax, gam
                         let x = playersObj[playersArr[i]]
                         // console.log(x);
                         updates[`${gameCode}/teamDetails/${teamName}/${playerName}`] = playersObj[playersArr[i]]
-                        updates[`${gameCode}/teamPlayerJoined/${playerName}`] = { name: playerName, avatar: playersObj[playersArr[i]] }
+                        updates[`${gameCode}/teamJoinedPlayers/${playerName}`] = { team: parseInt(teamName.slice(-1)), avatar: playersObj[playersArr[i]] }
                         break;
                     }
                 }
@@ -47,7 +47,7 @@ const TeamPlayers = ({ team, teams, allTeams, role, mode, status, playerMax, gam
         console.log('Leaving team');
         let updates = {}
         updates[`${gameCode}/teamDetails/${teamName}/${playerName}`] = null
-        updates[`${gameCode}/teamPlayerJoined/${playerName}`] = null
+        updates[`${gameCode}/teamJoinedPlayers/${playerName}`] = null
         if (avatar !== "")
             updates[`${gameCode}/inLobbyPlayers2/${playerName}`] = avatar
         update(ref(db), updates)

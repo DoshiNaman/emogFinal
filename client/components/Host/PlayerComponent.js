@@ -69,8 +69,7 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
                             const teamSnapData = Object.keys(snapshot.val());
                             // checking if the player is in any team 
                             if(teamSnapData.includes(player.name)){
-                                teamOwned = true
-                                return
+                                teamOwned = true;
                             }
                             // checking if the player is not in any team 
                             else{
@@ -84,11 +83,13 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
                         updates[`${gameCode}/teamDetails/${activeTeam}/${player["name"]}`] = null;
                         updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
                         updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
+                        updates[`${gameCode}/teamJoinedPlayers/${player["name"]}/team`] = parseInt(team.slice(-1));
                     }
                     // adding to new team 
                     else if(!teamOwned){
                         alert('adding to new team')
-                        updates[`${gameCode}/teamJoinedPlayers/${player["name"]}`] = player;
+                        updates[`${gameCode}/teamJoinedPlayers/${player["name"]}/avatar`] = player["avatar"];
+                        updates[`${gameCode}/teamJoinedPlayers/${player["name"]}/team`] = parseInt(team.slice(-1));
                         updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
                         updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
                     }
