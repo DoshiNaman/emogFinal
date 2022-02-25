@@ -5,6 +5,7 @@ import Wheel from '../../../components/wheel'
 import ConfirmLifeline from "../../../components/Players/confirmLifeline";
 import SettingsAndBack from "../../../components/settingsAndBack"
 import Summary from "../../../components/Players/summary";
+import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const game = () => {
 
@@ -13,10 +14,11 @@ const game = () => {
 
     const [ruleBook, ruleBookClicked] = useState(false)
     const [team, setTeam] = useState({})
+    const [myTeam, setMyTeam] = useState("")
     const [players, setPlayers] = useState([])
     const [roundNo, setRoundNo] = useState(1)
-    const maxRounds = useRef(10)
-    const [scene, setScene] = useState('')
+    const [maxRounds, setMaxRounds] = useState(10)
+    const [scene, setScene] = useState({})
     const [messages, setMessages] = useState([])
     const socket = useContext(SocketContext)
     const [statement, setStatement] = useState('')
@@ -58,6 +60,99 @@ const game = () => {
     const [yourAnswer, setYourAnswer] = useState([])
     const [currScore, setCurrScore] = useState(0)
     const [nextPlayer,setNextPlayer] = useState("")
+
+    const db = getDatabase();
+
+
+    //GameCode
+    useEffect(() => {
+        const gameCode = window.sessionStorage.getItem('game-code')
+        setGameCode(gameCode)
+        const myT = window.sessionStorage.getItem('team-name')
+        setMyTeam(myT)
+    }, []);
+
+    //setTeams & Players & Scene
+    useEffect(() => {
+        if(myTeam!=""){
+            const myP = window.sessionStorage.getItem('player-name')
+            const teamRef = ref(db, `${gameCode}/teamDetails/${myTeam}`);
+            get(teamRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const teamObj = snapshot.val()
+                    const playerName = Object.keys(snapshot.val())
+                    const playerArr = []
+                    console.log(teamObj)
+                    setTeam(teamObj)
+                    for(let i =0;i<playerName.length;i++){
+                        if(playerName[i] == "currentRound"){
+                            setRoundNo(teamObj[playerName[i]])
+                        } 
+                        else if(playerName[i] == "score"){
+                            alert("Found")
+                        }
+                        else{
+                            let obj = {
+                                name:`${playerName[i]}`,
+                                avatar: `${teamObj[playerName[i]]}`
+                            }
+                            if(myP == playerName[i]){
+                                setPlayer(obj)
+                            }
+                            playerArr.push(obj)
+                        }
+                    }
+                    console.log(playerArr)
+                    setPlayers(playerArr)
+                } else {
+                    console.log("no team");
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+
+            const sceneRef = ref(db, `${gameCode}/hostDetails`);
+            get(sceneRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const sceneObj = snapshot.val()
+                    const maxR = parseInt(sceneObj["noOfRounds"])
+                    setMaxRounds(maxR)
+                    const sceneIDD = parseInt(sceneObj["sceneId"])
+                    console.log(sceneObj)
+                    const sceneRef2 = ref(db, `${gameCode}/scenes/${sceneIDD}`);
+                    get(sceneRef2).then((snapshot) => {
+                        if (snapshot.exists()) {
+                            let sceneObj2 = snapshot.val()
+                            console.log(sceneObj2)
+                            setScene(sceneObj2)
+                            //console.log(scenes)
+                        } else {
+                            console.log("no scene.scene");
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                    });
+                } else {
+                    console.log("no scene");
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+
+        }
+    }, [gameCode,myTeam]);
+
+
+
+
+
+
+
+
+
+
+
+
 
     /* useEffect(() => {
         setStatus(sessionStorage.getItem('status'))
@@ -342,7 +437,7 @@ const game = () => {
                 <div className="flex flex-column heading rounded-xl mx-2" style={{flex:"4", height:"80vh"}}>
                     <div className="flex justify-between rounded-t-xl ebaBg whiteText text-xl px-8 pt-4 flex-1">
                         <div>
-                            Round {roundNo}/{maxRounds.current}                            
+                            Round {roundNo}/{maxRounds}                            
                         </div>
                         <div>
                             {isTimerOver?  `Guessing time: ${timeGuesserFormat}` : `Typing time: ${timeFormat}`}

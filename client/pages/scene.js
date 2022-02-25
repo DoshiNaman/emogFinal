@@ -51,7 +51,13 @@ const scene = () => {
             setTimeout(() => router.push('/host/hostDashboard'), 4000)
         }
         else{
-            setTimeout(() => router.push(`/player/game/${sessionStorage.getItem('team-name')}`), 4000)
+            if(sessionStorage.getItem('team-name') != ""){
+                const teamName=sessionStorage.getItem('team-name')
+                let updates = {}
+                updates[`${gameCode}/teamDetails/${teamName}/currentRound`] = 1
+                update(ref(db), updates)
+                setTimeout(() => router.push(`/player/game/${sessionStorage.getItem('team-name')}`), 4000)
+            }   
         }
     }, [gameCode]);
 
