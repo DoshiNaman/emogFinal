@@ -19,14 +19,14 @@ const game = () => {
     const [roundNo, setRoundNo] = useState(1)
     const [maxRounds, setMaxRounds] = useState(10)
     const [scene, setScene] = useState({})
-    const [messages, setMessages] = useState([])
+    const [messages, setMessages] = useState(["Hi Hello Are You ? ","Hi Hello ","Hhdhdkhsjh"])
     const socket = useContext(SocketContext)
     const [statement, setStatement] = useState('')
     const [player, setPlayer] = useState({})
     const [activePlayer, setActivePlayer] = useState('')
     const [isDisabled, setIsDisabled] = useState(false)
     const [score, setScore] = useState(0)
-    const [playerName, setPlayerName] = useState('')
+    const [playerName, setPlayerName] = useState('naman')
     const [emotion, setEmotion] = useState('')
     const [isTimerOver, setIsTimerOver] = useState(false)
     const [timeFormat, setTimeFormat] = useState('')
@@ -396,8 +396,8 @@ const game = () => {
         setStatement(e.target.value)
     }
 
-    /* const onSubmit = () => {
-        let teamName = sessionStorage.getItem('team-name')
+    const onSubmit = () => {
+        /* let teamName = sessionStorage.getItem('team-name')
         setStatement('')
         let message = messages.slice(0)
         message.push(statement)
@@ -405,8 +405,8 @@ const game = () => {
         setTimeFormat('0:00')
         setCounter(0)
         sessionStorage.setItem('type-counter', 0)
-        socket.emit('submit-statement', {gameCode, teamName, message})
-    } */
+        socket.emit('submit-statement', {gameCode, teamName, message}) */
+    }
 
     // const [screenZoom, setScreenZoom] = useState(1)
 
@@ -444,7 +444,7 @@ const game = () => {
                         </div>
                     </div>
                     <div className="flex flex-column-reverse overflow-y-auto" style={{flex:"9"}}>
-                            {player.name === playerName && player.isRandomlySelected || playerName === 'host'?
+                            {player.name === playerName || playerName === 'host'?
                             <div className='flex flex-row justify-between py-2 px-3'>
                                 
                                 <input placeholder='Be Careful! You can only submit one statement in a round.' className="ebaBg w-full input pl-2 border-2 font-extralight rounded-lg ebaBorder whiteText h-8" value = {statement} onChange = {e => onChangeHandler(e)} onKeyPress={(e) => e.key === 'Enter' && onSubmit()} disabled = {isDisabled? true: false} />
