@@ -8,22 +8,22 @@ const scene = () => {
     const router = useRouter()
     const [gameCode, setGameCode] = useState("")
     const [scenes, setScenes] = useState({})
-    const [status, setStatus] = useState("")
+    const [role, setRole] = useState("")
     const db = getDatabase();
 
     useEffect(() => {
         const gameCode = window.sessionStorage.getItem('game-code')
         setGameCode(gameCode)
-        if (!status) {
-            const stat = sessionStorage.getItem('status')
-            setStatus(stat)
+        if (!role) {
+            const stat = sessionStorage.getItem('role')
+            setRole(stat)
             console.log(stat);
         }
     }, []);
 
     useEffect(() => {
-        console.log(gameCode, status);
-        console.log(typeof status);
+        console.log(gameCode, role);
+        console.log(typeof role);
         if (gameCode) {
             const sceneRef = ref(db, `${gameCode}/hostDetails`);
             get(sceneRef).then((snapshot) => {
@@ -40,7 +40,7 @@ const scene = () => {
                             let sceneObj2 = snapshot.val()
                             // console.log(sceneObj2)
                             setScenes(sceneObj2)
-                            if (status === "1") {
+                            if (role === "host") {
                                 console.log("1 -> hjasyuyxasyewss ");
                                 const teamRef = ref(db, `${gameCode}/teamDetails`);
                                 get(teamRef).then((snapshot) => {
@@ -120,7 +120,7 @@ const scene = () => {
                 console.error(error);
             });
         }
-    }, [gameCode, status]);
+    }, [gameCode, role]);
 
     /* useEffect(() => {        
         //socket.emit('get-game-scene', sessionStorage.getItem('game-code'))

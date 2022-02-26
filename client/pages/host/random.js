@@ -137,7 +137,7 @@ const random = () => {
         let updates = {}
         updates[`${gameCode}/isActive`] = 1
         update(ref(db), updates)
-        sessionStorage.setItem('status', 1);
+        //sessionStorage.setItem('status', 1);
         router.push('/scene')
         // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
         // socket.on('scene-page', () => router.push('/scene'))

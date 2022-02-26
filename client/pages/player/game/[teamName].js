@@ -19,15 +19,15 @@ const game = () => {
     const [roundNo, setRoundNo] = useState(1)
     const [maxRounds, setMaxRounds] = useState(10)
     const [scene, setScene] = useState({})
-    const [messages, setMessages] = useState(["Hi Hello Are You ? ", "Hi Hello ", "Hhdhdkhsjh"])
+    const [messages, setMessages] = useState([])
     const socket = useContext(SocketContext)
     const [statement, setStatement] = useState('')
     const [player, setPlayer] = useState({})
     const [activePlayer, setActivePlayer] = useState('')
     const [isDisabled, setIsDisabled] = useState(false)
     const [score, setScore] = useState(0)
-    const [playerName, setPlayerName] = useState('naman')
-    const [emotion, setEmotion] = useState('')
+    const [playerName, setPlayerName] = useState('')
+    const [emotion, setEmotion] = useState('JOY')
     const [isTimerOver, setIsTimerOver] = useState(false)
     const [timeFormat, setTimeFormat] = useState('')
     const [timeGuesserFormat, setTimeGuesserFormat] = useState('')
@@ -43,7 +43,7 @@ const game = () => {
     // call bot
     const [correctEmotion, setCorrectEmotion] = useState('')
     const [otherEmotion, setOtherEmotion] = useState('')
-    const [thirdEmotion, setThirdEmotion] = useState('')
+    const [thirdEmotion, setThirdEmotion] = useState('joy')
 
     // delete row
     const [deletedRow, setDeletedRow] = useState([])
@@ -72,12 +72,27 @@ const game = () => {
         setMyTeam(myT)
     }, []);
 
+    useEffect(() => {
+        if(gameCode && roundNo>0){
+            const a = "round"+roundNo;
+            const reRef = ref(db, `${gameCode}/hostDetails/setEmotion/${a}`);
+            get(reRef).then((snapshot) => {
+                if(snapshot.exists()){
+                    const roundEmotion = snapshot.val();
+                    setCurrentRoundEmotion(roundEmotion)
+                }
+            }).catch((error) => {
+                console.error(error);
+            });
+        }
+    }, [gameCode,roundNo]);
+
     //setTeams & Players & Scene
     useEffect(() => {
         if (myTeam != "") {
             const myP = window.sessionStorage.getItem('player-name')
             const teamRef = ref(db, `${gameCode}/teamDetails/${myTeam}`);
-            get(teamRef).then((snapshot) => {
+            onValue(teamRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const teamObj = snapshot.val()
                     const playerName = Object.keys(snapshot.val())
@@ -107,8 +122,6 @@ const game = () => {
                 } else {
                     console.log("no team");
                 }
-            }).catch((error) => {
-                console.error(error);
             });
 
             const sceneRef = ref(db, `${gameCode}/hostDetails`);
@@ -148,6 +161,38 @@ const game = () => {
         var objDiv2 = document.getElementById("gameLog");
         objDiv2.scrollTop = objDiv2.scrollHeight;
     })
+
+    //setMessgae
+    useEffect(() => {
+        if(gameCode && myTeam != ""){
+            const msgRef = ref(db, `${gameCode}/roundDetails/${myTeam}`);
+            onValue(msgRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const newMsg = []
+                    const rdObj = snapshot.val();
+                    const newRN = roundNo + 1;
+                    for(let i=0;i<=newRN;i++){
+                        if(rdObj[i].sender == "pre"){
+                            newMsg.push(rdObj[i].msg);
+                        }
+                        else{
+                            if(i==newRN){
+                                setPlayerName(rdObj[i].sender);
+                                
+                            }
+                            else{
+                                newMsg.push(rdObj[i].msg);
+                            }
+                        }
+                    }
+                    setMessages(newMsg)
+                } else {
+                    console.log("nomsg");
+                }
+            });
+        }
+    },[gameCode,myTeam,roundNo])
+
 
     const guessEmotion = (e) => {
         // if(guessedEmotions.length >= 2){
@@ -199,6 +244,17 @@ const game = () => {
     }
 
     const onSubmit = () => {
+        if(parseInt(roundNo) === parseInt(maxRounds)){
+            alert("Oveeer")
+            return
+        }
+        alert(statement)
+        let updates = {}
+        let newR = parseInt(roundNo + 1)
+        updates[`${gameCode}/roundDetails/${myTeam}/${newR}/msg`] = statement 
+        updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
+        update(ref(db), updates)
+
         /* let teamName = sessionStorage.getItem('team-name')
         setStatement('')
         let message = messages.slice(0)
@@ -283,7 +339,7 @@ const game = () => {
                     <div className="font-bold px-8 py-4 heading rounded-xl w-3/4 text-lg">
                         Scene: {scene.scene}
                     </div>
-                    {player.isRandomlySelected && player.name === playerName ? <Wheel emotionFunction={guessEmotion} currentRoundEmotion={currentRoundEmotion} /> : <Wheel emotionFunction={guessEmotion} deletedRow={deletedRow} callRobot={[correctEmotion, otherEmotion, thirdEmotion]} thisOrThatBool={thisOrThatBool} guessedEmotions={guessedEmotions} />}
+                    {player.name === playerName ? <Wheel emotionFunction={guessEmotion} currentRoundEmotion={currentRoundEmotion} /> : <Wheel emotionFunction={guessEmotion} deletedRow={deletedRow} callRobot={[correctEmotion, otherEmotion, thirdEmotion]} thisOrThatBool={thisOrThatBool} guessedEmotions={guessedEmotions} />}
                 </div>
                 <div className="flex flex-column mx-2 flex-1" style={{ height: "80vh" }}>
                     <div className="font-bold flex p-2 heading rounded-lg text-lg">
