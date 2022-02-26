@@ -8,17 +8,23 @@ const scene = () => {
     const router = useRouter()
     const [gameCode, setGameCode] = useState("")
     const [scenes, setScenes] = useState({})
-    let status=0
+    const [status, setStatus] = useState("")
     const db = getDatabase();
 
     useEffect(() => {
         const gameCode = window.sessionStorage.getItem('game-code')
         setGameCode(gameCode)
+        if (!status) {
+            const stat = sessionStorage.getItem('status')
+            setStatus(stat)
+            console.log(stat);
+        }
     }, []);
 
     useEffect(() => {
-        status = sessionStorage.getItem('status')
-        if(gameCode){
+        console.log(gameCode, status);
+        console.log(typeof status);
+        if (gameCode) {
             const sceneRef = ref(db, `${gameCode}/hostDetails`);
             get(sceneRef).then((snapshot) => {
                 if (snapshot.exists()) {
@@ -26,19 +32,20 @@ const scene = () => {
                     const sceneIDD = parseInt(sceneObj["sceneId"])
                     let noOfROUNDSS = parseInt(sceneObj["noOfRounds"])
                     alert(noOfROUNDSS)
-                    console.log(sceneObj)
+                    // console.log(sceneObj)
                     const sceneRef2 = ref(db, `${gameCode}/scenes/${sceneIDD}`);
+
                     get(sceneRef2).then((snapshot) => {
                         if (snapshot.exists()) {
                             let sceneObj2 = snapshot.val()
-                            console.log(sceneObj2)
+                            // console.log(sceneObj2)
                             setScenes(sceneObj2)
-                            if(status === '1')
-                            {
+                            if (status === "1") {
+                                console.log("1 -> hjasyuyxasyewss ");
                                 const teamRef = ref(db, `${gameCode}/teamDetails`);
                                 get(teamRef).then((snapshot) => {
-                                    if (snapshot.exists()){
-                                        
+                                    if (snapshot.exists()) {
+
                                         const teamsObj = snapshot.val();
                                         let teamsNames = Object.keys(teamsObj);
                                         //alert(teamsNames.length)
@@ -49,78 +56,55 @@ const scene = () => {
                                             let teamName = teamsNames[i]
                                             //alert(teamName)
                                             roundDetailsArr.push({
-                                                sender:"pre",
-                                                msg:sceneObj2.statementOne
+                                                sender: "pre",
+                                                msg: sceneObj2.statementOne
                                             })
                                             roundDetailsArr.push({
-                                                sender:"pre",
-                                                msg:sceneObj2.statementTwo
+                                                sender: "pre",
+                                                msg: sceneObj2.statementTwo
                                             })
                                             console.log(roundDetailsArr)
                                             let teamObj = teamsObj[teamName]
                                             let teamMembersNames = Object.keys(teamObj);
-                                            //r=2,p=3
-                                            while(noOfROUNDS!=0){
-                                                if(noOfROUNDS>teamMembersNames.length){
-                                                    for (let j = 0; j < teamMembersNames.length; j++) {
-                                                        let obj2 = {}
-                                                        //console.log(typeof (teamMembersNames[j]));
-                                                        if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-        
-                                                        }
-                                                        else {
-                                                            //console.log(teamMembersNames[j])
-                                                            obj2 = {
-                                                                sender:teamMembersNames[j],
-                                                                msg:"NoN"
-                                                            }
-                                                            roundDetailsArr.push(obj2)
-                                                        }
-                                                    }
-                                                    noOfROUNDS=noOfROUNDS-(teamMembersNames.length-2) 
-                                                }
-                                                else if(noOfROUNDS<=teamMembersNames.length){
-                                                    for (let j = 0; j < noOfROUNDS; j++) {
-                                                        let obj2 = {}
-                                                        //console.log(typeof (teamMembersNames[j]));
-                                                        if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-        
-                                                        }
-                                                        else {
-                                                            //console.log(teamMembersNames[j])
-                                                            obj2 = {
-                                                                sender:teamMembersNames[j],
-                                                                msg:"NoN"
-                                                            }
-                                                            roundDetailsArr.push(obj2)
-                                                        }
-                                                    }
-                                                    noOfROUNDS=0
-                                                }
-                                               
-                                                //for (let j = 0; j < teamMembersNames.length; j++) {
-                                                    
-                                                //} 
-
+                                            var index = teamMembersNames.indexOf("currentRound");
+                                            if (index !== -1) {
+                                                teamMembersNames.splice(index, 1);
                                             }
-                                            
+                                            index = teamMembersNames.indexOf("score");
+                                            if (index !== -1) {
+                                                teamMembersNames.splice(index, 1);
+                                            }
+                                            console.log(teamMembersNames);
+                                            let length = teamMembersNames.length
+                                            for (let i = 0, x = 0; i < noOfROUNDS; i++) {
+                                                let postion = x % length
+                                                let obj = {
+                                                    sender: teamMembersNames[postion],
+                                                    msg: "NoN"
+                                                }
+                                                roundDetailsArr.push(obj)
+                                                x++;
+                                            }
+
                                             console.log(roundDetailsArr)
                                             updates[`${gameCode}/roundDetails/${teamName}`] = roundDetailsArr
                                         }
                                         update(ref(db), updates)
+                                        setTimeout(() => router.push('/host/hostDashboard'), 4000)
                                     }
                                 }).catch((error) => {
                                     console.error(error);
                                 });
                             }
-                            else{
-                                if(sessionStorage.getItem('team-name') != "" && sessionStorage.getItem('team-name') != null){
-                                    const teamName=sessionStorage.getItem('team-name')
+                            else {
+                                let sessionTeamName = sessionStorage.getItem('team-name')
+                                if (sessionTeamName !== undefined) {
+                                    // const teamName = sessionTeamName
                                     let updates = {}
-                                    updates[`${gameCode}/teamDetails/${teamName}/currentRound`] = 1
+                                    updates[`${gameCode}/teamDetails/${sessionTeamName}/currentRound`] = 1
                                     update(ref(db), updates)
-                                    //setTimeout(() => router.push(`/player/game/${sessionStorage.getItem('team-name')}`), 4000)
-                                }   
+                                    setTimeout(() => router.push(`/player/game/${sessionStorage.getItem('team-name')}`), 4000)
+                                }
                             }
                             //console.log(scenes)
                         } else {
@@ -136,7 +120,7 @@ const scene = () => {
                 console.error(error);
             });
         }
-    }, [gameCode]);
+    }, [gameCode, status]);
 
     /* useEffect(() => {        
         //socket.emit('get-game-scene', sessionStorage.getItem('game-code'))

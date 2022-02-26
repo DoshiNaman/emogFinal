@@ -5,14 +5,14 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 import useFirebase from '../../hooks/useFirebase';
 
 
-const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  role }) => {
+const PlayerComponent = ({ players, width, largeWidth, activeTeam, teams, role }) => {
     const { playersNO, setPlayersNO } = useAuth();
     const [menu, setMenu] = useState()
     const [moveTeams, setMoveTeams] = useState(false)
     const [gameCode, setGameCode] = useState("")
     const [sliderPlayers, setSliderPlayers] = useState(4);
     const [slideIndex, setSlideIndex] = useState(0)
-    const [maxNoOfPlayer,setMaxNoOfPlayer] = useState(0);
+    const [maxNoOfPlayer, setMaxNoOfPlayer] = useState(0);
     console.log(players)
 
     useEffect(() => {
@@ -25,20 +25,20 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
         //alert(`${playersNO} playersperTeam`)
     }, []);
 
-    useEffect(()=>{
-        if(gameCode){
+    useEffect(() => {
+        if (gameCode) {
             const db = getDatabase();
-            const pNoRef = ref(db,`${gameCode}/hostDetails/playerPerTeam`);
-            onValue(pNoRef,(snapshot)=>{
-                if(snapshot.exists()){
+            const pNoRef = ref(db, `${gameCode}/hostDetails/playerPerTeam`);
+            onValue(pNoRef, (snapshot) => {
+                if (snapshot.exists()) {
                     const snapData = snapshot.val();
-                    setMaxNoOfPlayer(snapData+2)
+                    setMaxNoOfPlayer(snapData + 2)
                     console.log(snapData)
                 }
             })
         }
-    },[gameCode]);
-    
+    }, [gameCode]);
+
 
     const clickHandler = (team) => {
         // alert('hello returning 27')
@@ -51,7 +51,7 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
             if (snapshot.exists()) {
                 const snapData = Object.keys(snapshot.val());
                 // checking if the player is in same team 
-                if(snapData.includes(player.name)){
+                if (snapData.includes(player.name)) {
                     alert(`The player are already in ${team}`)
                     return
                 }
@@ -62,23 +62,27 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
                 }
                 // checking if the team is not full and player can proceed 
                 else if (snapData.length < maxNoOfPlayer) {
-                    const teamJoinedREf = ref(db,`${gameCode}/teamJoinedPlayers`)
+                    const teamJoinedREf = ref(db, `${gameCode}/teamJoinedPlayers`)
                     let teamOwned = false;
-                    onValue(teamJoinedREf, (snapshot)=>{
-                        if(snapshot.exists()){
+                    onValue(teamJoinedREf, (snapshot) => {
+                        if (snapshot.exists()) {
                             const teamSnapData = Object.keys(snapshot.val());
                             // checking if the player is in any team 
-                            if(teamSnapData.includes(player.name)){
+                            if (teamSnapData.includes(player.name)) {
                                 teamOwned = true;
                             }
                             // checking if the player is not in any team 
-                            else{
+                            else {
                                 teamOwned = false;
                             }
+                            console.log("before");
                         }
+                    }, {
+                        onlyOnce: true
                     })
                     // readding the player to new team from previous one 
-                    if(teamOwned){
+                    console.log("after");
+                    if (teamOwned) {
                         alert('moving to another team');
                         updates[`${gameCode}/teamDetails/${activeTeam}/${player["name"]}`] = null;
                         updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
@@ -86,14 +90,14 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
                         updates[`${gameCode}/teamJoinedPlayers/${player["name"]}/team`] = parseInt(team.slice(-1));
                     }
                     // adding to new team 
-                    else if(!teamOwned){
+                    else if (!teamOwned) {
                         alert('adding to new team')
                         updates[`${gameCode}/teamJoinedPlayers/${player["name"]}/avatar`] = player["avatar"];
                         updates[`${gameCode}/teamJoinedPlayers/${player["name"]}/team`] = parseInt(team.slice(-1));
                         updates[`${gameCode}/teamDetails/${team}/${player["name"]}`] = player["avatar"];
                         updates[`${gameCode}/inLobbyPlayers2/${player["name"]}`] = null;
                     }
-                    
+
                 }
             }
         }, {
@@ -112,39 +116,39 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
         console.log(activeTeam);
         const db = getDatabase();
         let lobbyData = false;
-        const lobbyPlayerRef = ref(db,`${gameCode}/inLobbyPlayers2`);
-        onValue(lobbyPlayerRef,(snapshot)=>{
-            if(snapshot.exists()){
+        const lobbyPlayerRef = ref(db, `${gameCode}/inLobbyPlayers2`);
+        onValue(lobbyPlayerRef, (snapshot) => {
+            if (snapshot.exists()) {
                 const lobbyDataKey = Object.keys(snapshot.val());
                 console.log(lobbyDataKey);
-                if(lobbyDataKey.includes(pName)){
-                    lobbyData=true
+                if (lobbyDataKey.includes(pName)) {
+                    lobbyData = true
                 }
             }
-        },{
+        }, {
             onlyOnce: true
         })
-        if(lobbyData===true){
+        if (lobbyData === true) {
             // updates[`${gameCode}/inLobbyPlayers2/${pName}`]=null;
             console.log('it is true')
             alert(`This player is already in lobby`)
             return;
             // update(ref(db), updates);
-        }else{
-            const teamPlayerRef= ref(db,`${gameCode}/teamJoinedPlayers`);
-            onValue(teamPlayerRef,(snapshot)=>{
-                if(snapshot.exists()){
+        } else {
+            const teamPlayerRef = ref(db, `${gameCode}/teamJoinedPlayers`);
+            onValue(teamPlayerRef, (snapshot) => {
+                if (snapshot.exists()) {
                     const teamDataKey = Object.keys(snapshot.val());
                     console.log('it is false')
                     console.log(teamDataKey)
-                    if(teamDataKey.includes(pName)){
-                        updates[`${gameCode}/inLobbyPlayers2/${pName}`]=pAvatar;
-                        updates[`${gameCode}/teamJoinedPlayers/${pName}`]=null;
-                        updates[`${gameCode}/teamDetails/${activeTeam}/${pName}`]=null;
+                    if (teamDataKey.includes(pName)) {
+                        updates[`${gameCode}/inLobbyPlayers2/${pName}`] = pAvatar;
+                        updates[`${gameCode}/teamJoinedPlayers/${pName}`] = null;
+                        updates[`${gameCode}/teamDetails/${activeTeam}/${pName}`] = null;
                         update(ref(db), updates);
                     }
                 }
-            },{
+            }, {
                 onlyOnce: true
             })
         }
@@ -175,7 +179,8 @@ const PlayerComponent = ({ players, width, largeWidth,activeTeam, teams, team,  
                 )) : null}
                 {
                     menu && (role == "host") ?
-                        <div className="h-screen w-screen absolute top-0 left-0" onClick={() => { setMenu(undefined); setMoveTeams(false) }} onMouseOver={() => console.log("in")}>
+                        <div className="h-screen w-screen absolute top-0 left-0" onClick={() => { setMenu(undefined); setMoveTeams(false) }} >
+                            {/* onMouseOver={() => console.log("in")} */}
                             <div className="flex flex-row absolute z-10" style={{ top: menu.y, left: menu.x }}>
                                 <div className="cursor-pointer h-full">
                                     <div className={moveTeams ? "burlywoodBg px-2 border-2 whiteText border-white" : "ebaBg px-2 border-2 whiteText border-white"} onClick={(event) => { setMoveTeams(!moveTeams); event.stopPropagation() }}>Move</div>

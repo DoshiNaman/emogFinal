@@ -195,9 +195,12 @@ const SelectScene = () => {
                     </div>
                 </div> : <></>}
             </div>
-            <div className="text-center"><Button text='Save' clickHandler={clickHandler} /></div>
-            {createScenes ? <CreateNewScene closeButton={() => setCreateScenes(false)}
 
+            <div className="text-center">
+                <Button text='Save' clickHandler={clickHandler} />
+            </div>
+
+            {createScenes ? <CreateNewScene closeButton={() => setCreateScenes(false)}
                 text={editSceneText}
                 nudge={nudge}
                 roleOne={roleOne}
