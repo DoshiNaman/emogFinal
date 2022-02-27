@@ -21,6 +21,8 @@ const choice = () => {
     const [activeTeam, setActiveTeam] = useState("team1")
     const [mode, setMode] = useState("")
     const [role, setRole] = useState("")
+    const [guessingTime,setGuessingTime] = useState(0);
+    const [typingTime,setTypingTime] = useState(0);
     const db = getDatabase()
     // numberOfPlayers -> done
     // gameCode -> done
@@ -50,6 +52,20 @@ const choice = () => {
             }
         });
     }, [gameCode]);
+
+    useEffect(()=>{
+        const db = getDatabase();
+        const hostRef = ref(db,`${gameCode}/hostDetails`);
+        onValue(hostRef,(snapshot)=>{
+            if(snapshot.exists()){
+                const snapData = snapshot.val();
+                const guessingTimeData = snapData.guessingTime;
+                const typingTimeData = snapData.typingTime;
+                setGuessingTime(guessingTimeData);
+                setTypingTime(typingTimeData);
+            }
+        })
+    },[gameCode]);
 
     useEffect(() => {
         if (!gameCode) {
@@ -110,10 +126,27 @@ const choice = () => {
     }, [gameCode]);
 
     const clickHandler = () => {
-        // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
-        // socket.on('scene-page', () => router.push('/scene'))
+        if(teams && gameCode){
+            // alert('teams coming in console')
+            const db = getDatabase();
+            const updates = {};
+            for(let i=0;i<teams.length;i++){
+                const teamNome = teams[i].teamName;
+                console.log(teamNome);
+                updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`]=parseInt(guessingTime);
+                updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`]=parseInt(typingTime);
+                updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`]=false;
+                updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`]=true;
+            }
+            console.log(updates)
+            updates[`${gameCode}/isActive`] = 1
+            update(ref(db), updates)
+            //sessionStorage.setItem('status', 1);
+            router.push('/scene')
+            // socket.emit('come-to-scene', sessionStorage.getItem('game-code'))
+            // socket.on('scene-page', () => router.push('/scene'))
+        }
     }
-
     const activeButton = (active) => {
         setActiveTeam(active)
     }
