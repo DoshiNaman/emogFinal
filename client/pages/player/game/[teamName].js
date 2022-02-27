@@ -6,11 +6,11 @@ import ConfirmLifeline from "../../../components/Players/confirmLifeline";
 import SettingsAndBack from "../../../components/settingsAndBack"
 import Summary from "../../../components/Players/summary";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
+// import Timer from "../../../components/Timer"
 
 const game = () => {
 
     const router = useRouter()
-
 
     const [ruleBook, ruleBookClicked] = useState(false)
     const [team, setTeam] = useState({})
@@ -26,10 +26,9 @@ const game = () => {
     const [activePlayer, setActivePlayer] = useState('')
     const [isDisabled, setIsDisabled] = useState(false)
     const [score, setScore] = useState(0)
-    const [playerName, setPlayerName] = useState('')
     const [emotion, setEmotion] = useState('JOY')
     //timer
-    const [isTimerOver, setIsTimerOver] = useState(false)
+    // const [isTimerOver, setIsTimerOver] = useState(false)
     const [timeFormat, setTimeFormat] = useState('')
     const [timeGuesserFormat, setTimeGuesserFormat] = useState('')
 
@@ -65,8 +64,22 @@ const game = () => {
 
 
     // my name 
-    const [myNameEn,setMyNameEn] = useState('');
+    const [myNameEn, setMyNameEn] = useState('');
     const db = getDatabase();
+
+    ///  27 feb -33:30pm
+
+    const [typingDuration, setTypingDuration] = useState(100);
+    const [guessingDuration, setGuessingDuration] = useState(100);
+
+    const [isTyping, setIsTyping] = useState(true);
+    // const [isGuessing, setIsGuessing] = useState(false);
+    const [playerName, setPlayerName] = useState('')
+    // const [tempTimer, setTempTimer] = useState({})
+    const [totalTypingDuration, setTotalTypingDuration] = useState(0)
+    const [totalGuessingDuration, setTotalGuessingDuration] = useState(0)
+    // const time = new Date();
+    // time.setSeconds(time.getSeconds() + 10);
 
 
     //GameCode
@@ -79,12 +92,75 @@ const game = () => {
         setMyNameEn(myNome);
     }, []);
 
+
     useEffect(() => {
-        if(gameCode && roundNo>0){
-            const a = "round"+roundNo;
+        if (gameCode && playerName === myNameEn && totalTypingDuration && myTeam) {
+            const roundRef = ref(db, `${gameCode}/teamDetails/${myTeam}/currentRound`)
+            onValue(roundRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const typingTime = new Date()
+                    typingTime.setSeconds(typingTime.getSeconds() + totalTypingDuration)
+                    const typingTime = new Date()
+                    typingTime.setSeconds(typingTime.getSeconds() + totalTypingDuration)
+                    let updates = {}
+                    updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = typingTime
+                    updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true
+                    update(ref(db), updates)
+                }
+            })
+        }
+    }, [gameCode, myNameEn, totalTypingDuration, myTeam])
+
+
+    useEffect(() => {
+        if (gameCode && myTeam) {
+            const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endTypingTime`)
+            onValue(timingRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    let endTime = snapshot.val()
+                    // let endTime = teamObj.endTypingTime
+                    console.log(endTime);
+                    const time = new Date(endTime).getTime()
+                    const distance = time - (new Date().getTime())
+                    console.log(time, distance);
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    console.log(minutes, seconds);
+                    setTypingDuration(minutes * 60 + seconds)
+                }
+            })
+        }
+    }, [gameCode, myTeam, totalTypingDuration, myTeam])
+
+    useEffect(() => {
+        const enanInterval = setInterval(() => {
+            if (typingDuration > 0)
+                setTypingDuration(typingDuration => typingDuration - 1);
+            else {
+
+                let updates =
+            }
+        }, 1000);
+        return () => clearInterval(enanInterval);
+    }, [typingDuration]);
+
+
+
+    useEffect(() => {
+        const enanInterval = setInterval(() => {
+            if (typingDuration > 0)
+                setTypingDuration(typingDuration => typingDuration - 1);
+        }, 1000);
+        return () => clearInterval(enanInterval);
+    }, [typingDuration]);
+
+
+    useEffect(() => {
+        if (gameCode && roundNo > 0) {
+            const a = "round" + roundNo;
             const reRef = ref(db, `${gameCode}/hostDetails/setEmotion/${a}`);
             get(reRef).then((snapshot) => {
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     const roundEmotion = snapshot.val();
                     setCurrentRoundEmotion(roundEmotion)
                 }
@@ -92,7 +168,7 @@ const game = () => {
                 console.error(error);
             });
         }
-    }, [gameCode,roundNo]);
+    }, [gameCode, roundNo]);
 
     //setTeams & Players & Scene
     useEffect(() => {
@@ -137,6 +213,8 @@ const game = () => {
                     const sceneObj = snapshot.val()
                     const maxR = parseInt(sceneObj["noOfRounds"])
                     setMaxRounds(maxR)
+                    setTotalTypingDuration(parseInt(sceneObj["typingTime"]))
+                    setTotalGuessingDuration(parseInt(sceneObj["guessingTime"]))
                     const sceneIDD = parseInt(sceneObj["sceneId"])
                     console.log(sceneObj)
                     const sceneRef2 = ref(db, `${gameCode}/scenes/${sceneIDD}`);
@@ -171,23 +249,23 @@ const game = () => {
 
     //setMessgae
     useEffect(() => {
-        if(gameCode && myTeam != ""){
+        if (gameCode && myTeam != "") {
             const msgRef = ref(db, `${gameCode}/roundDetails/${myTeam}`);
             onValue(msgRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const newMsg = []
                     const rdObj = snapshot.val();
                     const newRN = roundNo + 1;
-                    for(let i=0;i<=newRN;i++){
-                        if(rdObj[i].sender == "pre"){
+                    for (let i = 0; i <= newRN; i++) {
+                        if (rdObj[i].sender == "pre") {
                             newMsg.push(rdObj[i].msg);
                         }
-                        else{
-                            if(i==newRN){
+                        else {
+                            if (i == newRN) {
                                 setPlayerName(rdObj[i].sender);
-                                
+
                             }
-                            else{
+                            else {
                                 newMsg.push(rdObj[i].msg);
                             }
                         }
@@ -198,7 +276,7 @@ const game = () => {
                 }
             });
         }
-    },[gameCode,myTeam,roundNo])
+    }, [gameCode, myTeam, roundNo])
 
 
     const guessEmotion = (e) => {
@@ -251,14 +329,14 @@ const game = () => {
     }
 
     const onSubmit = () => {
-        if(parseInt(roundNo) === parseInt(maxRounds)){
+        if (parseInt(roundNo) === parseInt(maxRounds)) {
             alert("Oveeer")
             return
         }
         alert(statement)
         let updates = {}
         let newR = parseInt(roundNo + 1)
-        updates[`${gameCode}/roundDetails/${myTeam}/${newR}/msg`] = statement 
+        updates[`${gameCode}/roundDetails/${myTeam}/${newR}/msg`] = statement
         updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
         update(ref(db), updates)
 
@@ -282,178 +360,14 @@ const game = () => {
     // }, [])
 
     // 301 number line for typing time
-    const [typingDuration,setTypingDuration] = useState(0);
-    const [guessingDuration,setGuessingDuration] = useState(0);
-    const [isTyping,setIsTyping] = useState(true);
-    const [isGuessing,setIsGuessing] = useState(false);
-    const [minuteEn,setMinuteEn]=useState(1);
-    const [secondEn,setSecondEn]=useState(30);
 
+    // static data, absolute, 
 
-    useEffect(()=>{
-        if(gameCode && playerName){
-            const db = getDatabase();
-            if(myNameEn != playerName){
-                return
-            }
-            // const teamTimingRef = ref(db,`${gameCode}/timingDetails/${myTeam}`)
-            const hostRef = ref(db,`${gameCode}/hostDetails`)
-            onValue(hostRef,(snapshot)=>{
-                if(snapshot.exists()){
-                    const teamTimingData = snapshot.val();
-                    const teamTypingTime = teamTimingData.typingTime;
-                    const teamGuessingTime = teamTimingData.guessingTime;
-                    const teamIsGuessing = false;
-                    const teamIsTyping = true;
-                    const updates = {};
-                    updates[`${gameCode}/timingDetails/${myTeam}/endGuessingTime`]=parseInt(teamGuessingTime);
-                    updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`]=parseInt(teamTypingTime);
-                    updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`]=true;
-                    updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`]=false;
-                    update(ref(db),updates);
-                    // const teamTypingTime = teamTimingData.endTypingTime;
-                    // const teamGuessingTime = teamTimingData.endGuessingTime;
-                    // const teamIsGuessing = teamTimingData.guessingTimeRunning;
-                    // const teamIsTyping = teamTimingData.typingTimeRunning;
-                }
-            },{
-                onlyOnce: true
-            })
-        }
-    },[gameCode,playerName,roundNo]);
+    //changes for each round, decrease to 0 
 
-    useEffect(()=>{
-        if(gameCode){
-            const db = getDatabase();
-            const teamTimingDbRef = ref(db,`${gameCode}/timingDetails/${myTeam}`);
-            onValue(teamTimingDbRef,(snapshot)=>{
-                if(snapshot.exists()){
-                    const timingData = snapshot.val();
-                    setTypingDuration(timingData.endTypingTime)
-                    setGuessingDuration(timingData.endGuessingTime)
-                    setIsGuessing(timingData.guessingTimeRunning)
-                    setIsTyping(timingData.typingTimeRunning)
-                }
-            })
-        }
-    },[gameCode,roundNo]);
+    useEffect(() => {
 
-
-    // typing timer 
-    useEffect(()=>{
-        if(!playerName || !gameCode || !isTyping){
-            console.log('returning from 344')
-            return
-        }
-        else if(playerName === myNameEn && gameCode && isTyping){
-            const db = getDatabase();
-            const updates = {};
-            if(typingDuration<=0){
-                updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = false;
-                updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = true;
-                update(ref(db),updates)
-                setIsTimerOver(true)
-                return
-            }
-            const myTypingTimeInterval = setInterval(()=>{
-                const min = Math.floor(typingDuration/60);
-                const sec = (typingDuration%60);
-                setMinuteEn(min)
-                setSecondEn(sec);
-                updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = parseInt(typingDuration-1);
-                update(ref(db),updates)
-            },1000)
-            return () => clearInterval(myTypingTimeInterval);
-        }
-        else{
-            if(typingDuration<=0){
-                setIsTyping(false)
-                setIsGuessing(true)
-                setIsTimerOver(true)
-                return
-            }
-            const myTypingTimeInterval = setInterval(()=>{
-                const min = Math.floor(typingDuration/60);
-                const sec = (typingDuration%60);
-                setMinuteEn(min)
-                setSecondEn(sec);
-            },1000)
-            return () => clearInterval(myTypingTimeInterval);
-        }
-    },[isTyping,typingDuration])
-
-    // guessing timer
-    useEffect(()=>{
-        if(!playerName || !gameCode || !isGuessing){
-            console.log('returning from 388')
-            return
-        }
-        else if(playerName === myNameEn && gameCode && isGuessing){
-            const db = getDatabase();
-            const updates = {};
-            if(guessingDuration<=0){
-                alert('guess')
-                updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
-                updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
-                update(ref(db),updates)
-                setIsTimerOver(false)
-                return
-            }
-            const myTypingTimeInterval = setInterval(()=>{
-                const min = Math.floor(guessingDuration/60);
-                const sec = (guessingDuration%60);
-                setMinuteEn(min)
-                setSecondEn(sec);
-                updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = parseInt(guessingDuration-1);
-                update(ref(db),updates)
-            },1000)
-            return () => clearInterval(myTypingTimeInterval);
-        }
-        else{
-            if(guessingDuration<=0){
-                setIsTyping(false)
-                setIsGuessing(true)
-                setIsTimerOver(false)
-                return
-            }
-            const myTypingTimeInterval = setInterval(()=>{
-                const min = Math.floor(guessingDuration/60);
-                const sec = (guessingDuration%60);
-                setMinuteEn(min)
-                setSecondEn(sec);
-            },1000)
-            return () => clearInterval(myTypingTimeInterval);
-        }
-    },[isGuessing,guessingDuration])
-
-    
-
-    // const [typingTimeEn,setTypingTimeEn] = useState(180);
-    /* console.log(endTypingTimeEn,'296')
-    useEffect(()=>{
-        // console.log(typingTimeEn)
-        const db = getDatabase();
-        const updates = {};
-        if(endTypingTimeEn<0){
-            return
-        }
-        const myTypingTimeInterval = setInterval(()=>{
-            const min = Math.floor(endTypingTimeEn/60);
-            const sec = (endTypingTimeEn%60);
-            setMinuteEn(min)
-            setSecondEn(sec)
-            setEndTypingTimeEn(endTypingTimeEn-1)
-            updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = parseInt(endTypingTimeEn);
-            update(ref(db),updates)
-        },1000)
-        return () => clearInterval(myTypingTimeInterval)
-        
-    },[endTypingTimeEn,typingDuration]); */
-
-/* 
-    useEffect(()=>{
-        console.log(endTypingTimeEn)
-    },[endTypingTimeEn]) */
+    }, [])
 
     return (
         <div className="flex flex-column h-screen bgNormal">
@@ -478,8 +392,12 @@ const game = () => {
                         <div>
                             Round {roundNo}/{maxRounds}
                         </div>
+                        {/* {console.log(tempTimer)} */}
+                        {/* {tempTimer !== {} ? <Timer expiryTime={tempTimer} /> : null} */}
+                        {/* <Timer expiryTime={time} /> */}
+                        {console.log(typingDuration)}
                         <div>
-                            {isTimerOver ? `Guessing time: ${minuteEn}:${secondEn}` : `Typing time: ${minuteEn}:${secondEn}`}
+                            {!isTyping ? `Guessing time: ${0}:${0}` : `Typing time: ${Math.floor(typingDuration / 60)}:${typingDuration % 60}`}
                         </div>
                     </div>
                     <div className="flex flex-column-reverse overflow-y-auto" style={{ flex: "9" }}>

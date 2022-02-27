@@ -21,8 +21,8 @@ const random = () => {
     const [playerName, setPlayerName] = useState("")
     // const [isPlayer, setIsPlayer] = useState(false)
     const [role, setRole] = useState("")
-    const [guessingTime,setGuessingTime] = useState(0);
-    const [typingTime,setTypingTime] = useState(0);
+    const [guessingTime, setGuessingTime] = useState(0);
+    const [typingTime, setTypingTime] = useState(0);
 
     const db = getDatabase();
 
@@ -51,11 +51,11 @@ const random = () => {
         });
     }, [gameCode]);
 
-    useEffect(()=>{
+    useEffect(() => {
         const db = getDatabase();
-        const hostRef = ref(db,`${gameCode}/hostDetails`);
-        onValue(hostRef,(snapshot)=>{
-            if(snapshot.exists()){
+        const hostRef = ref(db, `${gameCode}/hostDetails`);
+        onValue(hostRef, (snapshot) => {
+            if (snapshot.exists()) {
                 const snapData = snapshot.val();
                 const guessingTimeData = snapData.guessingTime;
                 const typingTimeData = snapData.typingTime;
@@ -63,7 +63,7 @@ const random = () => {
                 setTypingTime(typingTimeData);
             }
         })
-    },[gameCode]);
+    }, [gameCode]);
 
     useEffect(() => {
         if (!gameCode || gameCode === 0) {
@@ -151,19 +151,19 @@ const random = () => {
     // }, [gameCode]);
 
     const clickHandler = () => {
-        if(teams && gameCode){
+        if (teams && gameCode) {
             // alert('teams coming in console')
             const db = getDatabase();
             const updates = {};
-            for(let i=0;i<teams.length;i++){
-                const teamNome = teams[i].teamName;
-                console.log(teamNome);
-                updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`]=parseInt(guessingTime);
-                updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`]=parseInt(typingTime);
-                updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`]=false;
-                updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`]=true;
-            }
-            console.log(updates)
+            // for(let i=0;i<teams.length;i++){
+            //     const teamNome = teams[i].teamName;
+            //     console.log(teamNome);
+            //     // updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`]=parseInt(guessingTime);
+            //     updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`]=parseInt(typingTime);
+            //     updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`]=false;
+            //     updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`]=false;
+            // }
+            // console.log(updates)
             updates[`${gameCode}/isActive`] = 1
             update(ref(db), updates)
             //sessionStorage.setItem('status', 1);
