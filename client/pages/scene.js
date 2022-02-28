@@ -45,7 +45,6 @@ const scene = () => {
                                 const teamRef = ref(db, `${gameCode}/teamDetails`);
                                 get(teamRef).then((snapshot) => {
                                     if (snapshot.exists()) {
-
                                         const teamsObj = snapshot.val();
                                         let teamsNames = Object.keys(teamsObj);
                                         //alert(teamsNames.length)
@@ -90,7 +89,7 @@ const scene = () => {
                                             updates[`${gameCode}/roundDetails/${teamName}`] = roundDetailsArr
                                         }
                                         update(ref(db), updates)
-                                        setTimeout(() => router.push('/host/hostDashboard'), 4000)
+                                        setTimeout(() => router.push('/host/hostDashboard'), 3000)
                                     }
                                 }).catch((error) => {
                                     console.error(error);
@@ -103,7 +102,7 @@ const scene = () => {
                                     let updates = {}
                                     updates[`${gameCode}/teamDetails/${sessionTeamName}/currentRound`] = 1
                                     update(ref(db), updates)
-                                    setTimeout(() => router.push(`/player/game/${sessionStorage.getItem('team-name')}`), 4000)
+                                    setTimeout(() => router.push(`/player/game/${sessionStorage.getItem('team-name')}`), 3000)
                                 }
                             }
                             //console.log(scenes)

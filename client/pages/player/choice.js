@@ -47,7 +47,7 @@ const choice = () => {
         setRole(clientRole)
     }, [])
 
-    
+
 
     useEffect(() => {
         if (playerName) {
@@ -118,7 +118,7 @@ const choice = () => {
                 for (let j = 0; j < teamMembersNames.length; j++) {
                     if (teamMembersNames[j] === playerName) {
                         setMyTeam(teamName)
-                        alert("ENANG")
+                        // alert("ENANG")
                         inTeam = true
                         console.log(teamName, "mine");
                     }
@@ -150,20 +150,20 @@ const choice = () => {
             const gModeRef = ref(db, `${gameCode}/isActive`);
             onValue(gModeRef, (snapshot) => {
                 if (snapshot.exists()) {
-                    const a=snapshot.val();
-                    if(a==1){
-                        if(myTeam!=""){
+                    const a = snapshot.val();
+                    if (a == 1) {
+                        if (myTeam != "") {
                             sessionStorage.setItem('team-name', myTeam);
-                            router.push('/scene')    
+                            router.push('/scene')
                         }
-                        else{
+                        else {
                             alert("Not Fetch myTeam Value")
                         }
-                    }   
+                    }
                 }
             })
         }
-    }, [gameCode,myTeam]);
+    }, [gameCode, myTeam]);
 
     const activeButton = (active) => {
         setActiveTeam(active)
@@ -174,8 +174,8 @@ const choice = () => {
             <div className="grid grid-cols-1 justify-center self-center w-full align-center">
                 <div className="w-screen flex justify-center">
                     <div className="w-80"><SendCodeToInvitePlayers gameCode={gameCode} numberOfPlayers={numberOfPlayers} /></div>
-                    <h1 style={{ textAlign: "center" }}>{playerName}</h1>
                 </div>
+                <h1 style={{ textAlign: "center", color: "blue" }}>{playerName}</h1>
             </div>
             <div className='flex flex-row w-full justify-evenly'>
                 <div className='lg:w-6/12 md:w-6/12'>

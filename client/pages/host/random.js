@@ -155,14 +155,17 @@ const random = () => {
             // alert('teams coming in console')
             const db = getDatabase();
             const updates = {};
-            // for(let i=0;i<teams.length;i++){
-            //     const teamNome = teams[i].teamName;
-            //     console.log(teamNome);
-            //     // updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`]=parseInt(guessingTime);
-            //     updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`]=parseInt(typingTime);
-            //     updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`]=false;
-            //     updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`]=false;
-            // }
+            const time = new Date();
+            console.log(time.getTime());
+            time.setSeconds(time.getSeconds() + (typingTime + 5));
+            for (let i = 0; i < teams.length; i++) {
+                const teamNome = teams[i].teamName;
+                console.log(teamNome);
+                // updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`]=parseInt(guessingTime);
+                updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`] = (time.getTime());
+                // updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`] = false;
+                updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`] = false;
+            }
             // console.log(updates)
             updates[`${gameCode}/isActive`] = 1
             update(ref(db), updates)

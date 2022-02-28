@@ -18,7 +18,7 @@ const Join = () => {
         if (name === "" || code === "")
             return
 
-        const roomRef = ref(db, code);
+        const roomRef = ref(db, `${code}`);
         get(roomRef).then((snapshot) => {
             if (snapshot.exists()) {
                 console.log("found room")

@@ -24,7 +24,6 @@ const game = () => {
     const [statement, setStatement] = useState('')
     const [player, setPlayer] = useState({})
     const [activePlayer, setActivePlayer] = useState('')
-    const [isDisabled, setIsDisabled] = useState(false)
     const [score, setScore] = useState(0)
     const [emotion, setEmotion] = useState('JOY')
     //timer
@@ -72,15 +71,17 @@ const game = () => {
     const [typingDuration, setTypingDuration] = useState(100);
     const [guessingDuration, setGuessingDuration] = useState(100);
 
-    const [isTyping, setIsTyping] = useState(true);
+    const [isTyping, setIsTyping] = useState(false);
     // const [isGuessing, setIsGuessing] = useState(false);
-    const [playerName, setPlayerName] = useState('')
+    const [senderName, setSenderName] = useState('')
+    const [isDisabled, setIsDisabled] = useState(false)
+
     // const [tempTimer, setTempTimer] = useState({})
     const [totalTypingDuration, setTotalTypingDuration] = useState(0)
     const [totalGuessingDuration, setTotalGuessingDuration] = useState(0)
-    // const time = new Date();
-    // time.setSeconds(time.getSeconds() + 10);
 
+    /// 28-feb 12:27 pm
+    // const [sender, setSender] = useState("")
 
     //GameCode
     useEffect(() => {
@@ -91,26 +92,6 @@ const game = () => {
         const myNome = window.sessionStorage.getItem('player-name');
         setMyNameEn(myNome);
     }, []);
-
-
-    useEffect(() => {
-        if (gameCode && playerName === myNameEn && totalTypingDuration && myTeam) {
-            const roundRef = ref(db, `${gameCode}/teamDetails/${myTeam}/currentRound`)
-            onValue(roundRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const typingTime = new Date()
-                    typingTime.setSeconds(typingTime.getSeconds() + totalTypingDuration)
-                    const typingTime = new Date()
-                    typingTime.setSeconds(typingTime.getSeconds() + totalTypingDuration)
-                    let updates = {}
-                    updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = typingTime
-                    updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true
-                    update(ref(db), updates)
-                }
-            })
-        }
-    }, [gameCode, myNameEn, totalTypingDuration, myTeam])
-
 
     useEffect(() => {
         if (gameCode && myTeam) {
@@ -123,36 +104,97 @@ const game = () => {
                     const time = new Date(endTime).getTime()
                     const distance = time - (new Date().getTime())
                     console.log(time, distance);
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                    console.log(minutes, seconds);
-                    setTypingDuration(minutes * 60 + seconds)
+                    if (distance > 0) {
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        console.log(minutes, seconds);
+                        setTypingDuration(minutes * 60 + seconds)
+                        setIsTyping(true)
+                    } else {
+                        setIsTyping(false)
+                    }
                 }
             })
         }
-    }, [gameCode, myTeam, totalTypingDuration, myTeam])
+    }, [gameCode, myTeam, totalTypingDuration])
 
     useEffect(() => {
-        const enanInterval = setInterval(() => {
-            if (typingDuration > 0)
-                setTypingDuration(typingDuration => typingDuration - 1);
-            else {
+        let typingInterval
+        if (senderName && myNameEn && isTyping && gameCode) {
 
-                let updates =
-            }
-        }, 1000);
-        return () => clearInterval(enanInterval);
-    }, [typingDuration]);
-
+            typingInterval = setInterval(() => {
+                if (typingDuration > 0 && isTyping)
+                    setTypingDuration(typingDuration => typingDuration - 1);
+                else {
+                    if (totalGuessingDuration && senderName === myNameEn) {
+                        const updates = {};
+                        const time = new Date();
+                        console.log(time.getTime());
+                        time.setSeconds(time.getSeconds() + (totalGuessingDuration + 1));
+                        updates[`${gameCode}/timingDetails/${myTeam}/endGuessingTime`] = (time.getTime());
+                        updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = true;
+                        updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = false;
+                        update(ref(db), updates)
+                        clearInterval(typingInterval)
+                        setIsDisabled(true)
+                        setIsTyping(false)
+                    }
+                }
+            }, 1000);
+        }
+        return () => clearInterval(typingInterval);
+    }, [typingDuration, isTyping, senderName, myNameEn]);
 
 
     useEffect(() => {
-        const enanInterval = setInterval(() => {
-            if (typingDuration > 0)
-                setTypingDuration(typingDuration => typingDuration - 1);
-        }, 1000);
-        return () => clearInterval(enanInterval);
-    }, [typingDuration]);
+        if (gameCode && myTeam) {
+            const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endGuessingTime`)
+            onValue(timingRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    let endTime = snapshot.val()
+                    console.log(endTime);
+                    const time = new Date(endTime).getTime()
+                    const distance = time - (new Date().getTime())
+                    console.log(time, distance);
+                    if (distance > 0) {
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                        console.log(minutes, seconds);
+                        setGuessingDuration(minutes * 60 + seconds)
+                        setIsTyping(false)
+                    } else {
+                        setIsTyping(true)
+                    }
+                }
+            })
+        }
+    }, [gameCode, myTeam, totalGuessingDuration, isTyping])
+
+    useEffect(() => {
+        let guessingInterval
+        if (senderName && myNameEn && !isTyping) {
+            guessingInterval = setInterval(() => {
+                if (guessingDuration > 0 && !isTyping)
+                    setGuessingDuration(guessingDuration => guessingDuration - 1);
+                else {
+                    if (totalGuessingDuration && senderName === myNameEn) {
+                        const updates = {};
+                        const time = new Date();
+                        console.log(time.getTime());
+                        time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
+                        updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
+                        updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
+                        updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
+                        update(ref(db), updates)
+                        clearInterval(guessingInterval)
+                        setIsDisabled(false)
+                        setIsTyping(true)
+                    }
+                }
+            }, 1000);
+        }
+        return () => clearInterval(guessingInterval);
+    }, [guessingDuration, senderName, myNameEn, isTyping]);
 
 
     useEffect(() => {
@@ -187,7 +229,8 @@ const game = () => {
                             setRoundNo(teamObj[playerName[i]])
                         }
                         else if (playerName[i] == "score") {
-                            alert("Found")
+                            // alert("Found")
+                            console.log("Found");
                         }
                         else {
                             let obj = {
@@ -262,7 +305,7 @@ const game = () => {
                         }
                         else {
                             if (i == newRN) {
-                                setPlayerName(rdObj[i].sender);
+                                setSenderName(rdObj[i].sender);
 
                             }
                             else {
@@ -334,11 +377,25 @@ const game = () => {
             return
         }
         alert(statement)
-        let updates = {}
-        let newR = parseInt(roundNo + 1)
-        updates[`${gameCode}/roundDetails/${myTeam}/${newR}/msg`] = statement
-        updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
-        update(ref(db), updates)
+
+        if (totalGuessingDuration && senderName === myNameEn) {
+            const updates = {};
+
+            let newR = parseInt(roundNo + 1)
+            updates[`${gameCode}/roundDetails/${myTeam}/${newR}/msg`] = statement
+            updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
+
+            const time = new Date();
+            console.log(time.getTime());
+            time.setSeconds(time.getSeconds() + (totalGuessingDuration + 1));
+            updates[`${gameCode}/timingDetails/${myTeam}/endGuessingTime`] = (time.getTime());
+            updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = true;
+            updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = false;
+            update(ref(db), updates)
+            // clearInterval(typingInterval)
+            setIsDisabled(true)
+            setIsTyping(false)
+        }
 
         /* let teamName = sessionStorage.getItem('team-name')
         setStatement('')
@@ -401,9 +458,8 @@ const game = () => {
                         </div>
                     </div>
                     <div className="flex flex-column-reverse overflow-y-auto" style={{ flex: "9" }}>
-                        {player.name === playerName || playerName === 'host' ?
+                        {player.name === senderName || senderName === 'host' ?
                             <div className='flex flex-row justify-between py-2 px-3'>
-
                                 <input placeholder='Be Careful! You can only submit one statement in a round.' className="ebaBg w-full input pl-2 border-2 font-extralight rounded-lg ebaBorder whiteText h-8" value={statement} onChange={e => onChangeHandler(e)} onKeyPress={(e) => e.key === 'Enter' && onSubmit()} disabled={isDisabled ? true : false} />
                                 <button className='flex-1 ebaText h-full' onClick={onSubmit} disabled={isDisabled ? true : false} >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
@@ -438,7 +494,7 @@ const game = () => {
                     <div className="font-bold px-8 py-4 heading rounded-xl w-3/4 text-lg">
                         Scene: {scene.scene}
                     </div>
-                    {player.name === playerName ? <Wheel emotionFunction={guessEmotion} currentRoundEmotion={currentRoundEmotion} /> : <Wheel emotionFunction={guessEmotion} deletedRow={deletedRow} callRobot={[correctEmotion, otherEmotion, thirdEmotion]} thisOrThatBool={thisOrThatBool} guessedEmotions={guessedEmotions} />}
+                    {player.name === senderName ? <Wheel emotionFunction={guessEmotion} currentRoundEmotion={currentRoundEmotion} /> : <Wheel emotionFunction={guessEmotion} deletedRow={deletedRow} callRobot={[correctEmotion, otherEmotion, thirdEmotion]} thisOrThatBool={thisOrThatBool} guessedEmotions={guessedEmotions} />}
                 </div>
                 <div className="flex flex-column mx-2 flex-1" style={{ height: "80vh" }}>
                     <div className="font-bold flex p-2 heading rounded-lg text-lg">
@@ -447,17 +503,17 @@ const game = () => {
                     </div>
                     <div className="h-full flex flex-column pt-2">
 
-                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("This or That")} disabled={team.thisOrThat || (player.isRandomlySelected && player.name === playerName)} >
+                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("This or That")} disabled={team.thisOrThat || (player.isRandomlySelected && player.name === senderName)} >
                             This or That
                         </button>
-                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Delete a row")} disabled={team.deleteARow || (player.isRandomlySelected && player.name === playerName)} >
+                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Delete a row")} disabled={team.deleteARow || (player.isRandomlySelected && player.name === senderName)} >
                             Delete a row
                         </button>
-                        <button className="my-2 text-sm rounded-md px-3 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Call the Bot")} disabled={team.callTheBot || (player.isRandomlySelected && player.name === playerName)} >
+                        <button className="my-2 text-sm rounded-md px-3 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Call the Bot")} disabled={team.callTheBot || (player.isRandomlySelected && player.name === senderName)} >
                             Call the bot
                         </button>
 
-                        {player.name === playerName && player.isRandomlySelected ? null :
+                        {player.name === senderName && player.isRandomlySelected ? null :
                             <button className='buttonNew rounded-md px-3 py-2 mb-3 mt-4 text-lg font-bold text-center'
                                 onClick={() => clickHandler()} disabled={!isDisabled} >Confirm</button>}
                         <div className="heading rounded-xl py-3 h-auto">
