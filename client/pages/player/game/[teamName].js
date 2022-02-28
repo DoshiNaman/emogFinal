@@ -71,7 +71,8 @@ const game = () => {
     const [typingDuration, setTypingDuration] = useState(100);
     const [guessingDuration, setGuessingDuration] = useState(100);
 
-    const [isTyping, setIsTyping] = useState(false);
+    const [isTyping, setIsTyping] = useState(true);
+    const [isGuessing, setIsGuessing] = useState(false);
     // const [isGuessing, setIsGuessing] = useState(false);
     const [senderName, setSenderName] = useState('')
     const [isDisabled, setIsDisabled] = useState(false)
@@ -94,7 +95,7 @@ const game = () => {
     }, []);
 
     useEffect(() => {
-        if (gameCode && myTeam) {
+        if (gameCode && myTeam && isTyping === true && isGuessing === false) {
             const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endTypingTime`)
             onValue(timingRef, (snapshot) => {
                 if (snapshot.exists()) {
@@ -110,17 +111,19 @@ const game = () => {
                         console.log(minutes, seconds);
                         setTypingDuration(minutes * 60 + seconds)
                         setIsTyping(true)
+                        setIsGuessing(false)
                     } else {
                         setIsTyping(false)
+                        setIsGuessing(true)
                     }
                 }
             })
         }
-    }, [gameCode, myTeam, totalTypingDuration])
+    }, [gameCode, myTeam, totalTypingDuration, isTyping, isGuessing])
 
     useEffect(() => {
         let typingInterval
-        if (senderName && myNameEn && isTyping && gameCode) {
+        if (senderName && myNameEn && isTyping === true && isGuessing === false && gameCode) {
 
             typingInterval = setInterval(() => {
                 if (typingDuration > 0 && isTyping)
@@ -138,6 +141,7 @@ const game = () => {
                         clearInterval(typingInterval)
                         setIsDisabled(true)
                         setIsTyping(false)
+                        setIsGuessing(true)
                     }
                 }
             }, 1000);
@@ -147,11 +151,11 @@ const game = () => {
 
 
     useEffect(() => {
-        if (gameCode && myTeam) {
+        if (gameCode && myTeam && isTyping === false && isGuessing === true) {
             const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endGuessingTime`)
             onValue(timingRef, (snapshot) => {
                 if (snapshot.exists()) {
-                    let endTime = snapshot.val()
+                    let endTime = parseInt(snapshot.val())
                     console.log(endTime);
                     const time = new Date(endTime).getTime()
                     const distance = time - (new Date().getTime())
@@ -162,17 +166,19 @@ const game = () => {
                         console.log(minutes, seconds);
                         setGuessingDuration(minutes * 60 + seconds)
                         setIsTyping(false)
+                        setIsGuessing(true)
                     } else {
                         setIsTyping(true)
+                        setIsGuessing(false)
                     }
                 }
             })
         }
-    }, [gameCode, myTeam, totalGuessingDuration, isTyping])
+    }, [gameCode, myTeam, totalGuessingDuration, isTyping, isGuessing])
 
     useEffect(() => {
         let guessingInterval
-        if (senderName && myNameEn && !isTyping) {
+        if (senderName && myNameEn && isGuessing === true && isTyping === false) {
             guessingInterval = setInterval(() => {
                 if (guessingDuration > 0 && !isTyping)
                     setGuessingDuration(guessingDuration => guessingDuration - 1);
@@ -194,7 +200,7 @@ const game = () => {
             }, 1000);
         }
         return () => clearInterval(guessingInterval);
-    }, [guessingDuration, senderName, myNameEn, isTyping]);
+    }, [guessingDuration, senderName, myNameEn, isTyping , isGuessing]);
 
 
     useEffect(() => {
@@ -454,7 +460,7 @@ const game = () => {
                         {/* <Timer expiryTime={time} /> */}
                         {console.log(typingDuration)}
                         <div>
-                            {!isTyping ? `Guessing time: ${0}:${0}` : `Typing time: ${Math.floor(typingDuration / 60)}:${typingDuration % 60}`}
+                            {isGuessing && !isTyping ? `Guessing time: ${Math.floor(guessingDuration / 60)}:${guessingDuration % 60}` : `Typing time: ${Math.floor(typingDuration / 60)}:${typingDuration % 60}`}
                         </div>
                     </div>
                     <div className="flex flex-column-reverse overflow-y-auto" style={{ flex: "9" }}>
