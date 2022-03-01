@@ -164,7 +164,7 @@ const random = () => {
                 // updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`]=parseInt(guessingTime);
                 updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`] = (time.getTime());
                 // updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`] = false;
-                updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`] = false;
+                updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`] = true;
             }
             // console.log(updates)
             updates[`${gameCode}/isActive`] = 1

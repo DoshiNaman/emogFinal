@@ -71,7 +71,7 @@ const game = () => {
     const [typingDuration, setTypingDuration] = useState(100);
     const [guessingDuration, setGuessingDuration] = useState(100);
 
-    const [isTyping, setIsTyping] = useState(true);
+    const [isTyping, setIsTyping] = useState(false);
     const [isGuessing, setIsGuessing] = useState(false);
     // const [isGuessing, setIsGuessing] = useState(false);
     const [senderName, setSenderName] = useState('')
@@ -94,28 +94,44 @@ const game = () => {
         setMyNameEn(myNome);
     }, []);
 
+    //  && isTyping === true && isGuessing === false
     useEffect(() => {
-        if (gameCode && myTeam && isTyping === true && isGuessing === false) {
-            const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endTypingTime`)
+        if (gameCode && myTeam) {
+            const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/`)
             onValue(timingRef, (snapshot) => {
                 if (snapshot.exists()) {
-                    let endTime = snapshot.val()
-                    // let endTime = teamObj.endTypingTime
-                    console.log(endTime);
-                    const time = new Date(endTime).getTime()
-                    const distance = time - (new Date().getTime())
-                    console.log(time, distance);
-                    if (distance > 0) {
-                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        console.log(minutes, seconds);
-                        setTypingDuration(minutes * 60 + seconds)
-                        setIsTyping(true)
-                        setIsGuessing(false)
+                    let timingObj = snapshot.val()
+                    if (timingObj.typingTimeRunning === true) {
+                        let endTime = timingObj.endTypingTime
+                        console.log(endTime);
+                        const time = new Date(endTime).getTime()
+                        const distance = time - (new Date().getTime())
+                        console.log(time, distance);
+                        if (distance > 0) {
+                            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                            console.log(minutes, seconds);
+                            setTypingDuration(minutes * 60 + seconds)
+                            setIsTyping(true)
+                        }
                     } else {
-                        setIsTyping(false)
-                        setIsGuessing(true)
+                        let endTime = timingObj.endGuessingTime
+                        const time = new Date(endTime).getTime()
+                        const distance = time - (new Date().getTime())
+                        console.log(time, distance);
+                        if (distance > 0) {
+                            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                            console.log(minutes, seconds);
+                            setGuessingDuration(minutes * 60 + seconds)
+                            setIsTyping(false)
+                            setIsGuessing(true)
+                        }
                     }
+                    //  else {
+                    //     setIsTyping(false)
+                    //     setIsGuessing(true)
+                    // }
                 }
             })
         }
@@ -124,24 +140,24 @@ const game = () => {
     useEffect(() => {
         let typingInterval
         if (senderName && myNameEn && isTyping === true && isGuessing === false && gameCode) {
-
             typingInterval = setInterval(() => {
-                if (typingDuration > 0 && isTyping)
+                if (typingDuration > 0)
                     setTypingDuration(typingDuration => typingDuration - 1);
                 else {
-                    if (totalGuessingDuration && senderName === myNameEn) {
+                    if (senderName === myNameEn) {
                         const updates = {};
                         const time = new Date();
                         console.log(time.getTime());
                         time.setSeconds(time.getSeconds() + (totalGuessingDuration + 1));
+                        console.log(time.getTime());
                         updates[`${gameCode}/timingDetails/${myTeam}/endGuessingTime`] = (time.getTime());
                         updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = true;
                         updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = false;
                         update(ref(db), updates)
                         clearInterval(typingInterval)
                         setIsDisabled(true)
-                        setIsTyping(false)
-                        setIsGuessing(true)
+                        // setIsTyping(false)
+                        // setIsGuessing(true)
                     }
                 }
             }, 1000);
@@ -150,40 +166,41 @@ const game = () => {
     }, [typingDuration, isTyping, senderName, myNameEn]);
 
 
-    useEffect(() => {
-        if (gameCode && myTeam && isTyping === false && isGuessing === true) {
-            const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endGuessingTime`)
-            onValue(timingRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    let endTime = parseInt(snapshot.val())
-                    console.log(endTime);
-                    const time = new Date(endTime).getTime()
-                    const distance = time - (new Date().getTime())
-                    console.log(time, distance);
-                    if (distance > 0) {
-                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                        console.log(minutes, seconds);
-                        setGuessingDuration(minutes * 60 + seconds)
-                        setIsTyping(false)
-                        setIsGuessing(true)
-                    } else {
-                        setIsTyping(true)
-                        setIsGuessing(false)
-                    }
-                }
-            })
-        }
-    }, [gameCode, myTeam, totalGuessingDuration, isTyping, isGuessing])
+    // useEffect(() => {
+    //     if (gameCode && myTeam && isTyping === false && isGuessing === true) {
+    //         const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endGuessingTime`)
+    //         onValue(timingRef, (snapshot) => {
+    //             if (snapshot.exists()) {
+    //                 let endTime = parseInt(snapshot.val())
+    //                 console.log(endTime);
+    //                 const time = new Date(endTime).getTime()
+    //                 const distance = time - (new Date().getTime())
+    //                 console.log(time, distance);
+    //                 if (distance > 0) {
+    //                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    //                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    //                     console.log(minutes, seconds);
+    //                     setGuessingDuration(minutes * 60 + seconds)
+    //                     setIsTyping(false)
+    //                     setIsGuessing(true)
+    //                 } 
+    //                 else {
+    //                     setIsTyping(true)
+    //                     setIsGuessing(false)
+    //                 }
+    //             }
+    //         })
+    //     }
+    // }, [gameCode, myTeam, totalGuessingDuration, isTyping, isGuessing])
 
     useEffect(() => {
         let guessingInterval
         if (senderName && myNameEn && isGuessing === true && isTyping === false) {
             guessingInterval = setInterval(() => {
-                if (guessingDuration > 0 && !isTyping)
+                if (guessingDuration > 0)
                     setGuessingDuration(guessingDuration => guessingDuration - 1);
                 else {
-                    if (totalGuessingDuration && senderName === myNameEn) {
+                    if (senderName === myNameEn) {
                         const updates = {};
                         const time = new Date();
                         console.log(time.getTime());
@@ -194,13 +211,13 @@ const game = () => {
                         update(ref(db), updates)
                         clearInterval(guessingInterval)
                         setIsDisabled(false)
-                        setIsTyping(true)
+                        // setIsTyping(true)
                     }
                 }
             }, 1000);
         }
         return () => clearInterval(guessingInterval);
-    }, [guessingDuration, senderName, myNameEn, isTyping , isGuessing]);
+    }, [guessingDuration, senderName, myNameEn, isTyping, isGuessing]);
 
 
     useEffect(() => {
@@ -460,7 +477,7 @@ const game = () => {
                         {/* <Timer expiryTime={time} /> */}
                         {console.log(typingDuration)}
                         <div>
-                            {isGuessing && !isTyping ? `Guessing time: ${Math.floor(guessingDuration / 60)}:${guessingDuration % 60}` : `Typing time: ${Math.floor(typingDuration / 60)}:${typingDuration % 60}`}
+                            {isGuessing && !isTyping ? `Guessing time :${Math.floor(guessingDuration / 60)}:${guessingDuration % 60}` : `Typing time: ${Math.floor(typingDuration / 60)}:${typingDuration % 60}`}
                         </div>
                     </div>
                     <div className="flex flex-column-reverse overflow-y-auto" style={{ flex: "9" }}>
