@@ -27,8 +27,9 @@ const Teams = ({ teams, rounds }) => {
                     >
                         <div className='pl-5'>{team.teamName}</div>
                         <div className="-ml-5">{team.teamMembers.length} Players</div>
-                        {/* <div className="-ml-3">{team.roundNo}/{rounds}</div>
-                        <div className="ml-5">{team.score < 10? `0${team.score}` : `${team.score}`}</div> */}
+                        <div className="-ml-3">{team.roundNo}/{rounds}</div>
+                        <div className="ml-5">{team.score < 10? `0${team.score}` : `${team.score}`}</div>
+
                         {/* {team.callTheHost?<div className="rounded-full bg-red-700 h-4 w-4" onClick={() => setCallHostPopup(true)}>
 
                         </div>

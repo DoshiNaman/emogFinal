@@ -160,10 +160,12 @@ const manual = () => {
             for (let i = 0; i < teams.length; i++) {
                 const teamNome = teams[i].teamName;
                 console.log(teamNome);
+            
                 // updates[`${gameCode}/timingDetails/${teamNome}/endGuessingTime`] = parseInt(guessingTime);
-                updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`] = parseInt(typingTime);
+                updates[`${gameCode}/timingDetails/${teamNome}/endTypingTime`] = (time.getTime());
                 // updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`] = false;
                 updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`] = true;
+                updates[`${gameCode}/timingDetails/${teamNome}/summary`] = false;
             }
             console.log(updates)
             updates[`${gameCode}/isActive`] = 1

@@ -16,14 +16,14 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 const hostDashboard = () => {
 
     //const socket = useContext(SocketContext)
-    const [guessingTime, setGuessingTime] = useState('')
-    const [typingTime, setTypingTime] = useState('')
+    const [guessingTime, setGuessingTime] = useState(0)
+    const [typingTime, setTypingTime] = useState(0)
     const [scene, setScene] = useState({})
     const [selected, setSelected] = useState("emotion")
     const [emotionArray, setEmotionArray] = useState(["Hate", "Love", "Greed", "Jealous"])
     const [playersWithoutTeams, setPlayersWithoutTeams] = useState([])
     const [teams, setTeams] = useState([])
-    const [rounds, setMaxRounds] = useState()
+    const [rounds, setMaxRounds] = useState(0)
 
     const [otherCorrect, setOtherCorrect] = useState(2)
     const [otherIncorrect, setOtherIncorrect] = useState(0)
@@ -32,22 +32,25 @@ const hostDashboard = () => {
     const [compoundIncorrect, setCompoundIncorrect] = useState(0)
 
     const [gameCode, setGameCode] = useState("")
-    const [status, setStatus] = useState("")
+    const [status, setStatus] = useState("")//status == host
     const db = getDatabase()
 
     useEffect(() => {
         const gameCode = window.sessionStorage.getItem('game-code')
         if (gameCode !== undefined)
             setGameCode(gameCode)
-        const stat = sessionStorage.getItem('status')
+        const stat = sessionStorage.getItem('role')
         if (stat !== undefined) {
             setStatus(stat)
             console.log(typeof stat);
         }
     }, [])
 
+
+
+
     useEffect(() => {
-        if (gameCode && status === "1") {
+        if (gameCode && status === "host") {
             const hostRef = ref(db, `${gameCode}/hostDetails`)
             get(hostRef).then((snapshot) => {
                 if (snapshot.exists()) {
@@ -120,7 +123,7 @@ const hostDashboard = () => {
     }, [gameCode]);
 
     useEffect(() => {
-        if (!gameCode || gameCode === 0) {
+        if (!gameCode || gameCode === 0 || rounds<=0) {
             return
         }
         const teamsRef = ref(db, `${gameCode}/teamDetails`);
@@ -129,11 +132,15 @@ const hostDashboard = () => {
                 return
             const teamsObj = snapshot.val();
             let teamsNames = Object.keys(teamsObj);
+            let compTeams = 0
             let teamsArr = []
 
             for (let i = 0; i < teamsNames.length; i++) {
                 let teamMembers = []
                 let teamName = teamsNames[i]
+                let teamScore = 0
+                let teamRoundNo = 0
+                //let tobj = {}
                 // console.log(teamName)
                 let teamObj = teamsObj[teamName]
                 let teamMembersNames = Object.keys(teamObj);
@@ -141,8 +148,15 @@ const hostDashboard = () => {
                 // teamsObj[usersInfo[i]].teamPlayers.length
                 for (let j = 0; j < teamMembersNames.length; j++) {
                     console.log(typeof (teamMembersNames[j]));
-                    if (teamMembersNames[j] == "score" || teamMembersNames[j] == "currentRound") {
-
+                    if (teamMembersNames[j] === "score"){
+                        teamScore=teamObj["score"]
+                        console.log(teamObj["score"])
+                    }
+                    else if(teamMembersNames[j] === "currentRound") {
+                        teamRoundNo=teamObj["currentRound"]
+                        console.log(teamObj["currentRound"],rounds)
+                        if(teamObj["currentRound"] > rounds)
+                            compTeams++
                     }
                     else {
                         let obj = {
@@ -152,12 +166,17 @@ const hostDashboard = () => {
                         teamMembers.push(obj)
                     }
                 }
-                teamsArr.push({ teamName, teamMembers })
+                teamsArr.push({ teamName, teamMembers , score:teamScore, roundNo:teamRoundNo})
+            }
+            console.log(compTeams)
+            if(compTeams === teamsNames.length){
+                alert("LEADER")
+                router.push('/leaderboard')
             }
             setTeams(teamsArr)
         });
 
-    }, [gameCode]);
+    }, [gameCode,rounds]);
 
     return (<div className="flex flex-row bgNormal">
 
