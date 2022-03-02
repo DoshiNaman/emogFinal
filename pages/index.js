@@ -1,13 +1,13 @@
 import Head from 'next/head'
 import { useContext, useEffect } from 'react'
-import { SocketContext } from '../context/socket/SocketContext'
+//import { SocketContext } from '../context/socket/SocketContext'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link';
 import useAuth from '../hooks/useAuth';
 
 export default function Home() {
   useAuth();
-  const socket = useContext(SocketContext)
+  //const socket = useContext(SocketContext)
 
   useEffect(() => {
     sessionStorage.clear()

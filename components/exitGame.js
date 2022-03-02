@@ -9,7 +9,7 @@ const exitGame = (props) => {
     const clickHandler = () => {
         const gameCode = sessionStorage.getItem('game-code')
         router.push('/')
-        socket.emit('quit-game', gameCode)
+        //socket.emit('quit-game', gameCode)
         sessionStorage.clear()
     }
 
