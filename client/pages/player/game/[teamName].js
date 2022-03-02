@@ -130,15 +130,13 @@ const game = () => {
                 time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
                 updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
                 updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
-                updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
                 updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
-                let newR = parseInt(roundNo) + 1
+                updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
+                /* let newR = parseInt(roundNo) + 1
                 updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
-                update(ref(db), updates)
+                update(ref(db), updates) */
                 //clearInterval(guessingInterval)
                 setIsDisabled(false)
-                setIsTyping(true)
-                setIsGuessing(false)
                 setClose(0)
             } 
 
@@ -150,35 +148,56 @@ const game = () => {
                     let timingObj = snapshot.val()
                     if(timingObj.summary === true){
                         
-                        if(parseInt(roundNo)==parseInt(maxRounds)){
+                        if(parseInt(roundNo)>parseInt(maxRounds)){
                             router.push('/leaderboard');
                             // const updates = {};
                             // //updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(maxRounds);
                             // update(ref(db), updates);
                             return
                         }
+                        let cuurR = parseInt(roundNo) +1;
+                        const reRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}/selectedEmotion`);
+                        get(reRef).then((snapshot) => {
+                            if (snapshot.exists()) {
+                                const summaryObj = snapshot.val();
+                                setYourAnswer(summaryObj)
+                            }
+                        }).catch((error) => {
+                            console.error(error);
+                        });
+
+                        const reRef2 = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}/currScore`);
+                        get(reRef2).then((snapshot) => {
+                            if (snapshot.exists()) {
+                                const summaryObj2 = snapshot.val();
+                                setCurrScore(parseInt(summaryObj2))
+                            }
+                        }).catch((error) => {
+                            console.error(error);
+                        });
+
+
                         setSummary(true)
                         setTimeout(function(){
+                            setSummary(false)
                             const updates = {};
                             const time = new Date();
                             console.log(time.getTime());
                             time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
                             updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
                             updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
-                            updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
                             updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
-                            let newR = parseInt(roundNo) + 1
-                            updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
+                            updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
+                            
                             update(ref(db), updates)
                             //clearInterval(guessingInterval)
                             setIsDisabled(false)
-                            setIsTyping(true)
-                            setIsGuessing(false)
-                        }, 10000);
+                        }, 6000);
                     }
-                    else{
+                   /*  else{
                         setSummary(false)
-                    }
+                    } */
+                    
                     if (timingObj.typingTimeRunning === true) {
                         let endTime = timingObj.endTypingTime
                         console.log(endTime);
@@ -191,6 +210,7 @@ const game = () => {
                             console.log(minutes, seconds);
                             setTypingDuration(minutes * 60 + seconds)
                             setIsTyping(true)
+                            setIsGuessing(false)
                         }
                     } else {
                         let endTime = timingObj.endGuessingTime
@@ -278,25 +298,26 @@ const game = () => {
                 if (guessingDuration > 0)
                     setGuessingDuration(guessingDuration => guessingDuration - 1);
                 else {
+                    currentRoundEmotion = currentRoundEmotion.toUpperCase();       
+                    setCorrectAnswer(currentRoundEmotion)
+                    setCurrScore(0)
+                    let cuurR = parseInt(roundNo) +1;
+                    const reRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}`);
+                    get(reRef).then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const summaryObj = snapshot.val();
+                            const comp = summaryObj.selectedEmotion
+                            setYourAnswer("NoN")
+                            const otr = summaryObj.currScore
+                            setCurrScore(parseInt(otr))
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                    });
+                    let newR = parseInt(roundNo) + 1
+                    //alert("Guess Time Over")
                     if (senderName === myNameEn) {
-                        const updates = {};
-                        setEmotion("")
-                        setYourAnswer("")
-                        setCorrectAnswer(currentRoundEmotion)
-                        let rround = parseInt(roundNo) + 2;
-                        const senderRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${rround}`);
-                        get(senderRef).then((snapshot) => {
-                            if (snapshot.exists()) {
-                                const data = snapshot.val();
-                                console.log(data)
-                                setNextPlayer(data.sender)
-                            } else {
-                                console.log("no rounds");
-                            }
-                        }).catch((error) => {
-                            console.error(error);
-                        });
-                        
+                        const updates = {};               
                         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
                         // const time = new Date();
                         // console.log(time.getTime());
@@ -304,11 +325,19 @@ const game = () => {
                         // updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
                         // updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
                         // updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
+                        let currR = parseInt(roundNo) + 1;
+                        updates[`${gameCode}/roundDetails/${myTeam}/${currR}/currScore`] = 0;
+                        updates[`${gameCode}/roundDetails/${myTeam}/${currR}/selectedEmotion`] = "NoN";
+                        updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
                         update(ref(db), updates)
-                        // clearInterval(guessingInterval)
                         //setIsDisabled(false)
                         // setIsTyping(true)
                     }
+                    if(newR > maxRounds)
+                        router.push('/leaderboard');
+                    setIsGuessing(false)
+                    setIsTyping(true)
+                    clearInterval(guessingInterval)
                 }
             }, 1000);
         }
@@ -352,6 +381,20 @@ const game = () => {
                         
                         if (playerName[i] == "currentRound") {
                             setRoundNo(teamObj[playerName[i]])
+
+                            let rround = parseInt(teamObj[playerName[i]]) + 2;
+                            const senderRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${rround}`);
+                            get(senderRef).then((snapshot) => {
+                                if (snapshot.exists()) {
+                                    const data = snapshot.val();
+                                    console.log(data)
+                                    setNextPlayer(data.sender)
+                                } else {
+                                    console.log("no rounds");
+                                }
+                            }).catch((error) => {
+                                console.error(error);
+                            });
                         }
                         else if (playerName[i] == "score") {
                             // alert("Found")
@@ -426,6 +469,8 @@ const game = () => {
                     const rdObj = snapshot.val();
                     const newRN = roundNo + 1;
                     for (let i = 0; i <= newRN; i++) {
+                        if(i>maxRounds+1)
+                            return
                         if (rdObj[i].sender === "pre") {
                             newMsg.push(rdObj[i].msg);
                         }
@@ -485,36 +530,27 @@ const game = () => {
         setEmotion(emotion)
         setYourAnswer(emotion)
         setCorrectAnswer(currentRoundEmotion)
-        let rround = parseInt(roundNo) + 2;
-        const senderRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${rround}`);
-        get(senderRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                console.log(data)
-                setNextPlayer(data.sender)
-            } else {
-                console.log("no rounds");
-            }
-        }).catch((error) => {
-            console.error(error);
-        });
+        
         // for(let i=0;i<OtherEmotions.length;i++){
         //     if(OtherEmotions[i].includes(currentRoundEmotion))
         //         setInother(OtherEmotions[i])
         // }
-
+        let currR = parseInt(roundNo) + 1;
         console.log(compoundEmotionValue,otherEmotionValue)
         let updatedScore = 0
+        let value = 0;
         if(CompoundEmotions.includes(currentRoundEmotion)){
             if(emotion === currentRoundEmotion){
                 //corret
                 setCurrScore(compoundEmotionValue.correctGuess)
                 updatedScore = parseInt(score) + parseInt(compoundEmotionValue.correctGuess);
+                value = parseInt(compoundEmotionValue.correctGuess);
             }
             else{
                 //incorrect
                 setCurrScore(compoundEmotionValue.incorrectGuess)
                 updatedScore = parseInt(score) + parseInt(compoundEmotionValue.incorrectGuess);
+                value = parseInt(compoundEmotionValue.incorrectGuess);
             }
         }    
         else{
@@ -522,20 +558,29 @@ const game = () => {
                 //corret
                 setCurrScore(otherEmotionValue.correctGuess)
                 updatedScore = parseInt(score) + parseInt(otherEmotionValue.correctGuess);
+                value = parseInt(otherEmotionValue.correctGuess);
             }
             else if(Inother.includes(emotion)){
                 //adjusent
                 setCurrScore(otherEmotionValue.adjacentCell)
                 updatedScore = parseInt(score) + parseInt(otherEmotionValue.adjacentCell);
+                value = parseInt(otherEmotionValue.adjacentCell);
             }
             else{
                 //incorrect
                 setCurrScore(otherEmotionValue.incorrectGuess)
                 updatedScore = parseInt(score) + parseInt(otherEmotionValue.incorrectGuess);
+                value = parseInt(otherEmotionValue.incorrectGuess);
             }
         }         
        
+        let newR = parseInt(roundNo) + 1
+        updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
+        if(newR > maxRounds)
+            router.push('/leaderboard');
         updates[`${gameCode}/teamDetails/${myTeam}/score`] = updatedScore;
+        updates[`${gameCode}/roundDetails/${myTeam}/${currR}/currScore`] = value;
+        updates[`${gameCode}/roundDetails/${myTeam}/${currR}/selectedEmotion`] = emotion;
         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
         update(ref(db), updates)
         
