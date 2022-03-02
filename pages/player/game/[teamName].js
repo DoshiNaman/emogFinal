@@ -122,6 +122,7 @@ const game = () => {
         if (gameCode && myTeam) {
 
             if(close === 1){
+                setSummary(false)
                 const updates = {};
                 const time = new Date();
                 console.log(time.getTime());
@@ -148,9 +149,9 @@ const game = () => {
                         
                         if(parseInt(roundNo)>parseInt(maxRounds)){
                             router.push('/leaderboard');
-                            // const updates = {};
-                            // //updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(maxRounds);
-                            // update(ref(db), updates);
+                            const updates = {};
+                            updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(maxRounds);
+                            update(ref(db), updates);
                             return
                         }
                         let cuurR = parseInt(roundNo) +1;
@@ -192,9 +193,6 @@ const game = () => {
                             setIsDisabled(false)
                         }, 6000);
                     }
-                   /*  else{
-                        setSummary(false)
-                    } */
                     
                     if (timingObj.typingTimeRunning === true) {
                         let endTime = timingObj.endTypingTime
@@ -224,10 +222,6 @@ const game = () => {
                             setIsGuessing(true)
                         }
                     }
-                    //  else {
-                    //     setIsTyping(false)
-                    //     setIsGuessing(true)
-                    // }
                 }
             })
         }
@@ -262,33 +256,6 @@ const game = () => {
     }, [typingDuration, isTyping, senderName, myNameEn]);
 
 
-    // useEffect(() => {
-    //     if (gameCode && myTeam && isTyping === false && isGuessing === true) {
-    //         const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/endGuessingTime`)
-    //         onValue(timingRef, (snapshot) => {
-    //             if (snapshot.exists()) {
-    //                 let endTime = parseInt(snapshot.val())
-    //                 console.log(endTime);
-    //                 const time = new Date(endTime).getTime()
-    //                 const distance = time - (new Date().getTime())
-    //                 console.log(time, distance);
-    //                 if (distance > 0) {
-    //                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    //                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    //                     console.log(minutes, seconds);
-    //                     setGuessingDuration(minutes * 60 + seconds)
-    //                     setIsTyping(false)
-    //                     setIsGuessing(true)
-    //                 } 
-    //                 else {
-    //                     setIsTyping(true)
-    //                     setIsGuessing(false)
-    //                 }
-    //             }
-    //         })
-    //     }
-    // }, [gameCode, myTeam, totalGuessingDuration, isTyping, isGuessing])
-
     useEffect(() => {
         let guessingInterval
         if (senderName && myNameEn && isGuessing === true && isTyping === false) {
@@ -317,12 +284,6 @@ const game = () => {
                     if (senderName === myNameEn) {
                         const updates = {};               
                         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
-                        // const time = new Date();
-                        // console.log(time.getTime());
-                        // time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
-                        // updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
-                        // updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
-                        // updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
                         let currR = parseInt(roundNo) + 1;
                         updates[`${gameCode}/roundDetails/${myTeam}/${currR}/currScore`] = 0;
                         updates[`${gameCode}/roundDetails/${myTeam}/${currR}/selectedEmotion`] = "NoN";
@@ -582,30 +543,6 @@ const game = () => {
         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
         update(ref(db), updates)
         
-        /* setDeletedRow([])
-        setOtherEmotion("")
-        setCorrectEmotion("")
-        setThirdEmotion("")
-        sessionStorage.removeItem('is-disabled')
-        sessionStorage.removeItem('is-time-over')
-        sessionStorage.removeItem('type-counter')
-        sessionStorage.removeItem('guess-counter')
-        setIsTimerOver(false)
-        if(!thisOrThatBool && emotion === '')
-        {
-            alert('Please select an emotion.')
-            return
-        }
-        if(thisOrThatBool && guessedEmotions.length < 2){
-            alert('Please select two emotions.')
-            return
-        }
-        const teamName = sessionStorage.getItem('team-name')
-        
-        thisOrThatBool?
-        socket.emit('guessed-array', {gameCode, teamName, guessedEmotions, playerName})
-        :
-        socket.emit('guessed', {gameCode, teamName, emotion, playerName}) */
     } 
 
     const onChangeHandler = (e) => {
@@ -638,31 +575,7 @@ const game = () => {
             setStatement('')
             //setIsTyping(false)
         }
-
-        /* let teamName = sessionStorage.getItem('team-name')
-        setStatement('')
-        let message = messages.slice(0)
-        message.push(statement)
-        setIsTimerOver(true)
-        setTimeFormat('0:00')
-        setCounter(0)
-        sessionStorage.setItem('type-counter', 0)
-        socket.emit('submit-statement', {gameCode, teamName, message}) */
     }
-
-    // const [screenZoom, setScreenZoom] = useState(1)
-
-    // useEffect(() => {
-    //     if(window.innerWidth<1280){
-    //         setScreenZoom(0.9)
-    //     }
-    // }, [])
-
-    // 301 number line for typing time
-
-    // static data, absolute, 
-
-    //changes for each round, decrease to 0 
 
     useEffect(() => {
 
@@ -846,192 +759,3 @@ const game = () => {
 }
 
 export default game;
-
-
-/* useEffect(() => {
-    setStatus(sessionStorage.getItem('status'))
-    setPlayerName(sessionStorage.getItem('player-name'))
-    const code = sessionStorage.getItem('game-code')
-    const pName = sessionStorage.getItem('player-name')
-    setGameCode(sessionStorage.getItem('game-code'))  
-    let teamName = sessionStorage.getItem('team-name')
-    let isMounted = true
-    if(isMounted)
-        socket.emit('join-team-room', {code, teamName, pName })
-
-    socket.on('team-players', players => {
-        setPlayer(players.find(p => p.isRandomlySelected === true))    
-        setPlayers(players)
-        }
-    )
-
-    socket.on('quit-game', () => {
-        sessionStorage.clear()
-        alert('The Host decided to quit the game!')
-        router.push('/')
-    })
-    
-    socket.on('current-team', team => setTeam(team))
-    socket.on('current-round-emotion', emotion => {
-        setCurrentRoundEmotion(emotion)
-    })
-
-    socket.on('next-round-emotion', emotion => setCorrectAnswer(emotion))
-
-    socket.on('show-summary', bool => setSummary(bool))
-    
-    socket.on('team-round', roundNumber => {
-            if(sessionStorage.getItem('round-no-team') && roundNumber > Number(sessionStorage.getItem('round-no-team')))
-            {    
-                sessionStorage.removeItem('type-counter')
-                sessionStorage.removeItem('guess-counter')
-            }
-            setGuessedEmotions([])
-            sessionStorage.setItem('round-no-team', roundNumber)
-            setRoundNo(roundNumber)
-    })
-
-    socket.on('set-this-to-true', bool => setThisOrThatBool(bool))
-
-    socket.on('max-rounds', maxRound => { maxRounds.current = maxRound })
-    socket.on('go-to-leaderboard', () => router.push('/leaderboard'))
-    socket.on('game-log', gameLog => {
-        setGameLog(gameLog)})
-
-    socket.on('reset-emotions', () => {
-        setDeletedRow([])
-        setOtherEmotion("")
-        setCorrectEmotion("")
-        setThirdEmotion("")
-    })
-
-    socket.on('active-player', activePlayer => {
-        activePlayer.isRandomlySelected? setActivePlayer(activePlayer) : setActivePlayer('')
-        activePlayer.isRandomlySelected? setNextPlayer(activePlayer) : setActivePlayer('')
-    })
-
-    socket.on('team-score', newScore => {
-        console.log(score);
-        let curScore = 0
-        if(sessionStorage.getItem('curr-round-score-val'))
-            curScore = Number(sessionStorage.getItem('curr-round-score-val'))
-        setCurrScore(newScore - curScore)
-        sessionStorage.setItem('curr-round-score-val', newScore)
-        setScore(newScore)
-    })
-
-    socket.on('your-answer', emotion => {
-        setTimeout(() => {
-            setSummary(false)
-        }, 5000)
-        let arr = yourAnswer.slice()
-        if(typeof(emotion) === 'string'){
-            arr.push(emotion)
-            setYourAnswer(arr)
-        }
-        else
-        {
-            arr.push(emotion[0])
-            arr.push(emotion[1])
-            setYourAnswer(arr)
-        }
-        
-    })
-
-
-
-    socket.on('scene', scene => setScene(scene))
-    socket.on('team-messages', messages => setMessages(messages))
-    socket.on('typing-counter', counter => {
-        if(!sessionStorage.getItem('type-counter')){
-            setCounter(counter)}})
-    socket.on('guessing-counter', counter => {
-        if(!sessionStorage.getItem('guess-counter'))
-        setGuessCounter(counter)})
-    socket.on('team-disabled', bool => {
-        setIsTimerOver(bool)
-        if(bool)
-            setCounter(0)
-        setIsDisabled(bool)
-    })
-
-}, [socket]) */
-
-
-/* useEffect(() => {
-
-        const teamName = sessionStorage.getItem('team-name')
-        socket.on('your-three-choices', ({correctEmotion, otherEmotion, thirdEmotion}) => {
-            setCorrectEmotion(correctEmotion)
-            setOtherEmotion(otherEmotion)
-            setThirdEmotion(thirdEmotion)
-        })
-
-        socket.on('deleted-row', ({deletedRow}) => {
-            setDeletedRow(deletedRow)
-        })
-
-
-        if(sessionStorage.getItem('guess-counter'))
-            setGuessCounter(Number(sessionStorage.getItem('guess-counter')))
-        if(sessionStorage.getItem('type-counter')){
-            setCounter(Number(sessionStorage.getItem('type-counter')))
-        }
-        let active = false
-        if(!active)
-        {
-            if(counter !== 0){
-            timerRef.current = setInterval(() => {
-                    const secondCounter = counter % 60;
-                    const minuteCounter = Math.floor(counter / 60);
-                    const computedSecond = String(secondCounter).length === 1 ? `0${secondCounter}`: secondCounter;
-                    const computedMinute = String(minuteCounter).length === 1 ? `0${minuteCounter}`: minuteCounter;
-                    setTimeFormat(computedMinute + ':' + computedSecond)
-                    sessionStorage.setItem('time-format', computedMinute + ':' + computedSecond)
-                    setCounter(counter => counter - 1);
-                    sessionStorage.setItem('type-counter', counter - 1)
-            }, 1000)
-            }
-            else{
-                sessionStorage.setItem('type-counter', 0)
-                setIsDisabled(true)
-                sessionStorage.setItem('is-disabled', JSON.stringify(true))
-                setIsTimerOver(true)
-                sessionStorage.setItem('is-time-over', JSON.stringify(true))
-                if(guessCounter !== 0){
-                    timerRef.current = setInterval(() =>{
-                    const secondCounter = guessCounter % 60;
-                    const minuteCounter = Math.floor(guessCounter / 60);
-                    const computedSecond = String(secondCounter).length === 1 ? `0${secondCounter}`: secondCounter;
-                    const computedMinute = String(minuteCounter).length === 1 ? `0${minuteCounter}`: minuteCounter;
-                    setTimeGuesserFormat(computedMinute + ':' + computedSecond)
-                    setGuessCounter(counter => counter - 1);
-                    sessionStorage.setItem('guess-counter', guessCounter - 1)
-                    }, 1000)
-                }
-                else{
-                    const emotion = ''
-                    console.log('Alohomora');
-                    console.log(guessCounter);
-                    if(!player.isRandomlySelected && player.name !== playerName)
-                        socket.emit('guessed', {gameCode, teamName, emotion, playerName })
-                    clearInterval(timerRef.current)
-                    setTimeGuesserFormat('00:00')
-                    setGuessCounter(0)
-                    sessionStorage.setItem('guess-counter', 0)
-                }
-            }
-        }
-        return() => {
-            clearInterval(timerRef.current)
-            active = true
-        }
-
-    }, [counter, guessCounter, socket]) */
-
-/*  const callHostF = () => {
-     let teamName = sessionStorage.getItem('team-name')
-     socket.emit('call-the-host', {gameCode, teamName})
-     setCallHost(false)
- }
-*/

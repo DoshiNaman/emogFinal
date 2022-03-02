@@ -69,10 +69,10 @@ const PlayerComponent = ({ players, width, largeWidth, activeTeam, teams, role }
                             const lobbyDataKey = Object.keys(snapshot.val());
                             console.log(lobbyDataKey);
                             if (lobbyDataKey.includes(player.name)) {
-                                teamOwned = true;
+                                teamOwned = false;
                             }
                             else{
-                                teamOwned = false;
+                                teamOwned = true;
                             }
                         }
                     }, {
