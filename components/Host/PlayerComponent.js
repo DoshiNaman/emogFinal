@@ -62,24 +62,40 @@ const PlayerComponent = ({ players, width, largeWidth, activeTeam, teams, role }
                 }
                 // checking if the team is not full and player can proceed 
                 else if (snapData.length < maxNoOfPlayer) {
-                    const teamJoinedREf = ref(db, `${gameCode}/teamJoinedPlayers`)
                     let teamOwned = false;
-                    onValue(teamJoinedREf, (snapshot) => {
+                    const lobbyPlayerRef = ref(db, `${gameCode}/inLobbyPlayers2`);
+                    onValue(lobbyPlayerRef, (snapshot) => {
                         if (snapshot.exists()) {
-                            const teamSnapData = Object.keys(snapshot.val());
-                            // checking if the player is in any team 
-                            if (teamSnapData.includes(player.name)) {
+                            const lobbyDataKey = Object.keys(snapshot.val());
+                            console.log(lobbyDataKey);
+                            if (lobbyDataKey.includes(player.name)) {
                                 teamOwned = true;
                             }
-                            // checking if the player is not in any team 
-                            else {
+                            else{
                                 teamOwned = false;
                             }
-                            console.log("before");
                         }
                     }, {
                         onlyOnce: true
                     })
+                    // const teamJoinedREf = ref(db, `${gameCode}/teamJoinedPlayers`)
+                    // let teamOwned = false;
+                    // onValue(teamJoinedREf, (snapshot) => {
+                    //     if (snapshot.exists()) {
+                    //         const teamSnapData = Object.keys(snapshot.val());
+                    //         // checking if the player is in any team 
+                    //         if (teamSnapData.includes(player.name)) {
+                    //             teamOwned = true;
+                    //         }
+                    //         // checking if the player is not in any team 
+                    //         else {
+                    //             teamOwned = false;
+                    //         }
+                    //         console.log("before");
+                    //     }
+                    // }, {
+                    //     onlyOnce: true
+                    // })
                     // readding the player to new team from previous one 
                     console.log("after");
                     if (teamOwned) {
