@@ -1,0 +1,464 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap");
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Rubik", sans-serif;
+}
+
+* {
+  font-family: "Rubik", sans-serif;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  outline: none;
+  box-sizing: border-box;
+}
+input,
+textarea,
+text select:focus {
+  outline: #da764b !important;
+}
+
+.nav-link {
+  padding: 0rem 1rem !important;
+  border: none !important;
+}
+
+.nav-link.active {
+  border: none !important;
+}
+
+input[type="time"]::-webkit-clear-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type="time"]::-webkit-clear-button,
+input[type="time"]::-webkit-outer-spin-button,
+input[type="time"]::-webkit-inner-spin-button {
+  display: none;
+}
+.scl {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-color: rgb(68, 68, 68) rgb(209, 213, 219);
+  scrollbar-width: thin;
+  scrollbar-shadow-color: black;
+}
+.scl::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scl::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+.scl::-webkit-scrollbar-thumb {
+  background: #eba282;
+  border-radius: 10px;
+}
+
+.scl::-webkit-scrollbar-thumb:hover {
+  background: #da764b;
+  border-radius: 10px;
+}
+
+.scl::-webkit-scrollbar-thumb:active {
+  background: #da764b;
+  border-radius: 10px;
+}
+text {
+  font-family: "Open Sans", sans-serif;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* tippy styles */
+
+.tippy-box[data-theme~="tomato"] {
+  background-color: black;
+  color: white;
+  padding: 4px 8px;
+}
+
+/* GLOBALS */
+
+.buttonNew {
+  background-color: #fffaee;
+  border: 2px solid #eba282;
+  color: #eba282;
+  cursor: pointer;
+}
+
+.disabled {
+  fill: gray;
+}
+
+.buttonNew:hover {
+  background-color: #eba282;
+  color: #fffaee;
+  border: 2px solid #fffaee;
+}
+
+.heading {
+  background-color: #fffaee;
+  color: #da764b;
+  box-shadow: 4px 4px 12px rgba(255, 101, 67, 0.25);
+}
+
+.bg-brown {
+  background-color: #eba282;
+  border-top-right-radius: 0.4rem;
+  border-bottom-right-radius: 0.4rem;
+}
+
+.inputs {
+  background-color: #fff;
+}
+
+.counterInput {
+  border-radius: 0.4rem;
+  border: 1px solid #da764b;
+}
+
+.tabs {
+  color: white !important;
+  background-color: transparent !important;
+  font-size: 2rem;
+}
+
+.nav-tabs {
+  border: none !important;
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-item .active {
+  background-color: #eba282 !important;
+  color: white !important;
+  font-size: 2rem;
+  border-radius: 0.4rem !important;
+}
+
+.loginGradient {
+  background-image: linear-gradient(
+    rgba(251, 195, 176, 255),
+    rgba(242, 171, 146, 255)
+  );
+}
+
+.bgNormal {
+  background-image: url("https://i.imgur.com/w2oMf9t.png");
+  background-size: cover;
+}
+
+.endGame {
+  background-color: #f55a5a;
+  border: 2px solid #fffaee;
+  border-radius: 0.4rem;
+  color: #fffaee;
+}
+
+.endGame:hover {
+  background-color: #fffaee;
+  color: #f55a5a;
+  border: 2px solid #f55a5a;
+}
+
+.hostSelectEmo {
+  background-color: #da764b;
+  color: #fffaee;
+  box-shadow: 2px 2px 5px #da764b;
+}
+
+.burlywoodBorder {
+  border: 2px solid #da764b;
+}
+
+.burlywoodText {
+  color: #da764b;
+}
+
+.burlywoodText::placeholder {
+  color: #da764b;
+  font-style: italic;
+}
+
+.beigeBg {
+  background-color: #fffaee;
+}
+
+.burlywoodBg {
+  background-color: #da764b;
+}
+
+.whiteText {
+  color: white;
+}
+
+.ebaBg {
+  background-color: #eba282;
+}
+
+.ebaBorder {
+  border: 2px solid #eba282;
+}
+
+.ebaText {
+  color: #eba282;
+}
+
+.beigeBgTransparent {
+  background-color: rgba(255, 250, 238, 0.7);
+}
+
+.input::placeholder {
+  color: white;
+  font-style: italic;
+}
+
+.buttonLifeline {
+  background-color: #fffaee;
+  border: 2px solid #da764b;
+  color: #da764b;
+  cursor: pointer;
+}
+
+.buttonLifeline:disabled {
+  background: gray;
+  border: 2px solid #fffaee;
+  color: white;
+  cursor: default;
+}
+
+.buttonLifeline:hover {
+  background-color: #da764b;
+  color: white;
+}
+
+.burlywoodOverlay {
+  background-color: rgba(218, 118, 75, 0.5);
+  z-index: 999;
+}
+
+/* wheel 2 :( */
+
+.stroke:hover {
+  stroke: black;
+  stroke-width: 4px;
+}
+
+.selected {
+  stroke: black;
+  stroke-width: 4px;
+}
+
+.acceptance {
+  fill: #d1e2af;
+}
+.trust {
+  fill: #bad786;
+}
+.admiration {
+  fill: #a1c75d;
+}
+.serenity {
+  fill: #ffe6c2;
+}
+.joy {
+  fill: #f4c985;
+}
+.ecstacy {
+  fill: #f1b150;
+}
+.interest {
+  fill: #f7b192;
+}
+.anticipation {
+  fill: #f99d75;
+}
+.vigilance {
+  fill: #f17b3d;
+}
+.apprehension {
+  fill: #a2dbcc;
+}
+.terror {
+  fill: #38a88a;
+}
+.fear {
+  fill: #6dccb1;
+}
+.distraction {
+  fill: #94d1d4;
+}
+.amazement {
+  fill: #27a3ad;
+}
+.surprise {
+  fill: #5ebac2;
+}
+.pensiveness {
+  fill: #d2a7d8;
+}
+.grief {
+  fill: #7b2584;
+}
+.sadness {
+  fill: #a566a8;
+}
+.boredom {
+  fill: #e8cae7;
+}
+.loathing {
+  fill: #b980ba;
+}
+.disgust {
+  fill: #cca6cc;
+}
+.annoyance {
+  fill: #e79eae;
+}
+.rage {
+  fill: #cb2947;
+}
+.anger {
+  fill: #db6a7e;
+}
+.optimism {
+  fill: #e2d1a1;
+}
+.cls-25,
+.cls-26,
+.cls-27,
+.cls-28,
+.cls-29,
+.cls-30,
+.cls-31,
+.cls-32 {
+  fill-rule: evenodd;
+}
+.aggressiveness {
+  fill: #f8c6bd;
+}
+.contempt {
+  fill: #deb3d1;
+}
+.remorse {
+  fill: #c3c7e4;
+}
+.disapproval {
+  fill: #c5dfe0;
+}
+.awe {
+  fill: #cfe5bf;
+}
+.submission {
+  fill: #dfebbb;
+}
+.love {
+  fill: #f2f2b4;
+}
+.cls-33,
+.cls-43,
+.cls-55 {
+  font-size: 14px;
+}
+.cls-33,
+.cls-43,
+.cls-55,
+.cls-58 {
+  font-family: Rubik-Medium, Rubik;
+  font-weight: 500;
+}
+.cls-34 {
+  letter-spacing: -0.01em;
+}
+.cls-35 {
+  letter-spacing: -0.01em;
+}
+.cls-36 {
+  letter-spacing: -0.07em;
+}
+.cls-37 {
+  letter-spacing: -0.01em;
+}
+.cls-38 {
+  letter-spacing: -0.02em;
+}
+.cls-39 {
+  letter-spacing: -0.03em;
+}
+.cls-40 {
+  letter-spacing: -0.07em;
+}
+.cls-41 {
+  letter-spacing: 0em;
+}
+.cls-42 {
+  letter-spacing: 0em;
+}
+.cls-43,
+.cls-51 {
+  letter-spacing: -0.01em;
+}
+.cls-44 {
+  letter-spacing: -0.02em;
+}
+.cls-45 {
+  letter-spacing: -0.03em;
+}
+.cls-46 {
+  letter-spacing: -0.01em;
+}
+.cls-47 {
+  letter-spacing: -0.05em;
+}
+.cls-48 {
+  letter-spacing: -0.03em;
+}
+.cls-49 {
+  letter-spacing: -0.02em;
+}
+.cls-50 {
+  letter-spacing: -0.01em;
+}
+.cls-52 {
+  letter-spacing: -0.01em;
+}
+.cls-53 {
+  letter-spacing: -0.02em;
+}
+.cls-54 {
+  letter-spacing: -0.03em;
+}
+.cls-55 {
+  letter-spacing: -0.01em;
+}
+.cls-56 {
+  letter-spacing: 0em;
+}
+.cls-57 {
+  letter-spacing: -0.08em;
+}
+.cls-58 {
+  font-size: 13px;
+}
+.cls-59 {
+  letter-spacing: -0.04em;
+}
+.cls-60 {
+  letter-spacing: -0.07em;
+}

@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap");
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Rubik", sans-serif;
+  /* overflow: hidden; */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.st0 {
+  display: inline;
+  fill: #ffffff;
+}
+
+.st1 {
+  display: inline;
+  fill: #fce9ae;
+}
+.st2 {
+  fill: #f2f2b4;
+}
+.st3 {
+  fill: #dfebbb;
+}
+.st4 {
+  fill: #cfe5bf;
+}
+.st5 {
+  fill: #c5dfe0;
+}
+.st6 {
+  fill: #c3c7e4;
+}
+.st7 {
+  fill: #deb3d1;
+}
+.st8 {
+  fill: #f8c6bd;
+}
+.st9 {
+  fill: none;
+}
+.st10 {
+  font-family: "CenturyGothic-Bold";
+  font-size: 0.8rem;
+}
+.st11 {
+  font-size: 73px;
+}
+.st12 {
+  font-size: 61px;
+}
+.st13 {
+  font-size: 73.9758px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.nav-link {
+  color: gray !important;
+  font-size: large;
+  padding: 15px;
+  background-color: #fff !important;
+  border: none !important;
+  font-weight: bolder;
+}
+
+.nav-link.active {
+  color: black !important;
+  font-size: large;
+  background-color: gray !important;
+  border: none !important;
+  font-weight: bolder;
+}
+
+input[type="time"]::-webkit-clear-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type="time"]::-webkit-clear-button,
+input[type="time"]::-webkit-outer-spin-button,
+input[type="time"]::-webkit-inner-spin-button {
+  display: none;
+}
+.scl {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-color: rgb(68, 68, 68) rgb(209, 213, 219);
+  scrollbar-width: thin;
+  scrollbar-shadow-color: black;
+}
+.scl::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scl::-webkit-scrollbar-track {
+  background: rgb(209, 213, 219);
+  border-radius: 10px;
+}
+
+.scl::-webkit-scrollbar-thumb {
+  background: rgb(136, 136, 136);
+  border-radius: 10px;
+}
+
+.scl::-webkit-scrollbar-thumb:hover {
+  background: rgb(100, 100, 100);
+  border-radius: 10px;
+}
+
+.scl::-webkit-scrollbar-thumb:active {
+  background: rgb(68, 68, 68);
+  border-radius: 10px;
+}
+text {
+  font-family: "Open Sans", sans-serif;
+  text-transform: uppercase;
+  font-weight: 500;
+  cursor: pointer;
+}
+/* 
+round 1 
+[Anger]
+r 2
+[joy]
+
+*/
+
+/* NEW WHEEL CSS */
