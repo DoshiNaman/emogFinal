@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react'
 import Button from '../Button'
-// import { SocketContext } from '../../context/socket/SocketContext'
 import { useRouter } from "next/router";
 import { getDatabase, set, ref, get, child, onValue, update } from 'firebase/database';
 
@@ -11,7 +10,6 @@ const Join = () => {
     const [code, setCode] = useState('')
     const [name, setName] = useState('')
     const [pressed, setPressed] = useState(false)
-    // const socket = useContext(SocketContext)
     const colors = ["https://i.imgur.com/Lh9JoJn.png", "https://i.imgur.com/9nKWnVE.png", "https://i.imgur.com/hYZIEEV.png", "https://i.imgur.com/02wPaiQ.png", "https://i.imgur.com/h1fCyBi.png", "https://i.imgur.com/SkvFWSY.png", "https://i.imgur.com/LptRaIW.png", "https://i.imgur.com/0EkGcud.png", "https://i.imgur.com/8pfgcFz.png"]
 
     const clickHandler = () => {

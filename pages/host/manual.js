@@ -3,7 +3,6 @@ import SettingsAndBack from "../../components/settingsAndBack";
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import PlayerComponent from "../../components/Host/PlayerComponent";
-// import { SocketContext } from '../../context/socket/SocketContext'
 import TeamPlayers from "../../components/TeamPlayers";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
@@ -13,7 +12,6 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 const manual = () => {
 
     const router = useRouter()
-    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState('')
 
@@ -72,7 +70,7 @@ const manual = () => {
         onValue(modeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                alert(data)
+                //alert(data)
                 setMode(data)
             }
         }, {

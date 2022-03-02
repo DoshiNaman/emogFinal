@@ -3,14 +3,12 @@ import SettingsAndBack from "../../components/settingsAndBack";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import SelectScene from "./SelectScene";
-import { SocketContext } from "../../context/socket/SocketContext";
 import EndGame from "../../components/endGame";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const scenes = () => {
 
 
-    const socket = useContext(SocketContext)
     const [gameCode, setGameCode] = useState('')
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [scenes, setScenes] = useState(false)

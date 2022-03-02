@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
 import SettingsAndBack from '../../components/settingsAndBack'
-import { SocketContext } from '../../context/socket/SocketContext'
 import CreateNewScene from '../../components/CreateNewScene'
 import SendCodeToInvitePlayers from "../../components/sendCodeToInvitePlayers";
 import { useRouter } from "next/router";
@@ -8,7 +7,6 @@ import Button from '../../components/Button';
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const SelectScene = () => {
-    const socket = useContext(SocketContext)
     const [scenes, setScenes] = useState([])
     const [addScenesToGame, setAddScenesToGame] = useState([])
     const [createScenes, setCreateScenes] = useState(false)
@@ -59,11 +57,11 @@ const SelectScene = () => {
     const clickHandler = () => {
         setSelectedItem([])
         if (addScenesToGame.length === 0) {
-            alert('Please Select a scene before proceeding')
+            //alert('Please Select a scene before proceeding')
             return
         }
         console.log(addScenesToGame)
-        alert(`${sceneID} is clicked`)
+        //alert(`${sceneID} is clicked`)
 
 
 

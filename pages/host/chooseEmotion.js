@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
-import { SocketContext } from "../../context/socket/SocketContext";
 import Wheel from "../../components/wheel";
 import SettingsAndBack from "../../components/settingsAndBack";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
@@ -9,7 +8,6 @@ import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase
 
 const ChooseEmotions = () => {
 
-    const socket = useContext(SocketContext)
     const [gameCode, setGameCode] = useState('')
     const [numberOfPlayers, setNumberOfPlayers] = useState('')
     const [maxRound, setMaxRoundNo] = useState(7)
@@ -33,7 +31,7 @@ const ChooseEmotions = () => {
         onValue(totalRound, (snapshot) => {
             const maxRound = snapshot.val();
             setMaxRoundNo(maxRound);
-            alert(maxRound);
+            //alert(maxRound);
         });
     }, [gameCode]);
 
@@ -57,7 +55,7 @@ const ChooseEmotions = () => {
             return
         }
         if (emotionArray.length < maxRound) {
-            alert(`Please Select ${maxRound} emotions`)
+            //alert(`Please Select ${maxRound} emotions`)
             return
         }
 

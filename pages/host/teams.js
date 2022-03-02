@@ -3,7 +3,6 @@ import SettingsAndBack from "../../components/settingsAndBack";
 import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import PlayerComponent from "../../components/Host/PlayerComponent";
-// import { SocketContext } from '../../context/socket/SocketContext'
 import Button from '../../components/Button'
 import EndGame from "../../components/endGame"
 import useAuth from "../../hooks/useAuth"
@@ -18,7 +17,6 @@ function getRandomInt(min, max) {
 const teams = () => {
     const { playersNO, setPlayersNO } = useAuth();
     const router = useRouter()
-    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState('')
     const [mode, setMode] = useState('random')

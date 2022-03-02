@@ -1,10 +1,8 @@
 import { useRouter } from 'next/router'
 import React, { useContext, useEffect, useState } from 'react'
-//import { SocketContext } from '../context/socket/SocketContext'
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const scene = () => {
-    //const socket = useContext(SocketContext)
     const router = useRouter()
     const [gameCode, setGameCode] = useState("")
     const [scenes, setScenes] = useState({})
@@ -31,7 +29,6 @@ const scene = () => {
                     const sceneObj = snapshot.val()
                     const sceneIDD = parseInt(sceneObj["sceneId"])
                     let noOfROUNDSS = parseInt(sceneObj["noOfRounds"])
-                    alert(noOfROUNDSS)
                     // console.log(sceneObj)
                     const sceneRef2 = ref(db, `${gameCode}/scenes/${sceneIDD}`);
 
@@ -47,13 +44,11 @@ const scene = () => {
                                     if (snapshot.exists()) {
                                         const teamsObj = snapshot.val();
                                         let teamsNames = Object.keys(teamsObj);
-                                        //alert(teamsNames.length)
                                         let updates = {}
                                         for (let i = 0; i < teamsNames.length; i++) {
                                             let noOfROUNDS = noOfROUNDSS
                                             let roundDetailsArr = []
                                             let teamName = teamsNames[i]
-                                            //alert(teamName)
                                             roundDetailsArr.push({
                                                 sender: "pre",
                                                 msg: sceneObj2.statementOne
@@ -120,15 +115,6 @@ const scene = () => {
             });
         }
     }, [gameCode, role]);
-
-    /* useEffect(() => {        
-        //socket.emit('get-game-scene', sessionStorage.getItem('game-code'))
-        // socket.on('game-scene', scene => {
-        //     console.log(scene);
-        //     setScene(scene)})
-        
-    }, [gameCode,scenes]); */
-
 
     return (
         <div className='flex flex-col items-center justify-center h-screen bgNormal'>

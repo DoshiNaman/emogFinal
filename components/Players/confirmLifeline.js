@@ -1,8 +1,5 @@
 import { useContext, useState } from "react";
-import { SocketContext } from "../../context/socket/SocketContext";
-
 const ConfirmLifeline = (props) => {
-     const socket = useContext(SocketContext)
 
      const clickHandler = () => {
           const gameCode = sessionStorage.getItem('game-code')

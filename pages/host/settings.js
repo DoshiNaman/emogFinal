@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import SendCodeToInvitePlayers from "../../components/sendCodeToInvitePlayers"
 import SettingsAndBack from "../../components/settingsAndBack"
 import styles from '../../styles/Settings.module.css'
-import { SocketContext } from "../../context/socket/SocketContext"
 import EndGame from "../../components/endGame"
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
@@ -11,7 +10,6 @@ const settings = () => {
 
     // const db = getDatabase();
     const router = useRouter()
-    const socket = useContext(SocketContext)
     const [numberOfRounds, setNumberOfRounds] = useState(10)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     // gameCode from sessionStorage

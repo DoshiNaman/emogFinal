@@ -1,7 +1,6 @@
 import Modal from "./Modal";
 import Button from './Button'
 import { useContext, useEffect, useState } from "react";
-import { SocketContext } from "../context/socket/SocketContext";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const CreateNewScene = ({ closeButton, text, sceneID, nudge, roleOne, roleTwo, statementOne, statementTwo, nudgeRoundNumber }) => {
@@ -16,7 +15,6 @@ const CreateNewScene = ({ closeButton, text, sceneID, nudge, roleOne, roleTwo, s
     const [initialStatementTwo, setInitialStatementTwo] = useState(statementTwo)
     const [maxRounds, setMaxRounds] = useState(10)
     const [rounds, setRounds] = useState([])
-    const socket = useContext(SocketContext)
 
     useEffect(() => {
         const gameId = localStorage.getItem('game-code');
@@ -37,7 +35,7 @@ const CreateNewScene = ({ closeButton, text, sceneID, nudge, roleOne, roleTwo, s
         onValue(findScene, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                alert(`${data.length}`);
+                //alert(`${data.length}`);
                 const sceneID = data.length;
                 const updates = {};
                 updates[`/${gameCode}/scenes/${sceneID}/id`] = sceneID;

@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import SendCodeToInvitePlayers from "../../components/sendCodeToInvitePlayers";
 import SettingsAndBack from "../../components/settingsAndBack";
 import { useRouter } from "next/router";
-import { SocketContext } from "../../context/socket/SocketContext";
 import EndGame from "../../components/endGame";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
@@ -18,7 +17,6 @@ const Scoring = () => {
     const [compoundIncorrect, setCompoundIncorrect] = useState(0)
 
     const router = useRouter()
-    const socket = useContext(SocketContext)
 
     useEffect(() => {
         const gameId = sessionStorage.getItem('game-code');

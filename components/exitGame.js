@@ -1,12 +1,10 @@
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
-import { SocketContext } from "../context/socket/SocketContext";
 import Modal from "./Modal";
 
 const exitGame = (props) => {
 
     const router = useRouter()
-    const socket = useContext(SocketContext)
 
     const clickHandler = () => {
         const gameCode = sessionStorage.getItem('game-code')

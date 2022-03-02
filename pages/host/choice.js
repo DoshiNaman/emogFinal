@@ -5,14 +5,12 @@ import { useRouter } from "next/router";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
 import TeamPlayers from "../../components/TeamPlayers";
-import { SocketContext } from "../../context/socket/SocketContext";
 import useAuth from "../../hooks/useAuth";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 // import styles from "../css/hostScreen.module.css"
 
 const choice = () => {
     const router = useRouter()
-    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
     // const [players, setPlayers] = useState([])
@@ -47,7 +45,7 @@ const choice = () => {
         onValue(totalNumber, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                alert(data)
+                //alert(data)
                 setNumberOfPlayers(data)
             }
         });
@@ -75,7 +73,7 @@ const choice = () => {
         onValue(modeRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
-                alert(data)
+                //alert(data)
                 setMode(data)
             }
         }, {

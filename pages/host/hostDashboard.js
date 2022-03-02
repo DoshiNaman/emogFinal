@@ -8,14 +8,12 @@ import DashboardScene from "../../components/Host/dashboardScene"
 import Emotion from "../../components/Host/Emotion"
 import Scoring from "../../components/Host/Scoring"
 import Teams from "../../components/Host/Teams"
-// import { SocketContext } from "../../context/socket/SocketContext"
 import router from "next/router"
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 
 const hostDashboard = () => {
 
-    //const socket = useContext(SocketContext)
     const [guessingTime, setGuessingTime] = useState(0)
     const [typingTime, setTypingTime] = useState(0)
     const [scene, setScene] = useState({})
@@ -170,7 +168,7 @@ const hostDashboard = () => {
             }
             console.log(compTeams)
             if(compTeams === teamsNames.length){
-                alert("LEADER")
+                //alert("LEADER")
                 router.push('/leaderboard')
             }
             setTeams(teamsArr)

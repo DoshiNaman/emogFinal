@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { SocketContext } from '../context/socket/SocketContext';
 import PlayerComponent from './Host/PlayerComponent';
 
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
@@ -10,7 +9,6 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
     const [players, setPlayers] = useState([])
     // const [myTeam, setMyTeam] = useState("")
     const [gameCode, setGameCode] = useState("")
-    //const socket = useContext(SocketContext)
     // console.log(playerName);
     const db = getDatabase();
 
@@ -63,7 +61,7 @@ const TeamComponent = ({ teams, activeIcon, playerName, activeTeam, role, myTeam
         }
         const db = getDatabase();
         // const teamDetailsRef = ref(db, `${gameCode}/teamDetails`);
-        alert(teams.length)
+        //alert(teams.length)
         updates[`${gameCode}/teamDetails/team${teams.length + 1}`] = upData;
         update(ref(db), updates);
     }

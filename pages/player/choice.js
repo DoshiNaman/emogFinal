@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import TeamComponent from "../../components/TeamComponent";
 import Button from "../../components/Button";
 import TeamPlayers from "../../components/TeamPlayers";
-// import { SocketContext } from "../../context/socket/SocketContext";
 import useAuth from "../../hooks/useAuth";
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 // import styles from "../css/hostScreen.module.css"
@@ -17,7 +16,6 @@ const choice = () => {
 
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [gameCode, setGameCode] = useState("")
-    // const socket = useContext(SocketContext)
     const [playerMax, setPlayerMax] = useState()
     const [teams, setTeams] = useState([])
     const [activeTeam, setActiveTeam] = useState('team1')
@@ -74,7 +72,7 @@ const choice = () => {
                     setMode(snapshot.val())
                 }
                 else {
-                    alert("doesn't exists")
+                    //alert("doesn't exists")
                 }
             })
         }
@@ -157,7 +155,7 @@ const choice = () => {
                             router.push('/scene')
                         }
                         else {
-                            alert("Not Fetch myTeam Value")
+                            //alert("Not Fetch myTeam Value")
                         }
                     }
                 }

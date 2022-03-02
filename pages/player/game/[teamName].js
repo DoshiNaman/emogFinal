@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useContext, useEffect, useRef, useState } from "react";
-import { SocketContext } from "../../../context/socket/SocketContext";
 import Wheel from '../../../components/wheel'
 import ConfirmLifeline from "../../../components/Players/confirmLifeline";
 import SettingsAndBack from "../../../components/settingsAndBack"
@@ -20,7 +19,6 @@ const game = () => {
     const [maxRounds, setMaxRounds] = useState(10)
     const [scene, setScene] = useState({})
     const [messages, setMessages] = useState([])
-    // const socket = useContext(SocketContext)
     const [statement, setStatement] = useState('')
     const [player, setPlayer] = useState({})
     const [activePlayer, setActivePlayer] = useState('')
@@ -521,7 +519,7 @@ const game = () => {
 
 
     const clickHandler = () => {
-        alert("Clicked")
+        //alert("Clicked")
         console.log(guessedEmotions)
         const updates = {}
         //console.log(emotion)
@@ -616,10 +614,10 @@ const game = () => {
 
     const onSubmit = () => {
         if (parseInt(roundNo) > parseInt(maxRounds)) {
-            alert("Oveeer")
+            //alert("Oveeer")
             return
         }
-        alert(statement)
+        //alert(statement)
 
         if (senderName === myNameEn) {
             const updates = {};

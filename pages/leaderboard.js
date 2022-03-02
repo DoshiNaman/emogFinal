@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { SocketContext } from '../context/socket/SocketContext'
 import { getDatabase, ref, child, get, set, on, update, onValue } from 'firebase/database';
 
 const leaderboard = () => {
-    const socket = useContext(SocketContext)
     const [teams, setTeams] = useState([])
     const [gameCode, setGameCode] = useState("")
     const bg={
@@ -20,7 +18,7 @@ const leaderboard = () => {
         const gameId = sessionStorage.getItem('game-code');
         setGameCode(gameId);
         const reRef = ref(db, `${gameId}/teamDetails`);
-        get(reRef).then((snapshot) => {
+        onValue(reRef, (snapshot) => {
             if (snapshot.exists()) {
                 const ScoreArr = []
                 const teamDetail = snapshot.val();
@@ -42,17 +40,10 @@ const leaderboard = () => {
             else{
                 alert("No Snapshot")
             }
-        }).catch((error) => {
-            console.error(error);
         });
             //setTeams([{teamName:1,score:5}])
         
     }, []);
-
-    /* useEffect(() => {
-        socket.emit('join-leaderboard',sessionStorage.getItem('game-code'))
-        socket.on('team-scores', teams => setTeams(teams))
-    },[socket]) */
 
     return (
         <div className='h-screen flex flex-col justify-center items-center' style={bg}>

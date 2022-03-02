@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useState, useEffect, useContext } from "react";
-import { SocketContext } from "../../context/socket/SocketContext";
 import SendCodeToInvitePlayers from "../../components/sendCodeToInvitePlayers";
 import PlayerComponent from "../../components/Host/PlayerComponent";
 import RuleBook from "../../components/RuleBook";
@@ -12,7 +11,6 @@ const avatar = () => {
 
     const router = useRouter()
     const db = getDatabase()
-    // const socket = useContext(SocketContext)
     const [numberOfPlayers, setNumberOfPlayers] = useState(0)
     const [playerName, setPlayerName] = useState()
 
@@ -67,7 +65,7 @@ const avatar = () => {
                     setGameMode(snapshot.val())
                 }
                 else {
-                    alert("doesn't exists")
+                    //alert("doesn't exists")
                 }
             })
         }
@@ -89,7 +87,7 @@ const avatar = () => {
                         const teamJoinedArr = Object.keys(snapData)
                         console.log(teamJoinedArr)
                         if (teamJoinedArr.includes(playerName)) {
-                            alert('route changing')
+                            //alert('route changing')
                             router.push('/player/choice')
                         }
                     }
@@ -105,7 +103,7 @@ const avatar = () => {
                         const snapObj = Object.keys(snapData)
                         console.log(snapObj)
                         if (snapObj.includes(playerName)) {
-                            alert('route changing')
+                            //alert('route changing')
                             router.push('/player/choice')
                         }
                     }
