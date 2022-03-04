@@ -32,8 +32,10 @@ const game = () => {
     const [counter, setCounter] = useState(90)
     const [guessCounter, setGuessCounter] = useState(180)
     const [gameCode, setGameCode] = useState('')
-    const timerRef = useRef()
+
     const [currentRoundEmotion, setCurrentRoundEmotion] = useState('')
+    const [correctAnswer, setCorrectAnswer] = useState("")
+
     const [status, setStatus] = useState('')
     const [confirmLifeline, setConfirmLifeline] = useState()
     const [thisOrThatBool, setThisOrThatBool] = useState(false)
@@ -49,38 +51,39 @@ const game = () => {
 
     const [guessedEmotions, setGuessedEmotions] = useState([])
     const [gameLog, setGameLog] = useState([])
-
+    // { guesser: "abhinav", emotion: "abhi" }, { guesser: "enan", emotion: "en" }
     const [callHost, setCallHost] = useState(false)
 
     // popup after every round
     const [summary, setSummary] = useState(false)
     const [close, setClose] = useState(0)
-    const [correctAnswer, setCorrectAnswer] = useState("")
     const [yourAnswer, setYourAnswer] = useState("")
     const [currScore, setCurrScore] = useState(0)
     const [nextPlayer, setNextPlayer] = useState("")
+    const [thisOrThat,setThisOrThat] = useState(false)
+    const [deleteTheRow,setDeleteTheRow] = useState(false)
+    const [callTheBot,setCallTheBot] = useState(false)
 
     //value
-    const [compoundEmotionValue,setCompoundEmotionValue] = useState({
-        correctGuess : 0,
-        incorrectGuess : 0
+    const [compoundEmotionValue, setCompoundEmotionValue] = useState({
+        correctGuess: 0,
+        incorrectGuess: 0
     })
-    const [otherEmotionValue,setOtherEmotionValue] = useState({
-        correctGuess : 0,
-        adjacentCell : 0,
-        incorrectGuess : 0
+    const [otherEmotionValue, setOtherEmotionValue] = useState({
+        correctGuess: 0,
+        adjacentCell: 0,
+        incorrectGuess: 0
     })
-    const OtherEmotions = [['RAGE','ANGER', 'ANNOYANCE'], 
-    ['LOATHING', 'DISGUST', 'BOREDOM'], 
-    ['ADMIRATION','TRUST', 'ACCEPTANCE'],
-    ['TERROR', 'FEAR', 'APPREHENSION'], 
-    ['AMAZEMENT','SURPRISE', 'DISTRACTION'],
-    ['GRIEF', 'SADNESS', 'PENSIVENESS'], 
-    ['VIGILANCE','ANTICIPATION', 'INTEREST'], 
-    ['ECSTACY','JOY', 'SERENITY']];
-    const CompoundEmotions = ['AGGRESSIVENESS','CONTEMPT', 'REMORSE', 'DISAPPROVAL', 'AWE', 'SUBMISSION', 'LOVE','OPTIMISM'];
-    const [Inother,setInother] = useState([])
-
+    const OtherEmotions = [['RAGE', 'ANGER', 'ANNOYANCE'],
+    ['LOATHING', 'DISGUST', 'BOREDOM'],
+    ['ADMIRATION', 'TRUST', 'ACCEPTANCE'],
+    ['TERROR', 'FEAR', 'APPREHENSION'],
+    ['AMAZEMENT', 'SURPRISE', 'DISTRACTION'],
+    ['GRIEF', 'SADNESS', 'PENSIVENESS'],
+    ['VIGILANCE', 'ANTICIPATION', 'INTEREST'],
+    ['ECSTACY', 'JOY', 'SERENITY']];
+    const CompoundEmotions = ['AGGRESSIVENESS', 'CONTEMPT', 'REMORSE', 'DISAPPROVAL', 'AWE', 'SUBMISSION', 'LOVE', 'OPTIMISM'];
+    const [Inother, setInother] = useState([])
 
     // my name 
     const [myNameEn, setMyNameEn] = useState('');
@@ -114,14 +117,18 @@ const game = () => {
         setMyNameEn(myNome);
     }, []);
 
-
-    
+    // useEffect(()=>{
+    //     if(!Inother){
+    //         return
+    //     }
+    //     alert(Inother)
+    // },[Inother]);
 
     //  && isTyping === true && isGuessing === false
     useEffect(() => {
         if (gameCode && myTeam) {
 
-            if(close === 1){
+            if (close === 1) {
                 setSummary(false)
                 const updates = {};
                 const time = new Date();
@@ -137,24 +144,22 @@ const game = () => {
                 //clearInterval(guessingInterval)
                 setIsDisabled(false)
                 setClose(0)
-            } 
-
-
+            }
 
             const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/`)
             onValue(timingRef, (snapshot) => {
                 if (snapshot.exists()) {
                     let timingObj = snapshot.val()
-                    if(timingObj.summary === true){
-                        
-                        if(parseInt(roundNo)>parseInt(maxRounds)){
+                    if (timingObj.summary === true) {
+
+                        if (parseInt(roundNo) > parseInt(maxRounds)) {
                             router.push('/leaderboard');
                             const updates = {};
                             updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(maxRounds);
                             update(ref(db), updates);
                             return
                         }
-                        let cuurR = parseInt(roundNo) +1;
+                        let cuurR = parseInt(roundNo) + 1;
                         const reRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}/selectedEmotion`);
                         get(reRef).then((snapshot) => {
                             if (snapshot.exists()) {
@@ -175,9 +180,8 @@ const game = () => {
                             console.error(error);
                         });
 
-
                         setSummary(true)
-                        setTimeout(function(){
+                        setTimeout(function () {
                             setSummary(false)
                             const updates = {};
                             const time = new Date();
@@ -187,13 +191,13 @@ const game = () => {
                             updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
                             updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
                             updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
-                            
+
                             update(ref(db), updates)
                             //clearInterval(guessingInterval)
                             setIsDisabled(false)
                         }, 6000);
                     }
-                    
+
                     if (timingObj.typingTimeRunning === true) {
                         let endTime = timingObj.endTypingTime
                         console.log(endTime);
@@ -203,16 +207,18 @@ const game = () => {
                         if (distance > 0) {
                             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                            console.log(minutes, seconds);
+                            // console.log(minutes, seconds);
                             setTypingDuration(minutes * 60 + seconds)
                             setIsTyping(true)
                             setIsGuessing(false)
                         }
-                    } else {
+                    }
+                    if (timingObj.guessingTimeRunning === true) {
+                        // console.log("guessing time has satrtedadbjcilcahashbcahsbj............             ................dafa");
                         let endTime = timingObj.endGuessingTime
                         const time = new Date(endTime).getTime()
                         const distance = time - (new Date().getTime())
-                        console.log(time, distance);
+                        // console.log(time, distance);
                         if (distance > 0) {
                             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -226,6 +232,37 @@ const game = () => {
             })
         }
     }, [gameCode, myTeam, totalTypingDuration, isTyping, isGuessing, summary, close])
+
+    useEffect(() => {
+        if (gameCode && myTeam != "" && roundNo) {
+            const msgRef = ref(db, `${gameCode}/roundDetails/${myTeam}`);
+            onValue(msgRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const newMsg = []
+                    const rdObj = snapshot.val();
+                    const newRN = roundNo + 1;
+                    for (let i = 0; i <= newRN; i++) {
+                        if (i > maxRounds + 1)
+                            return
+                        if (rdObj[i].sender === "pre") {
+                            newMsg.push(rdObj[i].msg);
+                        }
+                        else {
+                            if (rdObj[i].msg !== "NoN") {
+                                newMsg.push(rdObj[i].msg);
+                            }
+                            if (i == newRN) {
+                                setSenderName(rdObj[i].sender);
+                            }
+                        }
+                    }
+                    setMessages(newMsg)
+                } else {
+                    console.log("nomsg");
+                }
+            });
+        }
+    }, [gameCode, myTeam, roundNo])
 
     useEffect(() => {
         let typingInterval
@@ -244,16 +281,16 @@ const game = () => {
                         updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = true;
                         updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = false;
                         update(ref(db), updates)
-                        clearInterval(typingInterval)
                         setIsDisabled(true)
                         // setIsTyping(false)
                         // setIsGuessing(true)
                     }
+                    clearInterval(typingInterval)
                 }
             }, 1000);
         }
         return () => clearInterval(typingInterval);
-    }, [typingDuration, isTyping, senderName, myNameEn]);
+    }, [typingDuration, isTyping, senderName, myNameEn, isGuessing]);
 
 
     useEffect(() => {
@@ -263,10 +300,10 @@ const game = () => {
                 if (guessingDuration > 0)
                     setGuessingDuration(guessingDuration => guessingDuration - 1);
                 else {
-                    currentRoundEmotion = currentRoundEmotion.toUpperCase();       
+                    currentRoundEmotion = currentRoundEmotion.toUpperCase();
                     setCorrectAnswer(currentRoundEmotion)
                     setCurrScore(0)
-                    let cuurR = parseInt(roundNo) +1;
+                    let cuurR = parseInt(roundNo) + 1;
                     const reRef = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}`);
                     get(reRef).then((snapshot) => {
                         if (snapshot.exists()) {
@@ -282,17 +319,19 @@ const game = () => {
                     let newR = parseInt(roundNo) + 1
                     //alert("Guess Time Over")
                     if (senderName === myNameEn) {
-                        const updates = {};               
+                        const updates = {};
                         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
                         let currR = parseInt(roundNo) + 1;
                         updates[`${gameCode}/roundDetails/${myTeam}/${currR}/currScore`] = 0;
                         updates[`${gameCode}/roundDetails/${myTeam}/${currR}/selectedEmotion`] = "NoN";
                         updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
+
+                        updates[`${gameCode}/gameLogDetails/${myTeam}/${roundNo - 1}`] = { "guesser": "none of the player", "emotion": "guessed" };
                         update(ref(db), updates)
                         //setIsDisabled(false)
                         // setIsTyping(true)
                     }
-                    if(newR > maxRounds)
+                    if (newR > maxRounds)
                         router.push('/leaderboard');
                     setIsGuessing(false)
                     setIsTyping(true)
@@ -303,6 +342,24 @@ const game = () => {
         return () => clearInterval(guessingInterval);
     }, [guessingDuration, senderName, myNameEn, isTyping, isGuessing]);
 
+    useEffect(() => {
+        // if (roundNo <= 1) {
+        //     alert("no game log")
+        //     return
+        // }
+        if (gameCode && myTeam && myNameEn) {
+            const gameLogRef = ref(db, `${gameCode}/gameLogDetails/${myTeam}`)
+            onValue(gameLogRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const gameArray = snapshot.val()
+                    console.log(gameArray);
+                    setGameLog([...gameArray])
+                } else {
+                    setGameLog([])
+                }
+            })
+        }
+    }, [gameCode, myTeam, myNameEn])
 
     useEffect(() => {
         if (gameCode && roundNo > 0) {
@@ -314,7 +371,7 @@ const game = () => {
                     const comp = hostObj.compoundEmotion
                     setCompoundEmotionValue(comp)
                     const otr = hostObj.otherEmotion
-                    setOtherEmotionValue(otr)                    
+                    setOtherEmotionValue(otr)
                     const roundEmotion = hostObj.setEmotion[`${a}`];
                     setCurrentRoundEmotion(roundEmotion)
                 }
@@ -322,7 +379,7 @@ const game = () => {
                 console.error(error);
             });
         }
-    }, [gameCode, roundNo, ]);
+    }, [gameCode, roundNo,]);
 
     //setTeams & Players & Scene
     useEffect(() => {
@@ -337,7 +394,7 @@ const game = () => {
                     console.log(teamObj)
                     setTeam(teamObj)
                     for (let i = 0; i < playerName.length; i++) {
-                        
+
                         if (playerName[i] == "currentRound") {
                             setRoundNo(teamObj[playerName[i]])
 
@@ -409,7 +466,7 @@ const game = () => {
             });
 
         }
-    }, [gameCode, myTeam , score]);
+    }, [gameCode, myTeam, score]);
 
     useEffect(() => {
         var objDiv = document.getElementById("chatBox");
@@ -419,36 +476,6 @@ const game = () => {
     })
 
     //setMessgae
-    useEffect(() => {
-        if (gameCode && myTeam != "") {
-            const msgRef = ref(db, `${gameCode}/roundDetails/${myTeam}`);
-            onValue(msgRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const newMsg = []
-                    const rdObj = snapshot.val();
-                    const newRN = roundNo + 1;
-                    for (let i = 0; i <= newRN; i++) {
-                        if(i>maxRounds+1)
-                            return
-                        if (rdObj[i].sender === "pre") {
-                            newMsg.push(rdObj[i].msg);
-                        }
-                        else {
-                            if(rdObj[i].msg !== "NoN"){
-                                newMsg.push(rdObj[i].msg);
-                            }
-                            if (i == newRN) {
-                                setSenderName(rdObj[i].sender);
-                            }
-                        }
-                    }
-                    setMessages(newMsg)
-                } else {
-                    console.log("nomsg");
-                }
-            });
-        }
-    }, [gameCode, myTeam, roundNo])
 
 
     const guessEmotion = (e) => {
@@ -469,14 +496,14 @@ const game = () => {
         setConfirmLifeline(text)
     }
 
-    useEffect(()=>{
-        if(gameCode && currentRoundEmotion){
-            for(let i=0;i<OtherEmotions.length;i++){
-                if(OtherEmotions[i].includes(currentRoundEmotion))
+    useEffect(() => {
+        if (gameCode && currentRoundEmotion) {
+            for (let i = 0; i < OtherEmotions.length; i++) {
+                if (OtherEmotions[i].includes(currentRoundEmotion))
                     setInother(OtherEmotions[i])
             }
-        }      
-    },[gameCode,currentRoundEmotion]);  
+        }
+    }, [gameCode, currentRoundEmotion]);
 
 
     const clickHandler = () => {
@@ -485,65 +512,76 @@ const game = () => {
         const updates = {}
         //console.log(emotion)
         emotion = emotion.toUpperCase();
-        currentRoundEmotion = currentRoundEmotion.toUpperCase();       
+        currentRoundEmotion = currentRoundEmotion.toUpperCase();
         setEmotion(emotion)
         setYourAnswer(emotion)
         setCorrectAnswer(currentRoundEmotion)
-        
+
         // for(let i=0;i<OtherEmotions.length;i++){
         //     if(OtherEmotions[i].includes(currentRoundEmotion))
         //         setInother(OtherEmotions[i])
         // }
         let currR = parseInt(roundNo) + 1;
-        console.log(compoundEmotionValue,otherEmotionValue)
+        console.log(compoundEmotionValue, otherEmotionValue)
         let updatedScore = 0
         let value = 0;
-        if(CompoundEmotions.includes(currentRoundEmotion)){
-            if(emotion === currentRoundEmotion){
+        if (CompoundEmotions.includes(currentRoundEmotion)) {
+            if (emotion === currentRoundEmotion) {
                 //corret
                 setCurrScore(compoundEmotionValue.correctGuess)
                 updatedScore = parseInt(score) + parseInt(compoundEmotionValue.correctGuess);
                 value = parseInt(compoundEmotionValue.correctGuess);
             }
-            else{
+            else {
                 //incorrect
                 setCurrScore(compoundEmotionValue.incorrectGuess)
                 updatedScore = parseInt(score) + parseInt(compoundEmotionValue.incorrectGuess);
                 value = parseInt(compoundEmotionValue.incorrectGuess);
             }
-        }    
-        else{
-            if(emotion === currentRoundEmotion){
+        }
+        else {
+            if (emotion === currentRoundEmotion) {
                 //corret
                 setCurrScore(otherEmotionValue.correctGuess)
                 updatedScore = parseInt(score) + parseInt(otherEmotionValue.correctGuess);
                 value = parseInt(otherEmotionValue.correctGuess);
             }
-            else if(Inother.includes(emotion)){
+            else if (Inother.includes(emotion)) {
                 //adjusent
                 setCurrScore(otherEmotionValue.adjacentCell)
                 updatedScore = parseInt(score) + parseInt(otherEmotionValue.adjacentCell);
                 value = parseInt(otherEmotionValue.adjacentCell);
             }
-            else{
+            else {
                 //incorrect
                 setCurrScore(otherEmotionValue.incorrectGuess)
                 updatedScore = parseInt(score) + parseInt(otherEmotionValue.incorrectGuess);
                 value = parseInt(otherEmotionValue.incorrectGuess);
             }
-        }         
-       
+        }
+
         let newR = parseInt(roundNo) + 1
         updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
-        if(newR > maxRounds)
+        if (newR > maxRounds)
             router.push('/leaderboard');
         updates[`${gameCode}/teamDetails/${myTeam}/score`] = updatedScore;
         updates[`${gameCode}/roundDetails/${myTeam}/${currR}/currScore`] = value;
         updates[`${gameCode}/roundDetails/${myTeam}/${currR}/selectedEmotion`] = emotion;
         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
+
+        updates[`${gameCode}/gameLogDetails/${myTeam}/${roundNo - 1}`] = { "guesser": myNameEn, "emotion": emotion };
+
         update(ref(db), updates)
-        
-    } 
+
+    }
+    useEffect(()=>{
+        if(roundNo){
+            setDeletedRow([])
+            setCorrectEmotion('')
+            setOtherEmotion('')
+            setThirdEmotion('')
+        }
+    },[roundNo]);
 
     const onChangeHandler = (e) => {
         setStatement(e.target.value)
@@ -607,7 +645,7 @@ const game = () => {
                         {/* {console.log(tempTimer)} */}
                         {/* {tempTimer !== {} ? <Timer expiryTime={tempTimer} /> : null} */}
                         {/* <Timer expiryTime={time} /> */}
-                        {console.log(typingDuration)}
+                        {/* {console.log(typingDuration)} */}
                         <div>
                             {isGuessing && !isTyping ? `Guessing time :${Math.floor(guessingDuration / 60)}:${guessingDuration % 60}` : `Typing time: ${Math.floor(typingDuration / 60)}:${typingDuration % 60}`}
                         </div>
@@ -658,17 +696,21 @@ const game = () => {
                     </div>
                     <div className="h-full flex flex-column pt-2">
 
-                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("This or That")} disabled={team.thisOrThat || (player.isRandomlySelected && player.name === senderName)} >
+                        {/* <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("This or That")} disabled={team.thisOrThat || (player.isRandomlySelected && player.name === senderName)} > */}
+                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("This or That")} disabled={thisOrThat || (myNameEn === senderName)} >
                             This or That
                         </button>
-                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Delete a row")} disabled={team.deleteARow || (player.isRandomlySelected && player.name === senderName)} >
+                        {/* <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Delete a row")} disabled={team.deleteARow || (player.isRandomlySelected && player.name === senderName)} > */}
+                        <button className="mt-2 text-sm rounded-md px-2 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Delete a row")} disabled={deleteTheRow || (myNameEn === senderName)} >
                             Delete a row
                         </button>
-                        <button className="my-2 text-sm rounded-md px-3 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Call the Bot")} disabled={team.callTheBot || (player.isRandomlySelected && player.name === senderName)} >
+                        {/* <button className="my-2 text-sm rounded-md px-3 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Call the Bot")} disabled={team.callTheBot || (player.isRandomlySelected && player.name === senderName)} > */}
+                        <button className="my-2 text-sm rounded-md px-3 py-2 text-center font-bold buttonLifeline" onClick={() => confirmTheLifeline("Call the Bot")} disabled={callTheBot || (myNameEn === senderName)} >
                             Call the bot
                         </button>
 
-                        {player.name === senderName && player.isRandomlySelected ? null :
+                        {/* {player.name === senderName && player.isRandomlySelected ? null : */}
+                        {myNameEn === senderName ? null :
                             <button className='buttonNew rounded-md px-3 py-2 mb-3 mt-4 text-lg font-bold text-center'
                                 onClick={() => clickHandler()} >Confirm</button>}
                         <div className="heading rounded-xl py-3 h-auto">
@@ -753,7 +795,7 @@ const game = () => {
 
             {summary ? <Summary setSummary={setSummary} setClose={setClose} correctAnswer={correctAnswer} yourAnswer={yourAnswer} pointsEarnerd={currScore} nextPlayer={nextPlayer} /> : <></>}
 
-            {confirmLifeline ? <ConfirmLifeline setConfirmLifeline={setConfirmLifeline} lifeLine={confirmLifeline} /> : <></>}
+            {confirmLifeline ? <ConfirmLifeline setThisOrThat={setThisOrThat} setDeleteTheRow={setDeleteTheRow} setCallTheBot={setCallTheBot} myTeam={myTeam} setCorrectEmotion={setCorrectEmotion} setOtherEmotion={setOtherEmotion} setThirdEmotion={setThirdEmotion} currentRoundEmotion={currentRoundEmotion} OtherEmotions={OtherEmotions} gameCode={gameCode} setDeletedRow={setDeletedRow} setConfirmLifeline={setConfirmLifeline} lifeLine={confirmLifeline} /> : <></>}
         </div>
     );
 }

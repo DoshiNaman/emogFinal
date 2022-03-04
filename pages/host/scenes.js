@@ -56,6 +56,22 @@ const scenes = () => {
             }
         });
     }, [gameCode]);
+    
+    const handleOnClick = ()=>{
+        if(!sceneClassName || !emotionClassName){
+            if(!sceneClassName && emotionClassName){
+                alert('please select scene')
+            }
+            else if(sceneClassName && !emotionClassName){
+                alert('please select emotion')
+            }
+            else{
+                alert('please select scene and emotion')
+            }
+            return
+        }
+        router.push("/host/scoring")
+    }
 
     /* useEffect(() => {
         if(sessionStorage.getItem('scene-class'))
@@ -115,7 +131,7 @@ const scenes = () => {
                     </div>
                 </div>
 
-                <div className="text-center"><button onClick={() => router.push("/host/scoring")} className=" buttonNew rounded-md px-4 py-2 text-xl font-bold">Continue</button></div>
+                <div className="text-center"><button onClick={handleOnClick} className=" buttonNew rounded-md px-4 py-2 text-xl font-bold">Continue</button></div>
             </div>
             {
                 scenes ?

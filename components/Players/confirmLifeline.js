@@ -1,18 +1,85 @@
 import { useContext, useState } from "react";
 const ConfirmLifeline = (props) => {
-
+     
+     const { gameCode, myTeam,setConfirmLifeline, lifeLine,currentRoundEmotion,OtherEmotions,setDeletedRow,setCorrectEmotion,setOtherEmotion,setThirdEmotion,setThisOrThat,setDeleteTheRow,setCallTheBot} = props;
+     setCorrectEmotion('')
+     setOtherEmotion('')
+     setThirdEmotion('')
+     
      const clickHandler = () => {
           const gameCode = sessionStorage.getItem('game-code')
           const teamName = sessionStorage.getItem('team-name')
-          props.setConfirmLifeline(false)
-          switch(props.lifeLine){
+          // props.setConfirmLifeline(false)
+          // alert(currentRoundEmotion)
+          switch(lifeLine){
                case 'This or That':
-                   //socket.emit('this-or-that', {gameCode, teamName})
-                   break
+                    //socket.emit('this-or-that', {gameCode, teamName})
+                    setThisOrThat(true)
+                    break
                case 'Call the Bot':
-                   //socket.emit('call-the-bot', {gameCode, teamName})
+                    const newArrayBot = [];
+                    for(let i=0;i<OtherEmotions.length;i++){
+                         for(let j=0;j<3;j++){
+                              console.log(OtherEmotions[i][j])
+                              if(OtherEmotions[i][j]!=currentRoundEmotion){
+                                   newArrayBot.push(OtherEmotions[i][j])
+                                   // alert('found')
+                              }
+                              // if(!OtherEmotions[i][j]==currentRoundEmotion){
+                              //      console.log(OtherEmotions[i][j])
+                              // }
+                         }
+                    }
+                    console.log(newArrayBot)
+                    const random1 = Math.floor(Math.random()*newArrayBot.length);
+                    let random2 = Math.floor(Math.random()*newArrayBot.length);
+                    if(newArrayBot[random1]==newArrayBot[random2]){
+                         for(let i=0;i<1;i){
+                              let newRandom2 = Math.floor(Math.random()*newArrayBot.length);
+                              if(newRandom2!=random2){
+                                   random2=newRandom2
+                                   i++
+                              }                              
+                         }
+                    }
+                    setCorrectEmotion(currentRoundEmotion)
+                    setOtherEmotion(newArrayBot[random1])
+                    setThirdEmotion(newArrayBot[random2])
+                    console.log(random1)
+                    console.log(random2)
+                    console.log(newArrayBot[random1])
+                    console.log(newArrayBot[random2])
+                    //socket.emit('call-the-bot', {gameCode, teamName})
+                    setConfirmLifeline(false)
+                    setCallTheBot(true)
                    break
                case 'Delete a row':
+                    // setDeletedRow([{emotion:'JOY'},{emotion:'SERENITY'},{emotion:'ECSTACY'}])
+                    const newArray = [];
+                    const finalArray =[];
+                    console.log(OtherEmotions)
+                    console.log(currentRoundEmotion)
+                    for(let i=0;i<OtherEmotions.length;i++){
+                         if(OtherEmotions[i].includes(currentRoundEmotion)){
+                              alert('found')
+                         }
+                         else{
+                              newArray.push(OtherEmotions[i])
+                         }
+                    }
+                    for(let i=0;i<newArray.length;i++){
+                         const innerArr = [];
+                         for(let j=0;j<3;j++){
+                              const innerObj = {}
+                              innerObj['emotion']=newArray[i][j]
+                              innerArr.push(innerObj)
+                         }
+                         finalArray.push(innerArr)
+                    }
+                    const randomNumber = Math.floor(Math.random()*finalArray.length);
+                    setDeletedRow([...finalArray[randomNumber]])
+                    setConfirmLifeline(false)
+                    setDeleteTheRow(true)
                    //socket.emit('delete-a-row', {gameCode, teamName})
                    break
            }

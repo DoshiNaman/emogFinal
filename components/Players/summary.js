@@ -2,7 +2,10 @@ const Summary = ({correctAnswer, yourAnswer, pointsEarnerd, nextPlayer, setSumma
     return ( 
         <div className="absolute top-0 left-0 h-screen w-screen flex justify-center items-center" style={{backgroundColor:"rgba(235, 162, 130, 0.5)"}}>
             <div className="heading rounded-lg px-8 py-6 relative">
-                <div className="text-right cursor-pointer absolute top-1 right-2 px-2" onClick={() => setClose(1)}>&times;</div>
+                <div className="text-right cursor-pointer absolute top-1 right-2 px-2" onClick={() => {
+                    alert('summary is not closing, naman is out,')
+                    setClose(1)
+                }}>&times;</div>
                 <div className="my-1 flex justify-between">
                     <div>Correct Answer: </div>
                     <div>{correctAnswer}</div>
