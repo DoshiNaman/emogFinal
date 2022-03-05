@@ -139,6 +139,9 @@ const choice = () => {
                 // updates[`${gameCode}/timingDetails/${teamNome}/guessingTimeRunning`] = false;
                 updates[`${gameCode}/timingDetails/${teamNome}/typingTimeRunning`] = true;
                 updates[`${gameCode}/timingDetails/${teamNome}/summary`] = false;
+                updates[`${gameCode}/lifelineDetails/${teamNome}/thisOrThat`] = false;
+                updates[`${gameCode}/lifelineDetails/${teamNome}/deleteTheRow`] = false;
+                updates[`${gameCode}/lifelineDetails/${teamNome}/callTheBot`] = false;
             }
             console.log(updates)
             updates[`${gameCode}/isActive`] = 1

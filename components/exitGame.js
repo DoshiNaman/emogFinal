@@ -1,3 +1,4 @@
+import { getDatabase, ref, update } from "firebase/database";
 import { useRouter } from "next/router";
 import { useContext, useState } from "react";
 import Modal from "./Modal";
@@ -8,6 +9,10 @@ const exitGame = (props) => {
 
     const clickHandler = () => {
         const gameCode = sessionStorage.getItem('game-code')
+        const db = getDatabase()
+        const updates ={};
+        updates[`${gameCode}/isGameTerminated`]=true;
+        update(ref(db),updates)
         router.push('/')
         //socket.emit('quit-game', gameCode)
         sessionStorage.clear()

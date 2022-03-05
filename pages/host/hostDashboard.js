@@ -190,7 +190,7 @@ const hostDashboard = () => {
 
     return (<div className="flex flex-row bgNormal">
 
-        <Sidebar selected={selected} setSelected={setSelected} />
+        <Sidebar gameCode={gameCode} selected={selected} setSelected={setSelected} />
 
         <div style={{ flex: 10 }}>
 

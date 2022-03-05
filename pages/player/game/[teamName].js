@@ -60,10 +60,10 @@ const game = () => {
     const [yourAnswer, setYourAnswer] = useState("")
     const [currScore, setCurrScore] = useState(0)
     const [nextPlayer, setNextPlayer] = useState("")
-    const [thisOrThat,setThisOrThat] = useState(false)
-    const [deleteTheRow,setDeleteTheRow] = useState(false)
-    const [callTheBot,setCallTheBot] = useState(false)
-    const [thisOrThatRound,setThisOrThatRound] = useState(0);
+    const [thisOrThat, setThisOrThat] = useState(false)
+    const [deleteTheRow, setDeleteTheRow] = useState(false)
+    const [callTheBot, setCallTheBot] = useState(false)
+    const [thisOrThatRound, setThisOrThatRound] = useState(0);
 
     //value
     const [compoundEmotionValue, setCompoundEmotionValue] = useState({
@@ -118,12 +118,43 @@ const game = () => {
         setMyNameEn(myNome);
     }, []);
 
-    // useEffect(()=>{
-    //     if(!Inother){
-    //         return
-    //     }
-    //     alert(Inother)
-    // },[Inother]);
+    useEffect(() => {
+        if(gameCode){
+            alert('hello for termination')
+            const db = getDatabase();
+            const closeRef=ref(db,`${gameCode}/isGameTerminated`);
+            onValue(closeRef,(snapshot)=>{
+                if(snapshot.exists()){
+                    const closeSnapData = snapshot.val();
+                    if(closeSnapData){
+                        sessionStorage.clear('team-name')
+                        sessionStorage.clear('role')
+                        sessionStorage.clear('game-code')
+                        sessionStorage.clear('player-name')
+                        router.push('/')
+                    }
+                }
+            })
+        }
+    }, [gameCode])
+
+    useEffect(() => {
+        if (gameCode && myTeam) {
+            const db = getDatabase();
+            const lifeLineRef = ref(db, `${gameCode}/lifelineDetails/${myTeam}`);
+            onValue(lifeLineRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const lifeLineSnapData = snapshot.val()
+                    setThisOrThat(lifeLineSnapData['thisOrThat'])
+                    setDeleteTheRow(lifeLineSnapData['deleteTheRow'])
+                    setCallTheBot(lifeLineSnapData['callTheBot'])
+                    if(lifeLineSnapData['thisOrThatRoundNo']){
+                        setThisOrThatRound(lifeLineSnapData['thisOrThatRoundNo'])
+                    }
+                }
+            })
+        }
+    }, [gameCode, myTeam]);
 
     //  && isTyping === true && isGuessing === false
     useEffect(() => {
@@ -484,27 +515,27 @@ const game = () => {
         //     alert('You guessed two emotions already!')
         //     return
         // }
-        if (thisOrThat) {
+        if (thisOrThat && parseInt(thisOrThatRound)===roundNo) {
             alert('ehhlooo')
             //['joy','sadness']
             guessedEmotions.length >= 2 ? guessedEmotions.shift()
-            : null
+                : null
             guessedEmotions.push(e)
-            if(guessedEmotions.length===1){
+            if (guessedEmotions.length === 1) {
                 setEmotion(guessedEmotions[0])
             }
-            else if(guessedEmotions.length>=2){
+            else if (guessedEmotions.length >= 2) {
                 alert('im going to be simple')
-                if(guessedEmotions.includes(currentRoundEmotion.toLowerCase())){
+                if (guessedEmotions.includes(currentRoundEmotion.toLowerCase())) {
                     setEmotion(currentRoundEmotion)
                 }
-                else if(Inother.includes(guessedEmotions[0].toUpperCase())){
+                else if (Inother.includes(guessedEmotions[0].toUpperCase())) {
                     setEmotion(guessedEmotions[0].toUpperCase())
                 }
-                else if(Inother.includes(guessedEmotions[1].toUpperCase())){
+                else if (Inother.includes(guessedEmotions[1].toUpperCase())) {
                     setEmotion(guessedEmotions[1].toUpperCase())
                 }
-                else{
+                else {
                     setEmotion(guessedEmotions[0])
                 }
             }
@@ -530,11 +561,11 @@ const game = () => {
     }, [gameCode, currentRoundEmotion]);
 
 
-    useEffect(()=>{
-        if(gameCode && currentRoundEmotion && roundNo){
+    useEffect(() => {
+        if (gameCode && currentRoundEmotion && roundNo) {
             setCorrectAnswer(currentRoundEmotion)
         }
-    },[gameCode,currentRoundEmotion,roundNo])
+    }, [gameCode, currentRoundEmotion, roundNo])
 
 
     const clickHandler = () => {
@@ -606,34 +637,34 @@ const game = () => {
         update(ref(db), updates)
 
     }
-    useEffect(()=>{
-        if(roundNo){
+    useEffect(() => {
+        if (roundNo) {
             setDeletedRow([])
             setCorrectEmotion('')
             setOtherEmotion('')
             setThirdEmotion('')
         }
-    },[roundNo]);
+    }, [roundNo]);
 
     const onChangeHandler = (e) => {
         setStatement(e.target.value)
     }
 
-    const handleCallHost = () =>{
-        if(!gameCode || !myTeam || !myNameEn){
+    const handleCallHost = () => {
+        if (!gameCode || !myTeam || !myNameEn) {
             alert('gamecode not available')
             return
         }
         alert('host is beiing called')
         const db = getDatabase();
-        const updates ={};
-        updates[`${gameCode}/hostNotification/teamName`]=myTeam;
-        updates[`${gameCode}/hostNotification/playerName`]=myNameEn;
-        update(ref(db),updates);
+        const updates = {};
+        updates[`${gameCode}/hostNotification/teamName`] = myTeam;
+        updates[`${gameCode}/hostNotification/playerName`] = myNameEn;
+        update(ref(db), updates);
         setCallHost(false)
     }
 
-    useEffect(()=>{},[gameCode])
+    useEffect(() => { }, [gameCode])
 
     const onSubmit = () => {
         if (parseInt(roundNo) > parseInt(maxRounds)) {
@@ -663,9 +694,6 @@ const game = () => {
         }
     }
 
-    useEffect(() => {
-
-    }, [])
 
     return (
         <div className="flex flex-column h-screen bgNormal">

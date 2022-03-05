@@ -45,6 +45,24 @@ const choice = () => {
         setRole(clientRole)
     }, [])
 
+    useEffect(() => {
+        if(gameCode){
+            const db = getDatabase();
+            const closeRef=ref(db,`${gameCode}/isGameTerminated`);
+            onValue(closeRef,(snapshot)=>{
+                if(snapshot.exists()){
+                    const closeSnapData = snapshot.val();
+                    if(closeSnapData){
+                        sessionStorage.clear('team-name')
+                        sessionStorage.clear('role')
+                        sessionStorage.clear('game-code')
+                        sessionStorage.clear('player-name')
+                        router.push('/')
+                    }
+                }
+            })
+        }
+    }, [gameCode])
 
 
     useEffect(() => {

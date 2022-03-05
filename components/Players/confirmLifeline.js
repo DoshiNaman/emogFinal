@@ -1,3 +1,4 @@
+import { getDatabase, update, ref } from "firebase/database";
 import { useContext, useState } from "react";
 const ConfirmLifeline = (props) => {
      
@@ -9,24 +10,29 @@ const ConfirmLifeline = (props) => {
      const clickHandler = () => {
           const gameCode = sessionStorage.getItem('game-code')
           const teamName = sessionStorage.getItem('team-name')
+          const db = getDatabase();
+          const updates = {};
           // props.setConfirmLifeline(false)
           // alert(currentRoundEmotion)
           switch(lifeLine){
                case 'This or That':
                     //socket.emit('this-or-that', {gameCode, teamName})
-                    setThisOrThatRound(roundNo)
+                    // setThisOrThatRound(roundNo)
                     setConfirmLifeline(false)
-                    setThisOrThat(true)
+                    // setThisOrThat(true)
+                    updates[`${gameCode}/lifelineDetails/${teamName}/thisOrThat`] = true;
+                    updates[`${gameCode}/lifelineDetails/${teamName}/thisOrThatRoundNo`] = roundNo;
+                    update(ref(db),updates)
                     break
-               case 'Call the Bot':
-                    const newArrayBot = [];
-                    for(let i=0;i<OtherEmotions.length;i++){
-                         for(let j=0;j<3;j++){
-                              console.log(OtherEmotions[i][j])
-                              if(OtherEmotions[i][j]!=currentRoundEmotion){
-                                   newArrayBot.push(OtherEmotions[i][j])
-                                   // alert('found')
-                              }
+                    case 'Call the Bot':
+                         const newArrayBot = [];
+                         for(let i=0;i<OtherEmotions.length;i++){
+                              for(let j=0;j<3;j++){
+                                   console.log(OtherEmotions[i][j])
+                                   if(OtherEmotions[i][j]!=currentRoundEmotion){
+                                        newArrayBot.push(OtherEmotions[i][j])
+                                        // alert('found')
+                                   }
                               // if(!OtherEmotions[i][j]==currentRoundEmotion){
                               //      console.log(OtherEmotions[i][j])
                               // }
@@ -53,7 +59,9 @@ const ConfirmLifeline = (props) => {
                     console.log(newArrayBot[random2])
                     //socket.emit('call-the-bot', {gameCode, teamName})
                     setConfirmLifeline(false)
-                    setCallTheBot(true)
+                    updates[`${gameCode}/lifelineDetails/${teamName}/callTheBot`] = true;
+                    // setCallTheBot(true)
+                    update(ref(db),updates)
                    break
                case 'Delete a row':
                     // setDeletedRow([{emotion:'JOY'},{emotion:'SERENITY'},{emotion:'ECSTACY'}])
@@ -81,7 +89,9 @@ const ConfirmLifeline = (props) => {
                     const randomNumber = Math.floor(Math.random()*finalArray.length);
                     setDeletedRow([...finalArray[randomNumber]])
                     setConfirmLifeline(false)
-                    setDeleteTheRow(true)
+                    updates[`${gameCode}/lifelineDetails/${teamName}/deleteTheRow`] = true;
+                    // setDeleteTheRow(true)
+                    update(ref(db),updates)
                    //socket.emit('delete-a-row', {gameCode, teamName})
                    break
            }
