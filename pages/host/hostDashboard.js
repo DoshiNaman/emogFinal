@@ -45,7 +45,19 @@ const hostDashboard = () => {
     }, [])
 
 
-
+    useEffect(()=>{
+        if(gameCode && status==='host'){
+            const db = getDatabase();
+            const notificationRef = ref(db,`${gameCode}/hostNotification`);
+            onValue(notificationRef,(snapshot)=>{
+                if(snapshot.exists()){
+                    const snapData = snapshot.val();
+                    // alert('this is coming from player side')
+                    alert(` ${snapData['playerName']} of ${snapData['teamName']} is calling you.`)
+                }
+            })
+        }
+    },[gameCode,status]);
 
     useEffect(() => {
         if (gameCode && status === "host") {

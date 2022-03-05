@@ -43,7 +43,7 @@ const game = () => {
     // call bot
     const [correctEmotion, setCorrectEmotion] = useState('')
     const [otherEmotion, setOtherEmotion] = useState('')
-    const [thirdEmotion, setThirdEmotion] = useState('joy')
+    const [thirdEmotion, setThirdEmotion] = useState('')
 
     // delete row
     const [deletedRow, setDeletedRow] = useState([])
@@ -63,6 +63,7 @@ const game = () => {
     const [thisOrThat,setThisOrThat] = useState(false)
     const [deleteTheRow,setDeleteTheRow] = useState(false)
     const [callTheBot,setCallTheBot] = useState(false)
+    const [thisOrThatRound,setThisOrThatRound] = useState(0);
 
     //value
     const [compoundEmotionValue, setCompoundEmotionValue] = useState({
@@ -117,35 +118,41 @@ const game = () => {
         setMyNameEn(myNome);
     }, []);
 
-    useEffect(()=>{
-        if (close === 1 && gameCode) {
-            //alert("close 1")
-            setSummary(false)
-            const updates = {};
-            const time = new Date();
-            console.log(time.getTime());
-            time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
-            updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
-            updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
-            updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
-            updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
-            update(ref(db), updates)
-            //clearInterval(guessingInterval)
-            setIsDisabled(false)
-            setClose(0)
-        }
-    },[gameCode,close]);
+    // useEffect(()=>{
+    //     if(!Inother){
+    //         return
+    //     }
+    //     alert(Inother)
+    // },[Inother]);
 
     //  && isTyping === true && isGuessing === false
     useEffect(() => {
         if (gameCode && myTeam) {
 
+            if (close === 1) {
+                setSummary(false)
+                const updates = {};
+                const time = new Date();
+                console.log(time.getTime());
+                time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
+                updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
+                updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
+                updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
+                updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
+                /* let newR = parseInt(roundNo) + 1
+                updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
+                update(ref(db), updates) */
+                //clearInterval(guessingInterval)
+                setIsDisabled(false)
+                setClose(0)
+            }
+
             const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/`)
             onValue(timingRef, (snapshot) => {
                 if (snapshot.exists()) {
                     let timingObj = snapshot.val()
-
                     if (timingObj.summary === true) {
+
                         if (parseInt(roundNo) > parseInt(maxRounds)) {
                             router.push('/leaderboard');
                             const updates = {};
@@ -163,7 +170,7 @@ const game = () => {
                         }).catch((error) => {
                             console.error(error);
                         });
-                        
+
                         const reRef2 = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}/currScore`);
                         get(reRef2).then((snapshot) => {
                             if (snapshot.exists()) {
@@ -173,7 +180,7 @@ const game = () => {
                         }).catch((error) => {
                             console.error(error);
                         });
-                        setCorrectAnswer(currentRoundEmotion)
+
                         setSummary(true)
                         setTimeout(function () {
                             setSummary(false)
@@ -189,10 +196,7 @@ const game = () => {
                             update(ref(db), updates)
                             //clearInterval(guessingInterval)
                             setIsDisabled(false)
-                        }, 10000);
-                    }
-                    else if (timingObj.summary === false) {
-                        setSummary(false)
+                        }, 6000);
                     }
 
                     if (timingObj.typingTimeRunning === true) {
@@ -480,10 +484,33 @@ const game = () => {
         //     alert('You guessed two emotions already!')
         //     return
         // }
-        if (thisOrThatBool) {
-            guessedEmotions.length >= 2 ? guessedEmotions.shift() : null
+        if (thisOrThat) {
+            alert('ehhlooo')
+            //['joy','sadness']
+            guessedEmotions.length >= 2 ? guessedEmotions.shift()
+            : null
             guessedEmotions.push(e)
+            if(guessedEmotions.length===1){
+                setEmotion(guessedEmotions[0])
+            }
+            else if(guessedEmotions.length>=2){
+                alert('im going to be simple')
+                if(guessedEmotions.includes(currentRoundEmotion.toLowerCase())){
+                    setEmotion(currentRoundEmotion)
+                }
+                else if(Inother.includes(guessedEmotions[0].toUpperCase())){
+                    setEmotion(guessedEmotions[0].toUpperCase())
+                }
+                else if(Inother.includes(guessedEmotions[1].toUpperCase())){
+                    setEmotion(guessedEmotions[1].toUpperCase())
+                }
+                else{
+                    setEmotion(guessedEmotions[0])
+                }
+            }
+
         } else {
+            alert('else')
             setEmotion(e)
         }
         console.log(guessedEmotions, "hi");
@@ -501,6 +528,13 @@ const game = () => {
             }
         }
     }, [gameCode, currentRoundEmotion]);
+
+
+    useEffect(()=>{
+        if(gameCode && currentRoundEmotion && roundNo){
+            setCorrectAnswer(currentRoundEmotion)
+        }
+    },[gameCode,currentRoundEmotion,roundNo])
 
 
     const clickHandler = () => {
@@ -567,6 +601,7 @@ const game = () => {
         updates[`${gameCode}/timingDetails/${myTeam}/summary`] = true;
 
         updates[`${gameCode}/gameLogDetails/${myTeam}/${roundNo - 1}`] = { "guesser": myNameEn, "emotion": emotion };
+        setGuessedEmotions([])
 
         update(ref(db), updates)
 
@@ -583,6 +618,22 @@ const game = () => {
     const onChangeHandler = (e) => {
         setStatement(e.target.value)
     }
+
+    const handleCallHost = () =>{
+        if(!gameCode || !myTeam || !myNameEn){
+            alert('gamecode not available')
+            return
+        }
+        alert('host is beiing called')
+        const db = getDatabase();
+        const updates ={};
+        updates[`${gameCode}/hostNotification/teamName`]=myTeam;
+        updates[`${gameCode}/hostNotification/playerName`]=myNameEn;
+        update(ref(db),updates);
+        setCallHost(false)
+    }
+
+    useEffect(()=>{},[gameCode])
 
     const onSubmit = () => {
         if (parseInt(roundNo) > parseInt(maxRounds)) {
@@ -684,7 +735,7 @@ const game = () => {
                     <div className="font-bold px-8 py-4 heading rounded-xl w-3/4 text-lg">
                         Scene: {scene.scene}
                     </div>
-                    {player.name === senderName ? <Wheel emotionFunction={guessEmotion} currentRoundEmotion={currentRoundEmotion} /> : <Wheel emotionFunction={guessEmotion} deletedRow={deletedRow} callRobot={[correctEmotion, otherEmotion, thirdEmotion]} thisOrThatBool={thisOrThatBool} guessedEmotions={guessedEmotions} />}
+                    {player.name === senderName ? <Wheel emotionFunction={guessEmotion} currentRoundEmotion={currentRoundEmotion} /> : <Wheel emotionFunction={guessEmotion} deletedRow={deletedRow} callRobot={[correctEmotion, otherEmotion, thirdEmotion]} thisOrThatBool={thisOrThat} guessedEmotions={guessedEmotions} />}
                 </div>
                 <div className="flex flex-column mx-2 flex-1" style={{ height: "80vh" }}>
                     <div className="font-bold flex p-2 heading rounded-lg text-lg">
@@ -783,7 +834,7 @@ const game = () => {
                             Do you want to call<br />the Host?
                         </div>
                         <div className="flex justify-evenly items-center">
-                            <div className="buttonNew text-lg px-2 py-0 rounded" onClick={() => callHostF()}>Yes</div>
+                            <div className="buttonNew text-lg px-2 py-0 rounded" onClick={handleCallHost}>Yes</div>
                             <div className="buttonNew text-lg px-2 py-0 rounded" onClick={() => setCallHost(false)}>No</div>
                         </div>
                     </div>
@@ -792,7 +843,7 @@ const game = () => {
 
             {summary ? <Summary setSummary={setSummary} setClose={setClose} correctAnswer={correctAnswer} yourAnswer={yourAnswer} pointsEarnerd={currScore} nextPlayer={nextPlayer} /> : <></>}
 
-            {confirmLifeline ? <ConfirmLifeline setThisOrThat={setThisOrThat} setDeleteTheRow={setDeleteTheRow} setCallTheBot={setCallTheBot} myTeam={myTeam} setCorrectEmotion={setCorrectEmotion} setOtherEmotion={setOtherEmotion} setThirdEmotion={setThirdEmotion} currentRoundEmotion={currentRoundEmotion} OtherEmotions={OtherEmotions} gameCode={gameCode} setDeletedRow={setDeletedRow} setConfirmLifeline={setConfirmLifeline} lifeLine={confirmLifeline} /> : <></>}
+            {confirmLifeline ? <ConfirmLifeline roundNo={roundNo} setThisOrThatRound={setThisOrThatRound} setThisOrThat={setThisOrThat} setDeleteTheRow={setDeleteTheRow} setCallTheBot={setCallTheBot} myTeam={myTeam} setCorrectEmotion={setCorrectEmotion} setOtherEmotion={setOtherEmotion} setThirdEmotion={setThirdEmotion} currentRoundEmotion={currentRoundEmotion} OtherEmotions={OtherEmotions} gameCode={gameCode} setDeletedRow={setDeletedRow} setConfirmLifeline={setConfirmLifeline} lifeLine={confirmLifeline} /> : <></>}
         </div>
     );
 }

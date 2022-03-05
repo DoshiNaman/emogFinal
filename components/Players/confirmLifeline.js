@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 const ConfirmLifeline = (props) => {
      
-     const { gameCode, myTeam,setConfirmLifeline, lifeLine,currentRoundEmotion,OtherEmotions,setDeletedRow,setCorrectEmotion,setOtherEmotion,setThirdEmotion,setThisOrThat,setDeleteTheRow,setCallTheBot} = props;
+     const { gameCode, myTeam,setConfirmLifeline, lifeLine,currentRoundEmotion,OtherEmotions,setDeletedRow,setCorrectEmotion,setOtherEmotion,setThirdEmotion,setThisOrThat,setDeleteTheRow,setCallTheBot,roundNo,setThisOrThatRound} = props;
      setCorrectEmotion('')
      setOtherEmotion('')
      setThirdEmotion('')
@@ -14,6 +14,8 @@ const ConfirmLifeline = (props) => {
           switch(lifeLine){
                case 'This or That':
                     //socket.emit('this-or-that', {gameCode, teamName})
+                    setThisOrThatRound(roundNo)
+                    setConfirmLifeline(false)
                     setThisOrThat(true)
                     break
                case 'Call the Bot':
