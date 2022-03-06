@@ -120,7 +120,7 @@ const game = () => {
 
     useEffect(() => {
         if(gameCode){
-            alert('hello for termination')
+            //alert('hello for termination')
             const db = getDatabase();
             const closeRef=ref(db,`${gameCode}/isGameTerminated`);
             onValue(closeRef,(snapshot)=>{
@@ -156,34 +156,34 @@ const game = () => {
         }
     }, [gameCode, myTeam]);
 
+    useEffect(()=>{
+        if (close === 1 && gameCode) {
+            //alert("close 1")
+            setSummary(false) 
+            const updates = {};
+            const time = new Date();
+            console.log(time.getTime());
+            time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
+            updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
+            updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
+            updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
+            updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
+            update(ref(db), updates)
+            //clearInterval(guessingInterval)
+            setIsDisabled(false)
+            setClose(0)
+        }
+    },[gameCode,close]);
+
     //  && isTyping === true && isGuessing === false
     useEffect(() => {
         if (gameCode && myTeam) {
-
-            if (close === 1) {
-                setSummary(false)
-                const updates = {};
-                const time = new Date();
-                console.log(time.getTime());
-                time.setSeconds(time.getSeconds() + (totalTypingDuration + 1));
-                updates[`${gameCode}/timingDetails/${myTeam}/endTypingTime`] = (time.getTime());
-                updates[`${gameCode}/timingDetails/${myTeam}/guessingTimeRunning`] = false;
-                updates[`${gameCode}/timingDetails/${myTeam}/typingTimeRunning`] = true;
-                updates[`${gameCode}/timingDetails/${myTeam}/summary`] = false;
-                /* let newR = parseInt(roundNo) + 1
-                updates[`${gameCode}/teamDetails/${myTeam}/currentRound`] = parseInt(newR)
-                update(ref(db), updates) */
-                //clearInterval(guessingInterval)
-                setIsDisabled(false)
-                setClose(0)
-            }
 
             const timingRef = ref(db, `${gameCode}/timingDetails/${myTeam}/`)
             onValue(timingRef, (snapshot) => {
                 if (snapshot.exists()) {
                     let timingObj = snapshot.val()
                     if (timingObj.summary === true) {
-
                         if (parseInt(roundNo) > parseInt(maxRounds)) {
                             router.push('/leaderboard');
                             const updates = {};
@@ -201,7 +201,7 @@ const game = () => {
                         }).catch((error) => {
                             console.error(error);
                         });
-
+                        
                         const reRef2 = ref(db, `${gameCode}/roundDetails/${myTeam}/${cuurR}/currScore`);
                         get(reRef2).then((snapshot) => {
                             if (snapshot.exists()) {
@@ -211,7 +211,7 @@ const game = () => {
                         }).catch((error) => {
                             console.error(error);
                         });
-
+                        setCorrectAnswer(currentRoundEmotion)
                         setSummary(true)
                         setTimeout(function () {
                             setSummary(false)
@@ -228,6 +228,9 @@ const game = () => {
                             //clearInterval(guessingInterval)
                             setIsDisabled(false)
                         }, 6000);
+                    }
+                    else if (timingObj.summary === false) {
+                        setSummary(false)
                     }
 
                     if (timingObj.typingTimeRunning === true) {
@@ -516,7 +519,7 @@ const game = () => {
         //     return
         // }
         if (thisOrThat && parseInt(thisOrThatRound)===roundNo) {
-            alert('ehhlooo')
+            //alert('ehhlooo')
             //['joy','sadness']
             guessedEmotions.length >= 2 ? guessedEmotions.shift()
                 : null
@@ -525,7 +528,7 @@ const game = () => {
                 setEmotion(guessedEmotions[0])
             }
             else if (guessedEmotions.length >= 2) {
-                alert('im going to be simple')
+                //alert('im going to be simple')
                 if (guessedEmotions.includes(currentRoundEmotion.toLowerCase())) {
                     setEmotion(currentRoundEmotion)
                 }
@@ -541,7 +544,7 @@ const game = () => {
             }
 
         } else {
-            alert('else')
+            //alert('else')
             setEmotion(e)
         }
         console.log(guessedEmotions, "hi");
@@ -561,11 +564,11 @@ const game = () => {
     }, [gameCode, currentRoundEmotion]);
 
 
-    useEffect(() => {
+    /* useEffect(() => {
         if (gameCode && currentRoundEmotion && roundNo) {
             setCorrectAnswer(currentRoundEmotion)
         }
-    }, [gameCode, currentRoundEmotion, roundNo])
+    }, [gameCode, currentRoundEmotion, roundNo]) */
 
 
     const clickHandler = () => {
